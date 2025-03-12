@@ -18,7 +18,8 @@
         <p class="subheading font-weight-regular">
           Welcome in my games
           <br><br>
-          <v-btn>Mirsaliadada</v-btn>
+          <v-btn @click="$router.push('/family')">Familiada</v-btn>
+          <v-btn>Jaka to melodia</v-btn>
         </p>
       </v-col>
     </v-row>

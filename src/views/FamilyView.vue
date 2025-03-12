@@ -20,18 +20,13 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'FamilyFreudView',
+  name: 'FamilyView',
   data() {
     return {
       songs: []
     }
   },
   methods: {
-    onFileSelect(event) {
-
-    },
-    async generateSongs() {
-
-    }}
+  }
 });
 </script>
