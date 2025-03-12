@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'PixelFont';
+  src: url('../PixelFont.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'DigitalFont';
+    src: url('../DigitalFont.ttf') format('truetype');
+  }

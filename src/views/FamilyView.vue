@@ -1,17 +1,18 @@
 <template>
     <v-container>
-        <v-chip density="compact" class="text-h1 px-16 py-16" style="background-color: black; color: yellow">
-            265
-        </v-chip>
-
+        <SmallDigitalScreen :value="32" />
     </v-container>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
+import SmallDigitalScreen from '@/components/SmallDigitalScreen.vue';
 
 export default defineComponent({
   name: 'FamilyView',
+  components: {
+    SmallDigitalScreen
+  },
   data() {
     return {
       songs: []
