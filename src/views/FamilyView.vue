@@ -4,6 +4,7 @@
           v-model="showBuzzCompetition" 
           :team1Name="team1Name"
           :team2Name="team2Name"
+          @team-selected="activePlayer = $event"
         />
         <video
             ref="videoPlayer"
@@ -19,15 +20,20 @@
         <v-container class="content-container flex-wrap">
             <v-row>
                 <v-col cols="12" class="d-flex justify-center">
-                    <SmallDigitalScreen :value="164" />
+                    <SmallDigitalScreen 
+                      :value="164" 
+                      :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
+                    />
                 </v-col>
             </v-row>
             <v-row>
                 <v-col cols="12">
                     <v-row>
-                        <v-col cols="2">
-                            <SmallDigitalScreen :value="4" />
-                            <PlayerLabel playerNumber="1" :teamName="team1Name" />
+                        <v-col cols="2" class="d-flex flex-column align-center">
+                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                                <SmallDigitalScreen :value="4" />
+                                <PlayerLabel playerNumber="1" :teamName="team1Name" :isActive="activePlayer === 1" />
+                            </div>
                         </v-col>
                         <v-col cols="8">
                             <v-card outlined style="background-color: #000; opacity: 0.88; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px; border-radius: 40px;">
@@ -47,8 +53,10 @@
                             </v-card>
                         </v-col>
                         <v-col cols="2" class="d-flex flex-column align-center">
-                            <SmallDigitalScreen :value="17" />
-                            <PlayerLabel playerNumber="2" :teamName="team2Name" />
+                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                                <SmallDigitalScreen :value="17" />
+                                <PlayerLabel playerNumber="2" :teamName="team2Name" :isActive="activePlayer === 2" />
+                            </div>
                         </v-col>
                     </v-row>
                 </v-col>
@@ -92,6 +100,7 @@ export default defineComponent({
       team1Name: '',
       team2Name: '',
       questionsData: null,
+      activePlayer: null,
       results: [
         { id: 1, name: 'Posciel', points: 35, pass: false },
         { id: 2, name: 'Poduszka', points: 17, pass: true },
@@ -128,11 +137,12 @@ export default defineComponent({
   },
   methods: {
     handleToolAction(action) {
-      console.log('Action received:', action); // Debug log
+      console.log('Action received:', action);
       switch (action) {
         case 'buzz':
-          console.log('Setting showBuzzCompetition to true'); // Debug log
+          console.log('Setting showBuzzCompetition to true');
           this.showBuzzCompetition = true;
+          this.activePlayer = null; // Reset active player when opening buzz
           break;
         case 'restart':
           // TODO: Implementacja resetu gry

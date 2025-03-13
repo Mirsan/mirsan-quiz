@@ -19,7 +19,7 @@
                 <v-btn 
                   v-bind="props"
                   :color="activeTeam === 1 ? '#0000ff' : '#ccccff'" 
-                  class="text-white team-btn"
+                  :class="['text-white', 'team-btn', { 'v-btn--active': activeTeam === 1 }]"
                   style="width: 100%; height: 100px;"
                   @click="selectTeam(1)"
                   :disabled="isBlocked && activeTeam !== 1"
@@ -36,7 +36,7 @@
                 <v-btn 
                   v-bind="props"
                   :color="activeTeam === 2 ? '#ff0000' : '#ffcccc'" 
-                  class="text-white team-btn"
+                  :class="['text-white', 'team-btn', { 'v-btn--active': activeTeam === 2 }]"
                   style="width: 100%; height: 100px;"
                   @click="selectTeam(2)"
                   :disabled="isBlocked && activeTeam !== 2"
@@ -83,6 +83,7 @@ export default {
       
       this.activeTeam = team;
       this.isBlocked = true;
+      this.$emit('team-selected', team);
 
       // Po 3 sekundach zamykamy dialog
       this.closeTimer = setTimeout(() => {
@@ -144,6 +145,52 @@ export default {
   transition: all 0.3s ease;
   font-family: 'PixelFont';
   font-size: 2rem;
+  position: relative;
+}
+
+.team-btn.v-btn--active {
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 30px currentColor;
+}
+
+.team-btn.v-btn--active::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 3px solid currentColor;
+  border-radius: 12px;
+  animation: borderPulse 1.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 20px rgba(255,255,255,0.8);
+  }
+  50% {
+    transform: scale(1.15);
+    text-shadow: 0 0 30px rgba(255,255,255,1);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 20px rgba(255,255,255,0.8);
+  }
+}
+
+@keyframes borderPulse {
+  0% {
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255,255,255,0.8);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+  }
 }
 
 .team-btn:disabled {
