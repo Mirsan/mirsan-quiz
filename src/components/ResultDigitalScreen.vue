@@ -1,16 +1,33 @@
 <template>
   <v-card class="pa-4" outlined style="background-color: black; height: 100%; width: 100%;">
     <v-card-text style="color: yellow; font-size: 2em; font-family: 'PixelFont';">
-      <div v-for="item in results" :key="item.id">
-        {{ item.id }} &nbsp; 
-        <span v-if="item.pass">
-          {{ item.name }} {{ item.points }}
-        </span>
-        <span v-if="!item.pass">
-          ...................................
-        </span>
-        <br>
-      </div>
+      <v-container class="pa-0" fluid>
+        <v-row 
+          v-for="item in results" 
+          :key="item.id"
+          no-gutters
+          class="flex-nowrap"
+        >
+          <v-col cols="1" class="flex-grow-0">
+            {{ item.id }}
+          </v-col>
+          <v-col cols="8" class="d-flex justify-center">
+            <div class="text-left" style="width: 100%;">
+              <template v-if="item.pass">
+                {{ item.name }}
+              </template>
+              <template v-else>
+                ...................................
+              </template>
+            </div>
+          </v-col>
+          <v-col cols="2" class="text-right">
+            <template v-if="item.pass">
+              {{ item.points }}
+            </template>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-card-text>
   </v-card>
 </template>
@@ -24,9 +41,12 @@ export default {
       required: true,
       default: () => []
     }
-  },
-  mounted() {
-    console.log('Results:', this.results)
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.v-row {
+  min-height: 1.5em;
+}
+</style> 
