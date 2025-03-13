@@ -39,7 +39,7 @@ export default {
 .screen-container {
   position: relative;
   width: 280px;
-  height: 150px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
