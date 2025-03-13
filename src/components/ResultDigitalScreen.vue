@@ -35,6 +35,11 @@
             </template>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col cols="6"></v-col>
+          <v-col cols="4" class="text-right">SUMA:</v-col>
+          <v-col cols="2" class="text-right">{{ results.filter(item => item.pass).reduce((acc, item) => acc + item.points, 0) }}</v-col>
+        </v-row>
       </v-container>
     </v-card-text>
   </v-card>
