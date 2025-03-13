@@ -12,10 +12,10 @@
         <!-- Wyniki -->
         <template v-for="result in results" :key="result.id">
           <v-row no-gutters class="result-row flex-nowrap">
-            <v-col cols="2" class="flex-grow-0">
+            <v-col cols="2" class="flex-grow-0 text-center">
               {{ result.id }}
             </v-col>
-            <v-col cols="9" class="d-flex justify-center">
+            <v-col cols="8" class="d-flex justify-center">
               <div class="text-left" style="width: 100%;">
                 <template v-if="result.pass">
                   <template v-if="result.name.length > 18">
@@ -30,7 +30,7 @@
                 </template>
               </div>
             </v-col>
-            <v-col cols="1" class="text-right">
+            <v-col cols="2" class="text-center">
               <template v-if="result.pass">
                 {{ result.points }}
               </template>
@@ -48,7 +48,7 @@
         <v-row no-gutters class="result-row flex-nowrap">
           <v-col cols="6"></v-col>
           <v-col cols="4" class="text-right">SUMA:</v-col>
-          <v-col cols="2" class="text-right">{{ results.filter(item => item.pass).reduce((acc, item) => acc + item.points, 0) }}</v-col>
+          <v-col cols="2" class="text-center">{{ results.filter(item => item.pass).reduce((acc, item) => acc + item.points, 0) }}</v-col>
         </v-row>
 
         <template v-for="index in (6 - results.length)" :key="'empty-'+index">
@@ -83,15 +83,16 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: calc(11 * 1.2em);
+  min-height: calc(12 * 1em);
   gap: 0;
 }
 
 .result-row {
-  min-height: 1.2em;
+  min-height: 1em;
   flex: 1;
   margin: 0;
   padding: 0;
+  line-height: 1;
 }
 
 .v-col {
@@ -99,7 +100,7 @@ export default {
 }
 
 .question-row {
-  padding-bottom: 0.2em !important;
-  margin-bottom: 0.2em;
+  padding-bottom: 0.1em;
+  margin-bottom: 0.1em;
 }
 </style> 
