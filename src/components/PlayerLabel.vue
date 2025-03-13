@@ -60,7 +60,7 @@ export default defineComponent({
 }
 
 .player-label.active {
-    animation: pulse 1.5s infinite;
+    animation: pulse 3s infinite;
 }
 
 .player-label.active[data-player="1"] {
@@ -82,7 +82,7 @@ export default defineComponent({
     bottom: -5px;
     border: 3px solid;
     border-radius: 12px;
-    animation: borderPulse 1.5s infinite;
+    animation: borderPulse 3s infinite;
 }
 
 .player-label.active[data-player="1"]::before {

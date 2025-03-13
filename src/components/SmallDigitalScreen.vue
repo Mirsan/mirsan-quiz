@@ -4,7 +4,7 @@
       <v-chip 
         density="compact" 
         class="text-h1 py-16 d-flex justify-center digital-screen" 
-        style="background-color: #000; color: yellow; font-family: 'PixelFont'; background-image: radial-gradient(#110 3px, transparent 1px); background-size: 10px 10px; border-radius: 40px;"
+        style="background-color: #000; color: yellow; font-family: 'PixelFont'; background-image: radial-gradient(#110 3px, transparent 1px); background-size: 10px 10px; border-radius: 50px;"
       >
         {{ displayValue }}
       </v-chip>
@@ -39,11 +39,11 @@ export default {
 .screen-container {
   position: relative;
   width: 280px;
-  height: 130px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 40px;
+  border-radius: 60px;
   overflow: hidden;
   background: #000;
 }
@@ -52,7 +52,7 @@ export default {
   position: relative;
   z-index: 2;
   width: 250px;
-  height: 110px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +68,7 @@ export default {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  animation: rotate 2s infinite linear;
+  animation: rotate 3s infinite linear;
 }
 
 .screen-container[data-color="blue"]::before {
