@@ -129,17 +129,20 @@ export default {
     }
   },
   watch: {
-    bluetoothCharacteristic: {
+    dialog: {
       immediate: true,
-      handler(newChar) {
-        if (newChar) {
-          newChar.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
+      handler(newVal) {
+        if (newVal) {
+          this.resetState();
+          if (this.bluetoothCharacteristic) {
+            this.bluetoothCharacteristic.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
+          }
+        } else {
+          if (this.bluetoothCharacteristic) {
+            this.bluetoothCharacteristic.removeEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
+          }
+          this.resetState();
         }
-      }
-    },
-    dialog(newVal) {
-      if (newVal) {
-        this.resetState();
       }
     }
   },

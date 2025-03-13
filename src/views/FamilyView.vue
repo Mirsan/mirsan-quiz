@@ -129,10 +129,7 @@ export default defineComponent({
       this.questionsData = questionsData;
       
       if (wasConnected) {
-        await this.initializeBluetooth((player) => {
-          this.showBuzzCompetition = true;
-          this.activePlayer = player;
-        });
+        await this.initializeBluetooth();
       }
     } catch (error) {
       this.$router.push('/start-family');
@@ -169,9 +166,6 @@ export default defineComponent({
     }
   },
   beforeUnmount() {
-    if (this.bluetoothCharacteristic) {
-      this.bluetoothCharacteristic.removeEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
-    }
     this.cleanup();
   },
   watch: {
