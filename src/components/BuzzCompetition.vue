@@ -105,9 +105,9 @@ export default {
       
       if (event.key === 'Shift') {
         if (event.location === 1) {
-          this.selectTeam(2);
-        } else if (event.location === 2) {
           this.selectTeam(1);
+        } else if (event.location === 2) {
+          this.selectTeam(2);
         }
       }
     },
