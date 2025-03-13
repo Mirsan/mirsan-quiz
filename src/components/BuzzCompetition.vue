@@ -1,10 +1,9 @@
 <template>
   <v-dialog
-    :model-value="dialogVisible"
-    @update:model-value="updateDialog"
-    persistent
+    v-model="dialog"
     width="800"
     height="300"
+    @click:outside="dialog = false"
   >
     <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
@@ -25,26 +24,25 @@
 <script>
 export default {
   name: 'BuzzCompetition',
+  data() {
+    return {
+      activePlayer: null
+    }
+  },
   props: {
     modelValue: {
       type: Boolean,
       required: true
     }
   },
-  emits: ['update:modelValue'],
   computed: {
-    dialogVisible: {
+    dialog: {
       get() {
         return this.modelValue;
       },
       set(value) {
         this.$emit('update:modelValue', value);
       }
-    }
-  },
-  methods: {
-    updateDialog(value) {
-      this.dialogVisible = value;
     }
   }
 }

@@ -124,23 +124,30 @@ export default defineComponent({
   },
   methods: {
     handleToolAction(action) {
+      console.log('Action received:', action); // Debug log
       switch (action) {
-        case 'reset':
+        case 'buzz':
+          console.log('Setting showBuzzCompetition to true'); // Debug log
+          this.showBuzzCompetition = true;
+          break;
+        case 'restart':
           // TODO: Implementacja resetu gry
           break;
-        case 'correct':
-          // TODO: Odtworzenie dźwięku poprawnej odpowiedzi
-          break;
-        case 'wrong':
-          // TODO: Odtworzenie dźwięku złej odpowiedzi
+        case 'swap':
+          // TODO: Implementacja zamiany drużyn
           break;
         case 'timer':
           // TODO: Start/Stop timera
           break;
-        case 'settings':
-          // TODO: Otwarcie ustawień
+        case 'points':
+          // TODO: Zmiana punktowania
           break;
       }
+    }
+  },
+  watch: {
+    showBuzzCompetition(newVal) {
+      console.log('showBuzzCompetition changed to:', newVal); // Debug log
     }
   }
 });

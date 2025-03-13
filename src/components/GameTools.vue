@@ -18,6 +18,35 @@
         {{ tool.tooltip }}
       </v-tooltip>
     </v-btn>
+
+    <!-- Dialog potwierdzenia resetu -->
+    <v-dialog v-model="showResetDialog" max-width="400">
+      <v-card class="text-center">
+        <v-card-title class="text-h5 font-weight-bold pa-4">
+          Resetowanie gry
+        </v-card-title>
+        <v-card-text class="pa-4">
+          Czy na pewno chcesz zresetować grę? Wszystkie postępy zostaną utracone.
+        </v-card-text>
+        <v-card-actions class="justify-center pa-4">
+          <v-btn
+            color="red"
+            variant="flat"
+            @click="confirmReset"
+            class="mr-4"
+          >
+            Tak
+          </v-btn>
+          <v-btn
+            color="grey"
+            variant="flat"
+            @click="showResetDialog = false"
+          >
+            Anuluj
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -26,36 +55,37 @@ export default {
   name: 'GameTools',
   data() {
     return {
+      showResetDialog: false,
       tools: [
         {
-          icon: 'mdi-refresh',
-          color: 'green',
-          tooltip: 'Resetuj grę',
-          action: 'reset'
-        },
-        {
-          icon: 'mdi-volume-high',
+          icon: 'mdi-bell-ring',
           color: 'blue',
-          tooltip: 'Dźwięk poprawnej odpowiedzi',
-          action: 'correct'
+          tooltip: 'Buzz - zgłoszenie drużyny',
+          action: 'buzz'
         },
         {
-          icon: 'mdi-close-circle',
-          color: 'red',
-          tooltip: 'Dźwięk złej odpowiedzi',
-          action: 'wrong'
+          icon: 'mdi-swap-horizontal',
+          color: 'green',
+          tooltip: 'Zmiana drużyny',
+          action: 'swap'
         },
         {
           icon: 'mdi-timer',
           color: 'orange',
-          tooltip: 'Start/Stop czasu',
+          tooltip: 'Start/Stop timer',
           action: 'timer'
         },
         {
-          icon: 'mdi-cog',
-          color: 'grey',
-          tooltip: 'Ustawienia',
-          action: 'settings'
+          icon: 'mdi-numeric',
+          color: 'yellow',
+          tooltip: 'Zmień punktowanie',
+          action: 'points'
+        },
+        {
+          icon: 'mdi-restart',
+          color: 'red',
+          tooltip: 'Zacznij od nowa',
+          action: 'restart'
         }
       ]
     }
@@ -68,7 +98,21 @@ export default {
   },
   methods: {
     handleToolClick(action) {
-      this.$emit('tool-action', action);
+      if (action === 'restart') {
+        this.showResetDialog = true;
+      } else {
+        this.$emit('tool-action', action);
+      }
+    },
+    confirmReset() {
+      // Resetujemy ustawienia
+      localStorage.removeItem('familyGameConfig');
+      // Emitujemy akcję resetu
+      this.$emit('tool-action', 'restart');
+      // Zamykamy dialog
+      this.showResetDialog = false;
+      // Przekierowujemy do StarterPanel
+      this.$router.push('/start-family');
     },
     handleKeyPress(event) {
       const tool = this.tools.find(t => t.shortcut === event.key.toLowerCase());
