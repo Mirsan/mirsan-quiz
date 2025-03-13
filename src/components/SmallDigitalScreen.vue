@@ -1,8 +1,8 @@
 <template>
   <v-chip 
     density="compact" 
-    class="text-h1 px-16 py-16" 
-    style="background-color: #000; color: yellow; font-family: 'PixelFont'; background-image: radial-gradient(#110 3px, transparent 1px); background-size: 10px 10px; border-radius: 40px;"
+    class="text-h1 py-16 d-flex justify-center" 
+    style="background-color: #000; color: yellow; font-family: 'PixelFont'; background-image: radial-gradient(#110 3px, transparent 1px); background-size: 10px 10px; border-radius: 40px; width: 250px;"
   >
     {{ displayValue }}
   </v-chip>

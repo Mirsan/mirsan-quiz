@@ -14,14 +14,14 @@
         <v-container class="content-container flex-wrap">
             <v-row>
                 <v-col cols="12" class="d-flex justify-center">
-                    <SmallDigitalScreen :value="999" />
+                    <SmallDigitalScreen :value="164" />
                 </v-col>
             </v-row>
             <v-row>
                 <v-col cols="12">
                     <v-row>
                         <v-col cols="2">
-                            <SmallDigitalScreen :value="32" />
+                            <SmallDigitalScreen :value="4" />
                             <PlayerLabel playerNumber="1" playerName="Niebiescy" />
                         </v-col>
                         <v-col cols="8">
@@ -42,7 +42,7 @@
                             </v-card>
                         </v-col>
                         <v-col cols="2" class="d-flex flex-column align-center">
-                            <SmallDigitalScreen :value="32" />
+                            <SmallDigitalScreen :value="17" />
                             <PlayerLabel playerNumber="2" playerName="Czerwoni" />
                         </v-col>
                     </v-row>
@@ -84,7 +84,7 @@ export default defineComponent({
     // Opcjonalnie możemy kontrolować wideo przez ref
     const video = this.$refs.videoPlayer;
     if (video) {
-      video.volume = 0.5; // Ustawienie domyślnej głośności na 50%
+      video.muted = true; // Ustawienie wideo na bezdźwięczne
     }
   }
 });
