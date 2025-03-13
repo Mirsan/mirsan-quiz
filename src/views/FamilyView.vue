@@ -1,6 +1,10 @@
 <template>
     <div class="family-view">
-        <BuzzCompetition v-model="showBuzzCompetition" />
+        <BuzzCompetition 
+          v-model="showBuzzCompetition" 
+          :team1Name="team1Name"
+          :team2Name="team2Name"
+        />
         <video
             ref="videoPlayer"
             class="background-video"
