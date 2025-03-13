@@ -20,7 +20,7 @@
     </v-btn>
 
     <!-- Dialog potwierdzenia resetu -->
-    <v-dialog v-model="showResetDialog" max-width="400">
+    <v-dialog v-model="showResetDialog" max-width="400" @keydown="handleResetDialogKeyPress">
       <v-card class="text-center">
         <v-card-title class="text-h5 font-weight-bold pa-4">
           Resetowanie gry
@@ -28,21 +28,24 @@
         <v-card-text class="pa-4">
           Czy na pewno chcesz zresetować grę? Wszystkie postępy zostaną utracone.
         </v-card-text>
-        <v-card-actions class="justify-center pa-4">
+        <v-card-actions class="justify-center pa-4 gap-4">
           <v-btn
+            min-width="120"
             color="red"
             variant="flat"
             @click="confirmReset"
-            class="mr-4"
+            class="reset-btn"
           >
-            Tak
+            Tak [Enter]
           </v-btn>
           <v-btn
+            min-width="120"
             color="grey"
             variant="flat"
             @click="showResetDialog = false"
+            class="reset-btn"
           >
-            Anuluj
+            Anuluj [0]
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -107,6 +110,13 @@ export default {
         this.showResetDialog = true;
       } else {
         this.$emit('tool-action', action);
+      }
+    },
+    handleResetDialogKeyPress(event) {
+      if (event.key === 'Enter') {
+        this.confirmReset();
+      } else if (event.key === '0' || event.key === 'Numpad0') {
+        this.showResetDialog = false;
       }
     },
     confirmReset() {
