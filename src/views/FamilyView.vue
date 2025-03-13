@@ -1,5 +1,6 @@
 <template>
     <div class="family-view">
+        <StarterPanel v-if="!gameStarted" @game-start="handleGameStart" />
         <BuzzCompetition v-model="showBuzzCompetition" />
         <video
             ref="videoPlayer"
@@ -12,7 +13,7 @@
             <source :src="videoSrc" type="video/mp4">
         </video>
 
-        <v-container class="content-container flex-wrap">
+        <v-container v-if="gameStarted" class="content-container flex-wrap">
             <v-row>
                 <v-col cols="12" class="d-flex justify-center">
                     <SmallDigitalScreen :value="164" />
@@ -60,6 +61,7 @@ import ResultDigitalScreen from '@/components/ResultDigitalScreen.vue';
 import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
 import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
+import StarterPanel from '@/components/StarterPanel.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 
 export default defineComponent({
@@ -69,13 +71,18 @@ export default defineComponent({
     ResultDigitalScreen,
     LossDigitalScreen,
     PlayerLabel,
-    BuzzCompetition
+    BuzzCompetition,
+    StarterPanel
   },
   data() {
     return {
       videoSrc: backgroundVideo,
       question: "W sypialni na P?",
-      showBuzzCompetition: true,
+      showBuzzCompetition: false,
+      gameStarted: false,
+      team1Name: '',
+      team2Name: '',
+      questionsData: null,
       results: [
         { id: 1, name: 'Posciel', points: 35, pass: false },
         { id: 2, name: 'Poduszka', points: 17, pass: true },
@@ -84,11 +91,31 @@ export default defineComponent({
       ]
     }
   },
+  created() {
+    // Sprawdzamy czy mamy konfigurację
+    const config = localStorage.getItem('familyGameConfig');
+    if (!config) {
+      // Jeśli nie ma konfiguracji, przekierowujemy do start-family
+      this.$router.push('/start-family');
+      return;
+    }
+
+    try {
+      // Wczytujemy konfigurację
+      const { team1Name, team2Name, questionsData } = JSON.parse(config);
+      this.team1Name = team1Name;
+      this.team2Name = team2Name;
+      this.questionsData = questionsData;
+      this.gameStarted = true;
+    } catch (error) {
+      console.error('Błąd podczas wczytywania konfiguracji:', error);
+      this.$router.push('/start-family');
+    }
+  },
   mounted() {
-    // Opcjonalnie możemy kontrolować wideo przez ref
     const video = this.$refs.videoPlayer;
     if (video) {
-      video.muted = true; // Ustawienie wideo na bezdźwięczne
+      video.muted = true;
     }
   }
 });

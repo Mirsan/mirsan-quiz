@@ -1,5 +1,7 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import FamilyView from '../views/FamilyView.vue'
+import StartFamilyView from '../views/StartFamilyView.vue'
 
 const routes = [
   {
@@ -23,12 +25,26 @@ const routes = [
   {
     path: '/family',
     name: 'family',
-    component: () => import(/* webpackChunkName: "about" */ '../views/FamilyView.vue')
+    component: FamilyView,
+    beforeEnter: (to, from, next) => {
+      // Jeśli przychodzimy ze strony konfiguracji, pozwalamy przejść
+      if (from.path === '/start-family') {
+        next()
+      } else {
+        // W przeciwnym razie przekierowujemy do konfiguracji
+        next('/start-family')
+      }
+    }
+  },
+  {
+    path: '/start-family',
+    name: 'start-family',
+    component: StartFamilyView
   }
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
 
