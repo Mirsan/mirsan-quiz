@@ -16,9 +16,7 @@
                         <v-card outlined style="background-color: black; height: 100%; width: 100%;">
                             <v-row no-gutters>
                                 <v-col cols="1">
-                                    <v-card-text style="color: yellow; font-size: 8em; font-family: 'DigitalFont'; text-align: center;">
-                                        X <br> X <br> X <br> 
-                                    </v-card-text>
+                                    <LossDigitalScreen :loss="1" />
                                 </v-col>
                                 
                                 <v-col cols="10">
@@ -26,9 +24,7 @@
                                 </v-col>
                                 
                                 <v-col cols="1">
-                                    <v-card-text style="color: yellow; font-size: 8em; font-family: 'DigitalFont'; text-align: center;">
-                                        X <br>
-                                    </v-card-text>
+                                    <LossDigitalScreen :loss="3" />
                                 </v-col>
                             </v-row>
                         </v-card>
@@ -48,12 +44,14 @@
 import { defineComponent } from 'vue';
 import SmallDigitalScreen from '@/components/SmallDigitalScreen.vue';
 import ResultDigitalScreen from '@/components/ResultDigitalScreen.vue';
+import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
 
 export default defineComponent({
   name: 'FamilyView',
   components: {
     SmallDigitalScreen,
-    ResultDigitalScreen
+    ResultDigitalScreen,
+    LossDigitalScreen
   },
   data() {
     return {
