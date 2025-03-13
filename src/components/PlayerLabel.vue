@@ -22,7 +22,7 @@ export default defineComponent({
     },
     computed: {
         playerColor() {
-            return this.playerNumber === '1' ? 'red' : 'blue'
+            return this.playerNumber === '1' ? 'blue' : 'red'
         }
     }
 })
