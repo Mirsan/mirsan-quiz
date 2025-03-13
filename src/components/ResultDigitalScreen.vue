@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pa-8" outlined style="background-color: black; height: 100%; width: 100%;">
+  <v-card class="pa-2" outlined style="background-color: black; height: 100%; width: 100%;">
     <v-card-text style="color: yellow; font-size: 3em; font-family: 'PixelFont';">
       <v-container class="pa-0" fluid>
         <v-row 

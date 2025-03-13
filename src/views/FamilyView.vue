@@ -10,14 +10,33 @@
                 <v-row>
                     <v-col cols="2">
                         <SmallDigitalScreen :value="32" />
+                        <v-chip color="red" variant="flat" style="width: 100%; text-align: center;">CZERWONI</v-chip>
                     </v-col>
                     <v-col cols="8">
-                        <v-card class="pa-4" outlined style="background-color: black; height: 100%; width: 100%;">
-                            <ResultDigitalScreen :results="results" />
+                        <v-card outlined style="background-color: black; height: 100%; width: 100%;">
+                            <v-row no-gutters>
+                                <v-col cols="1">
+                                    <v-card-text style="color: yellow; font-size: 8em; font-family: 'DigitalFont'; text-align: center;">
+                                        X <br> X <br> X <br> 
+                                    </v-card-text>
+                                </v-col>
+                                
+                                <v-col cols="10">
+                                    <ResultDigitalScreen :results="results" />
+                                </v-col>
+                                
+                                <v-col cols="1">
+                                    <v-card-text style="color: yellow; font-size: 8em; font-family: 'DigitalFont'; text-align: center;">
+                                        X <br>
+                                    </v-card-text>
+                                </v-col>
+                            </v-row>
                         </v-card>
                     </v-col>
                     <v-col cols="2">
                         <SmallDigitalScreen :value="32" />
+                        <v-chip color="primary" variant="flat" style="width: 100%; text-align: center;">NIEBIESCY</v-chip>
+
                     </v-col>
                 </v-row>
             </v-col>
