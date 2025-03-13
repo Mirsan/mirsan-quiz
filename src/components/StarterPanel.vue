@@ -47,6 +47,22 @@
           <v-divider class="my-6"></v-divider>
 
           <v-btn
+            :color="isConnected ? 'success' : 'primary'"
+            block
+            class="mb-2"
+            @click="toggleBluetooth"
+            :loading="isConnecting"
+            :disabled="isConnecting"
+            prepend-icon="mdi-bluetooth"
+          >
+            {{ isConnected ? 'Odłącz kontroler buzzerów' : 'Podłącz kontroler buzzerów' }}
+          </v-btn>
+
+          <div v-if="bluetoothError" class="text-error mb-4 text-center">
+            {{ bluetoothError }}
+          </div>
+
+          <v-btn
             color="yellow"
             block
             size="large"
@@ -67,6 +83,20 @@
 <script>
 export default {
   name: 'StarterPanel',
+  props: {
+    isConnected: {
+      type: Boolean,
+      default: false
+    },
+    isConnecting: {
+      type: Boolean,
+      default: false
+    },
+    bluetoothError: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       show: true,
@@ -89,6 +119,9 @@ export default {
     }
   },
   methods: {
+    toggleBluetooth() {
+      this.$emit('toggle-bluetooth');
+    },
     async startGame() {
       const { valid } = await this.$refs.form.validate()
       if (valid && this.isFormValid) {

@@ -75,6 +75,10 @@ export default {
     team2Name: {
       type: String,
       required: true
+    },
+    bluetoothCharacteristic: {
+      type: Object,
+      default: null
     }
   },
   methods: {
@@ -102,6 +106,16 @@ export default {
         }
       }
     },
+    handleBuzzerSignal(event) {
+      if (!this.dialog || this.isBlocked) return;
+      
+      const value = event.target.value.getUint8(0);
+      if (value === 49) {
+        this.selectTeam(1);
+      } else if (value === 50) {
+        this.selectTeam(2);
+      }
+    },
     resetState() {
       this.activeTeam = null;
       this.isBlocked = false;
@@ -112,6 +126,14 @@ export default {
     }
   },
   watch: {
+    bluetoothCharacteristic: {
+      immediate: true,
+      handler(newChar) {
+        if (newChar) {
+          newChar.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
+        }
+      }
+    },
     dialog(newVal) {
       if (newVal) {
         this.resetState();
@@ -123,6 +145,9 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('keydown', this.handleKeyPress);
+    if (this.bluetoothCharacteristic) {
+      this.bluetoothCharacteristic.removeEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
+    }
     if (this.closeTimer) {
       clearTimeout(this.closeTimer);
     }
