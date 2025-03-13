@@ -9,11 +9,6 @@
           </v-col>
         </v-row>
 
-        <!-- Separator -->
-        <v-row no-gutters class="result-row flex-nowrap">
-          <v-col cols="12">&nbsp;</v-col>
-        </v-row>
-
         <!-- Wyniki -->
         <template v-for="result in results" :key="result.id">
           <v-row no-gutters class="result-row flex-nowrap">
@@ -104,7 +99,6 @@ export default {
 }
 
 .question-row {
-  border-bottom: 2px solid yellow;
   padding-bottom: 0.2em !important;
   margin-bottom: 0.2em;
 }

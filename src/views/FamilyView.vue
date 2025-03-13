@@ -76,7 +76,7 @@ export default defineComponent({
         { id: 1, name: 'Posciel', points: 35, pass: false },
         { id: 2, name: 'Poduszka', points: 17, pass: true },
         { id: 3, name: 'Przescieradlo', points: 12, pass: false },
-        { id: 5, name: 'Polka', points: 8, pass: true },
+        { id: 4, name: 'Polka', points: 8, pass: true },
       ]
     }
   },
