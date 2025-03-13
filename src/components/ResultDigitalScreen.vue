@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pa-2" outlined style="background-color: black; height: 100%; width: 100%;">
+  <v-card class="pa-2" outlined style="height: 100%; width: 100%;" color="transparent">
     <v-card-text style="color: yellow; font-size: 3em; font-family: 'PixelFont'; height: 100%;">
       <div class="results-container">
         <!-- Pytanie -->
