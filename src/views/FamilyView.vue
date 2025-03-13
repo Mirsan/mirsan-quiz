@@ -1,5 +1,6 @@
 <template>
     <div class="family-view">
+        <BuzzCompetition v-model="showBuzzCompetition" />
         <video
             ref="videoPlayer"
             class="background-video"
@@ -58,6 +59,7 @@ import SmallDigitalScreen from '@/components/SmallDigitalScreen.vue';
 import ResultDigitalScreen from '@/components/ResultDigitalScreen.vue';
 import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
 import PlayerLabel from '@/components/PlayerLabel.vue';
+import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 
 export default defineComponent({
@@ -66,12 +68,14 @@ export default defineComponent({
     SmallDigitalScreen,
     ResultDigitalScreen,
     LossDigitalScreen,
-    PlayerLabel
+    PlayerLabel,
+    BuzzCompetition
   },
   data() {
     return {
       videoSrc: backgroundVideo,
       question: "W sypialni na P?",
+      showBuzzCompetition: true,
       results: [
         { id: 1, name: 'Posciel', points: 35, pass: false },
         { id: 2, name: 'Poduszka', points: 17, pass: true },
