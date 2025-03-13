@@ -41,7 +41,7 @@
                                 </v-row>
                             </v-card>
                         </v-col>
-                        <v-col cols="2">
+                        <v-col cols="2" class="d-flex flex-column align-center">
                             <SmallDigitalScreen :value="32" />
                             <PlayerLabel playerNumber="2" playerName="Czerwoni" />
                         </v-col>

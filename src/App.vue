@@ -16,3 +16,17 @@ export default {
   }),
 }
 </script>
+
+<style>
+html {
+  overflow-y: hidden !important;
+}
+
+.v-application {
+  overflow: hidden !important;
+}
+
+.v-main {
+  overflow: hidden !important;
+}
+</style>
