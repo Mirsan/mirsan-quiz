@@ -23,7 +23,22 @@
                 <v-col cols="2"></v-col>
                 <v-col cols="3"></v-col>
                 <v-col cols="2" class="d-flex justify-center">
-                    <SmallDigitalScreen 
+                    <v-badge 
+                      v-if="pointsMultiplier > 1"
+                      :content="`x${pointsMultiplier}`" 
+                      overlap="true" 
+                      bordered 
+                      offset-x="30" 
+                      offset-y="30" 
+                      class="large-badge"
+                    >
+                        <SmallDigitalScreen
+                          :value="164" 
+                          :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
+                        />
+                    </v-badge>
+                    <SmallDigitalScreen
+                      v-else
                       :value="164" 
                       :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                     />
@@ -34,7 +49,7 @@
             <v-row>
                 <v-col cols="12">
                     <v-row>
-                        <v-col cols="2" class="d-flex flex-column align-center">
+                        <v-col cols="2" class="d-flex flex-column align-center large-badge">
                             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
                                 <SmallDigitalScreen :value="4" />
                                 <PlayerLabel playerNumber="1" :teamName="team1Name" :isActive="activePlayer === 1" />
@@ -111,6 +126,7 @@ export default defineComponent({
       team2Name: '',
       questionsData: null,
       activePlayer: null,
+      pointsMultiplier: 1,
       results: [
         { id: 1, name: 'Posciel', points: 35, pass: false },
         { id: 2, name: 'Poduszka', points: 17, pass: true },
@@ -164,7 +180,7 @@ export default defineComponent({
           // TODO: Start/Stop timera
           break;
         case 'points':
-          // TODO: Zmiana punktowania
+          this.pointsMultiplier = this.pointsMultiplier === 3 ? 1 : this.pointsMultiplier + 1;
           break;
       }
     }
@@ -204,5 +220,15 @@ export default defineComponent({
     z-index: 1;
     object-fit: cover;
     transform: translateX(0) translateY(0);
+}
+
+.large-badge :deep(.v-badge__badge) {
+    font-size: 20px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    font-weight: bold !important;
+    border-width: 3px !important;
+    z-index: 6;
+    color: red;
 }
 </style>
