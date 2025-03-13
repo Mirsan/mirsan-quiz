@@ -54,8 +54,14 @@
 </template>
 
 <script>
+import { useBluetooth } from '@/composables/useBluetooth';
+
 export default {
   name: 'BuzzCompetition',
+  setup() {
+    const { BUZZER_SIGNALS } = useBluetooth();
+    return { BUZZER_SIGNALS };
+  },
   data() {
     return {
       activeTeam: null,
@@ -89,7 +95,6 @@ export default {
       this.isBlocked = true;
       this.$emit('team-selected', team);
 
-      // Po 3 sekundach zamykamy dialog
       this.closeTimer = setTimeout(() => {
         this.dialog = false;
         this.isBlocked = false;
@@ -100,9 +105,9 @@ export default {
       
       if (event.key === 'Shift') {
         if (event.location === 1) {
-          this.selectTeam(1);
-        } else if (event.location === 2) {
           this.selectTeam(2);
+        } else if (event.location === 2) {
+          this.selectTeam(1);
         }
       }
     },
@@ -110,10 +115,8 @@ export default {
       if (!this.dialog || this.isBlocked) return;
       
       const value = event.target.value.getUint8(0);
-      if (value === 49) {
-        this.selectTeam(1);
-      } else if (value === 50) {
-        this.selectTeam(2);
+      if (value in this.BUZZER_SIGNALS) {
+        this.selectTeam(this.BUZZER_SIGNALS[value]);
       }
     },
     resetState() {

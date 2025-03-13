@@ -82,6 +82,7 @@ import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import GameTools from '@/components/GameTools.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
+import { useBluetooth } from '@/composables/useBluetooth';
 
 export default defineComponent({
   name: 'FamilyView',
@@ -93,6 +94,10 @@ export default defineComponent({
     BuzzCompetition,
     GameTools
   },
+  setup() {
+    const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
+    return { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup };
+  },
   data() {
     return {
       videoSrc: backgroundVideo,
@@ -102,9 +107,6 @@ export default defineComponent({
       team2Name: '',
       questionsData: null,
       activePlayer: null,
-      bluetoothDevice: null,
-      bluetoothCharacteristic: null,
-      isBluetoothConnected: false,
       results: [
         { id: 1, name: 'Posciel', points: 35, pass: false },
         { id: 2, name: 'Poduszka', points: 17, pass: true },
@@ -121,31 +123,16 @@ export default defineComponent({
     }
 
     try {
-      const { team1Name, team2Name, questionsData, isBluetoothConnected } = JSON.parse(config);
+      const { team1Name, team2Name, questionsData, isBluetoothConnected: wasConnected } = JSON.parse(config);
       this.team1Name = team1Name;
       this.team2Name = team2Name;
       this.questionsData = questionsData;
       
-      if (isBluetoothConnected && window.bluetoothState) {
-        this.bluetoothDevice = window.bluetoothState.device;
-        this.bluetoothCharacteristic = window.bluetoothState.characteristic;
-        this.isBluetoothConnected = window.bluetoothState.isConnected;
-
-        if (this.bluetoothCharacteristic) {
-          try {
-            if (!this.bluetoothDevice.gatt.connected) {
-              await this.bluetoothDevice.gatt.connect();
-              const service = await this.bluetoothDevice.gatt.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-              this.bluetoothCharacteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
-            }
-            
-            await this.bluetoothCharacteristic.startNotifications();
-            this.bluetoothCharacteristic.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
-            this.bluetoothDevice.addEventListener('gattserverdisconnected', this.handleDisconnection);
-          } catch (error) {
-            this.handleDisconnection();
-          }
-        }
+      if (wasConnected) {
+        await this.initializeBluetooth((player) => {
+          this.showBuzzCompetition = true;
+          this.activePlayer = player;
+        });
       }
     } catch (error) {
       this.$router.push('/start-family');
@@ -158,30 +145,6 @@ export default defineComponent({
     }
   },
   methods: {
-    handleBuzzerSignal(event) {
-      const value = event.target.value.getUint8(0);
-      if (value === 49 || value === 50) {
-        this.showBuzzCompetition = true;
-        this.activePlayer = value === 49 ? 1 : 2;
-      }
-    },
-
-    async handleDisconnection() {
-      this.isBluetoothConnected = false;
-      
-      try {
-        if (this.bluetoothDevice) {
-          await this.bluetoothDevice.gatt.connect();
-          const service = await this.bluetoothDevice.gatt.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-          this.bluetoothCharacteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
-          await this.bluetoothCharacteristic.startNotifications();
-          this.isBluetoothConnected = true;
-        }
-      } catch (error) {
-        // Cicha obsługa błędu
-      }
-    },
-
     handleToolAction(action) {
       switch (action) {
         case 'buzz':
@@ -209,9 +172,7 @@ export default defineComponent({
     if (this.bluetoothCharacteristic) {
       this.bluetoothCharacteristic.removeEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
     }
-    if (this.bluetoothDevice) {
-      this.bluetoothDevice.removeEventListener('gattserverdisconnected', this.handleDisconnection);
-    }
+    this.cleanup();
   },
   watch: {
     showBuzzCompetition(newVal) {
