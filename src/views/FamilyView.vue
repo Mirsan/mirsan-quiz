@@ -25,7 +25,7 @@
                             <PlayerLabel playerNumber="1" playerName="Niebiescy" />
                         </v-col>
                         <v-col cols="8">
-                            <v-card outlined style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px; border-radius: 40px;">
+                            <v-card outlined style="background-color: #000; opacity: 0.88; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px; border-radius: 40px;">
                                 <v-row no-gutters>
                                     <v-col cols="1">
                                         <LossDigitalScreen :loss="1" />
