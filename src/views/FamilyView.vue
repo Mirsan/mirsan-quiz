@@ -32,7 +32,7 @@
                                     </v-col>
                                     
                                     <v-col cols="10">
-                                        <ResultDigitalScreen :results="results" />
+                                        <ResultDigitalScreen :question="question" :results="results" />
                                     </v-col>
                                     
                                     <v-col cols="1">
@@ -71,14 +71,12 @@ export default defineComponent({
   data() {
     return {
       videoSrc: backgroundVideo,
+      question: "W sypialni na P?",
       results: [
-        { id: 1, name: 'SLASK WROCLAW', points: 35, pass: false },
-        { id: 2, name: 'LEGIA WARSZAWA fdsadfsfdshhbdffddfs', points: 17, pass: true },
-        { id: 3, name: 'ARKA GDYNIA', points: 12, pass: false },
-        { id: 5, name: 'JAGIELONIA', points: 8, pass: true },
-        { id: 6, name: 'PODBESKIDZIE', points: 4, pass: true },
-        { id: 7, name: 'KRAKOWIA', points: 3, pass: true },
-        { id: 8, name: 'ANASTAZJA', points: 2, pass: true }
+        { id: 1, name: 'Posciel', points: 35, pass: false },
+        { id: 2, name: 'Poduszka', points: 17, pass: true },
+        { id: 3, name: 'Przescieradlo', points: 12, pass: false },
+        { id: 5, name: 'Polka', points: 8, pass: true },
       ]
     }
   },
