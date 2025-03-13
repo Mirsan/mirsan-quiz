@@ -60,32 +60,37 @@ export default {
         {
           icon: 'mdi-bell-ring',
           color: 'blue',
-          tooltip: 'Buzz - zgłoszenie drużyny',
-          action: 'buzz'
+          tooltip: 'Buzz - zgłaszanie drużyny [*]',
+          action: 'buzz',
+          shortcut: '*'
         },
         {
           icon: 'mdi-swap-horizontal',
           color: 'green',
-          tooltip: 'Zmiana drużyny',
-          action: 'swap'
+          tooltip: 'Zmiana drużyny [/]',
+          action: 'swap',
+          shortcut: '/'
         },
         {
           icon: 'mdi-timer',
           color: 'orange',
-          tooltip: 'Start/Stop timer',
-          action: 'timer'
+          tooltip: 'Start/Stop timer [-]',
+          action: 'timer',
+          shortcut: '-'
         },
         {
           icon: 'mdi-numeric',
           color: 'yellow',
-          tooltip: 'Zmień punktowanie',
-          action: 'points'
+          tooltip: 'Zmień punktowanie [+]',
+          action: 'points',
+          shortcut: '+'
         },
         {
           icon: 'mdi-restart',
           color: 'red',
-          tooltip: 'Zacznij od nowa',
-          action: 'restart'
+          tooltip: 'Zacznij od nowa [Backspace]',
+          action: 'restart',
+          shortcut: 'Backspace'
         }
       ]
     }
@@ -115,9 +120,21 @@ export default {
       this.$router.push('/start-family');
     },
     handleKeyPress(event) {
-      const tool = this.tools.find(t => t.shortcut === event.key.toLowerCase());
-      if (tool) {
-        this.handleToolClick(tool.action);
+      const keyMap = {
+        '*': 'buzz',
+        '/': 'swap',
+        '-': 'timer',
+        '+': 'points',
+        'Backspace': 'restart',
+        'NumpadMultiply': 'buzz',    // Numpad *
+        'NumpadDivide': 'swap',      // Numpad /
+        'NumpadSubtract': 'timer',   // Numpad -
+        'NumpadAdd': 'points'        // Numpad +
+      };
+
+      const action = keyMap[event.key] || keyMap[event.code];
+      if (action) {
+        this.handleToolClick(action);
       }
     }
   }
