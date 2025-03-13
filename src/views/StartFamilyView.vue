@@ -73,49 +73,28 @@ export default defineComponent({
       };
 
       try {
-        console.log('Requesting Bluetooth device...');
         this.bluetoothDevice = await navigator.bluetooth.requestDevice(options);
-        
-        console.log('Connecting to GATT server...');
         const server = await this.bluetoothDevice.gatt.connect();
-        
-        console.log('Getting primary service...');
         const service = await server.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-        
-        console.log('Getting characteristic...');
         this.bluetoothCharacteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
-        
-        console.log('Starting notifications...');
         await this.bluetoothCharacteristic.startNotifications();
 
-        // Dodajemy nasłuchiwanie na charakterystykę
         this.bluetoothCharacteristic.addEventListener('characteristicvaluechanged', (event) => {
           const value = event.target.value.getUint8(0);
-          console.log('Received value:', value);
-          
-          // Pokazujemy okno buzz i obsługujemy sygnały
-          if (value === 49 || value === 50) { // ASCII dla "1" i "2"
+          if (value === 49 || value === 50) {
             this.showBuzz = true;
-            if (value === 49) {
-              this.handleTeamSelected(1);
-            } else if (value === 50) {
-              this.handleTeamSelected(2);
-            }
+            this.handleTeamSelected(value === 49 ? 1 : 2);
           }
         });
         
         this.isConnected = true;
         this.bluetoothError = null;
-        console.log("Connected to HM-10 and listening for signals...");
 
-        // Dodajemy nasłuchiwanie na rozłączenie
         this.bluetoothDevice.addEventListener('gattserverdisconnected', () => {
-          console.log('Bluetooth device disconnected');
           this.handleDisconnection();
         });
 
       } catch (error) {
-        console.error("Failed to connect:", error);
         this.bluetoothError = this.getBluetoothErrorMessage(error);
         this.isConnected = false;
       } finally {
@@ -191,15 +170,12 @@ export default defineComponent({
     },
 
     handleTeamSelected(team) {
-      console.log('Wybrano drużynę:', team);
-      // Ustawiamy nazwę drużyny w zależności od wybranego przycisku
       if (team === 1) {
         this.team1Name = 'Drużyna 1';
       } else if (team === 2) {
         this.team2Name = 'Drużyna 2';
       }
       
-      // Po 3 sekundach zamykamy okno buzz
       setTimeout(() => {
         this.showBuzz = false;
       }, 3000);

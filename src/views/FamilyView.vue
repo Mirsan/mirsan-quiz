@@ -114,55 +114,40 @@ export default defineComponent({
     }
   },
   async created() {
-    // Sprawdzamy czy mamy konfigurację
     const config = localStorage.getItem('familyGameConfig');
     if (!config) {
-      // Jeśli nie ma konfiguracji, przekierowujemy do start-family
       this.$router.push('/start-family');
       return;
     }
 
     try {
-      // Wczytujemy konfigurację
       const { team1Name, team2Name, questionsData, isBluetoothConnected } = JSON.parse(config);
       this.team1Name = team1Name;
       this.team2Name = team2Name;
       this.questionsData = questionsData;
       
-      // Przywracamy stan Bluetooth
       if (isBluetoothConnected && window.bluetoothState) {
         this.bluetoothDevice = window.bluetoothState.device;
         this.bluetoothCharacteristic = window.bluetoothState.characteristic;
         this.isBluetoothConnected = window.bluetoothState.isConnected;
 
-        // Ponownie podłączamy nasłuchiwanie na charakterystykę
         if (this.bluetoothCharacteristic) {
-          // Najpierw próbujemy ponownie połączyć się z urządzeniem
           try {
             if (!this.bluetoothDevice.gatt.connected) {
-              console.log('Reconnecting to Bluetooth device...');
               await this.bluetoothDevice.gatt.connect();
-              
-              // Pobieramy ponownie charakterystykę
               const service = await this.bluetoothDevice.gatt.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
               this.bluetoothCharacteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
             }
             
             await this.bluetoothCharacteristic.startNotifications();
             this.bluetoothCharacteristic.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
-            
-            // Dodajemy nasłuchiwanie na rozłączenie
             this.bluetoothDevice.addEventListener('gattserverdisconnected', this.handleDisconnection);
-            
-            console.log('Successfully reconnected to Bluetooth device');
           } catch (error) {
-            console.error('Error reconnecting to Bluetooth:', error);
             this.handleDisconnection();
           }
         }
       }
     } catch (error) {
-      console.error('Błąd podczas wczytywania konfiguracji:', error);
       this.$router.push('/start-family');
     }
   },
@@ -175,45 +160,36 @@ export default defineComponent({
   methods: {
     handleBuzzerSignal(event) {
       const value = event.target.value.getUint8(0);
-      console.log('Received value in FamilyView:', value);
-      
-      if (value === 49 || value === 50) { // ASCII dla "1" i "2"
+      if (value === 49 || value === 50) {
         this.showBuzzCompetition = true;
         this.activePlayer = value === 49 ? 1 : 2;
       }
     },
 
     async handleDisconnection() {
-      console.log('Bluetooth device disconnected in FamilyView');
       this.isBluetoothConnected = false;
       
-      // Próba ponownego połączenia
       try {
         if (this.bluetoothDevice) {
-          console.log('Attempting to reconnect...');
           await this.bluetoothDevice.gatt.connect();
           const service = await this.bluetoothDevice.gatt.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
           this.bluetoothCharacteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
           await this.bluetoothCharacteristic.startNotifications();
           this.isBluetoothConnected = true;
-          console.log('Successfully reconnected');
         }
       } catch (error) {
-        console.error('Failed to reconnect:', error);
+        // Cicha obsługa błędu
       }
     },
 
     handleToolAction(action) {
-      console.log('Action received:', action);
       switch (action) {
         case 'buzz':
-          console.log('Setting showBuzzCompetition to true');
           this.showBuzzCompetition = true;
-          this.activePlayer = null; // Reset active player when opening buzz
+          this.activePlayer = null;
           break;
         case 'swap':
           if (this.activePlayer) {
-            // Zmiana z 1 na 2 lub z 2 na 1
             this.activePlayer = this.activePlayer === 1 ? 2 : 1;
           }
           break;
