@@ -14,7 +14,12 @@
           <v-col cols="8" class="d-flex justify-center">
             <div class="text-left" style="width: 100%;">
               <template v-if="item.pass">
-                {{ item.name }}
+                <template v-if="item.name.length > 20">
+                  {{ item.name.substring(0, 20) + '.' }}
+                </template>
+                <template v-else>
+                  {{ item.name }}
+                </template>
               </template>
               <template v-else>
                 ...................................
