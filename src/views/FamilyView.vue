@@ -144,11 +144,14 @@ export default defineComponent({
           this.showBuzzCompetition = true;
           this.activePlayer = null; // Reset active player when opening buzz
           break;
+        case 'swap':
+          if (this.activePlayer) {
+            // Zmiana z 1 na 2 lub z 2 na 1
+            this.activePlayer = this.activePlayer === 1 ? 2 : 1;
+          }
+          break;
         case 'restart':
           // TODO: Implementacja resetu gry
-          break;
-        case 'swap':
-          // TODO: Implementacja zamiany drużyn
           break;
         case 'timer':
           // TODO: Start/Stop timera
