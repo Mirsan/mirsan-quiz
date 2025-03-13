@@ -49,6 +49,13 @@
                     </v-row>
                 </v-col>
             </v-row>
+            <v-row class="mt-n4">
+                <v-col cols="12" class="d-flex justify-center">
+                    <v-col cols="8">
+                        <GameTools @tool-action="handleToolAction" />
+                    </v-col>
+                </v-col>
+            </v-row>
         </v-container>
     </div>
 </template>
@@ -60,6 +67,7 @@ import ResultDigitalScreen from '@/components/ResultDigitalScreen.vue';
 import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
 import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
+import GameTools from '@/components/GameTools.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 
 export default defineComponent({
@@ -69,7 +77,8 @@ export default defineComponent({
     ResultDigitalScreen,
     LossDigitalScreen,
     PlayerLabel,
-    BuzzCompetition
+    BuzzCompetition,
+    GameTools
   },
   data() {
     return {
@@ -111,6 +120,27 @@ export default defineComponent({
     const video = this.$refs.videoPlayer;
     if (video) {
       video.muted = true;
+    }
+  },
+  methods: {
+    handleToolAction(action) {
+      switch (action) {
+        case 'reset':
+          // TODO: Implementacja resetu gry
+          break;
+        case 'correct':
+          // TODO: Odtworzenie dźwięku poprawnej odpowiedzi
+          break;
+        case 'wrong':
+          // TODO: Odtworzenie dźwięku złej odpowiedzi
+          break;
+        case 'timer':
+          // TODO: Start/Stop timera
+          break;
+        case 'settings':
+          // TODO: Otwarcie ustawień
+          break;
+      }
     }
   }
 });
