@@ -9,16 +9,17 @@
         KONFIGURACJA GRY
       </v-card-title>
 
-      <v-card-text>
-        <v-form @submit.prevent="startGame">
+      <v-card-text style="background-color: #000; background-image: none;">
+        <v-form ref="form" @submit.prevent="startGame">
           <v-text-field
             v-model="team1Name"
             label="Nazwa Drużyny 1"
             variant="outlined"
             class="mb-4"
             style="color: yellow;"
-            :rules="[v => !!v || 'Nazwa drużyny jest wymagana']"
+            :rules="nameRules"
             prepend-icon="mdi-account-group"
+            :counter="10"
           ></v-text-field>
 
           <v-text-field
@@ -27,8 +28,9 @@
             variant="outlined"
             class="mb-4"
             style="color: yellow;"
-            :rules="[v => !!v || 'Nazwa drużyny jest wymagana']"
+            :rules="nameRules"
             prepend-icon="mdi-account-group"
+            :counter="10"
           ></v-text-field>
 
           <v-file-input
@@ -83,14 +85,20 @@ export default {
       team1Name: '',
       team2Name: '',
       questionsFile: null,
-      buzzersConnected: false
+      buzzersConnected: false,
+      nameRules: [
+        v => !!v || 'Nazwa drużyny jest wymagana',
+        v => v.length <= 10 || 'Nazwa drużyny nie może być dłuższa niż 10 znaków'
+      ]
     }
   },
   computed: {
     isFormValid() {
       return this.team1Name && 
              this.team2Name && 
-             this.questionsFile
+             this.questionsFile &&
+             this.team1Name.length <= 10 &&
+             this.team2Name.length <= 10
     }
   },
   methods: {
@@ -98,8 +106,9 @@ export default {
       // TODO: Implementacja połączenia z buzzerami
       this.buzzersConnected = true;
     },
-    startGame() {
-      if (this.isFormValid) {
+    async startGame() {
+      const { valid } = await this.$refs.form.validate()
+      if (valid && this.isFormValid) {
         this.$emit('game-start', {
           team1Name: this.team1Name,
           team2Name: this.team2Name,
@@ -143,5 +152,13 @@ export default {
 
 .start-button:hover :deep(.v-icon) {
   color: black !important;
+}
+
+:deep(.v-messages) {
+  color: white !important;
+}
+
+:deep(.v-counter) {
+  color: white !important;
 }
 </style> 
