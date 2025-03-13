@@ -1,5 +1,5 @@
 <template>
-    <v-chip :color="playerColor" variant="flat" class="d-flex justify-center" style="width: 100%; font-size: 1.5em; margin-top: 0.25em;">
+    <v-chip :color="playerColor" variant="flat" class="d-flex justify-center" style="width: 90%; font-size: 1.5em; margin-top: 0.25em;">
         {{ playerName.toUpperCase() }}
     </v-chip>
 </template>

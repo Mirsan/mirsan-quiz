@@ -1,5 +1,5 @@
 <template>
-    <v-card-text style="color: yellow; font-size: 8em; font-family: 'DigitalFont'; text-align: center;">
+    <v-card-text style="color: yellow; font-size: 8em; font-family: 'DigitalFont'; text-align: center; opacity: 0.7;">
         <template v-for="index in loss" :key="index">
             X <br>
         </template>
