@@ -20,12 +20,16 @@
 
         <v-container class="content-container flex-wrap">
             <v-row>
-                <v-col cols="12" class="d-flex justify-center">
+                <v-col cols="2"></v-col>
+                <v-col cols="3"></v-col>
+                <v-col cols="2" class="d-flex justify-center">
                     <SmallDigitalScreen 
                       :value="164" 
                       :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                     />
-                </v-col>
+                </v-col>          
+                <v-col cols="3"></v-col>
+                <v-col cols="2"></v-col>
             </v-row>
             <v-row>
                 <v-col cols="12">
