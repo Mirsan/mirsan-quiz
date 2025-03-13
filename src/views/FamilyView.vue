@@ -1,6 +1,5 @@
 <template>
     <div class="family-view">
-        <StarterPanel v-if="!gameStarted" @game-start="handleGameStart" />
         <BuzzCompetition v-model="showBuzzCompetition" />
         <video
             ref="videoPlayer"
@@ -13,7 +12,7 @@
             <source :src="videoSrc" type="video/mp4">
         </video>
 
-        <v-container v-if="gameStarted" class="content-container flex-wrap">
+        <v-container class="content-container flex-wrap">
             <v-row>
                 <v-col cols="12" class="d-flex justify-center">
                     <SmallDigitalScreen :value="164" />
@@ -24,7 +23,7 @@
                     <v-row>
                         <v-col cols="2">
                             <SmallDigitalScreen :value="4" />
-                            <PlayerLabel playerNumber="1" playerName="Niebiescy" />
+                            <PlayerLabel playerNumber="1" :teamName="team1Name" />
                         </v-col>
                         <v-col cols="8">
                             <v-card outlined style="background-color: #000; opacity: 0.88; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px; border-radius: 40px;">
@@ -45,7 +44,7 @@
                         </v-col>
                         <v-col cols="2" class="d-flex flex-column align-center">
                             <SmallDigitalScreen :value="17" />
-                            <PlayerLabel playerNumber="2" playerName="Czerwoni" />
+                            <PlayerLabel playerNumber="2" :teamName="team2Name" />
                         </v-col>
                     </v-row>
                 </v-col>
@@ -61,7 +60,6 @@ import ResultDigitalScreen from '@/components/ResultDigitalScreen.vue';
 import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
 import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
-import StarterPanel from '@/components/StarterPanel.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 
 export default defineComponent({
@@ -71,15 +69,13 @@ export default defineComponent({
     ResultDigitalScreen,
     LossDigitalScreen,
     PlayerLabel,
-    BuzzCompetition,
-    StarterPanel
+    BuzzCompetition
   },
   data() {
     return {
       videoSrc: backgroundVideo,
       question: "W sypialni na P?",
       showBuzzCompetition: false,
-      gameStarted: false,
       team1Name: '',
       team2Name: '',
       questionsData: null,
@@ -106,7 +102,6 @@ export default defineComponent({
       this.team1Name = team1Name;
       this.team2Name = team2Name;
       this.questionsData = questionsData;
-      this.gameStarted = true;
     } catch (error) {
       console.error('Błąd podczas wczytywania konfiguracji:', error);
       this.$router.push('/start-family');

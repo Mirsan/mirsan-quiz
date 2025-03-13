@@ -1,6 +1,6 @@
 <template>
-    <v-chip :color="playerColor" variant="flat" class="d-flex justify-center" style="font-family: 'PixelFont'; width: 90%; font-size: 1.5em; margin-top: 0.25em;">
-        {{ playerName.toUpperCase() }}
+    <v-chip :color="playerColor" variant="flat" class="d-flex justify-center text-h4 py-4 mt-2" style="font-family: 'PixelFont'; width: 90%; background-size: 10px 10px;">
+        {{ teamName.toUpperCase() }}
     </v-chip>
 </template>
 
@@ -15,7 +15,7 @@ export default defineComponent({
             required: true,
             validator: (value) => ['1', '2'].includes(value)
         },
-        playerName: {
+        teamName: {
             type: String,
             required: true
         }
