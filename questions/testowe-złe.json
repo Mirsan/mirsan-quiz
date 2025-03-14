@@ -1,0 +1,226 @@
+{
+  "questions": [
+    {
+      "questifon": "Jaki jest najczęstszy kolor oczu w Polsce?",
+      "answers": [
+        {
+          "answer": "niebieskie",
+          "poifnts": 45
+        },
+        {
+          "answer": "brązowe",
+          "points": 30
+        },
+        {
+          "answer": "zielone",
+          "points": 15
+        },
+        {
+          "answer": "szare",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Jakie zwierzęta najczęściej trzymamy w domu?",
+      "answers": [
+        {
+          "answer": "pies",
+          "points": 50
+        },
+        {
+          "answer": "kot",
+          "points": 40
+        },
+        {
+          "answer": "rybki",
+          "points": 5
+        },
+        {
+          "answer": "królik",
+          "points": 3
+        }
+      ]
+    },
+    {
+      "question": "Co najczęściej jemy na śniadanie?",
+      "answers": [
+        {
+          "answer": "kanapki",
+          "points": 40
+        },
+        {
+          "answer": "jajka",
+          "points": 30
+        },
+        {
+          "answer": "płatki śniadaniowe",
+          "points": 20
+        },
+        {
+          "answer": "omlet",
+          "points": 10
+        }
+      ]
+    }
+  ]
+}
+{
+  "questions": [
+    {
+      "question": "Jakie zwierzęta można spotkać w polskich lasach?",
+      "answers": [
+        {
+          "answer": "jeleń",
+          "points": 40
+        },
+        {
+          "answer": "wilk",
+          "points": 30
+        },
+        {
+          "answer": "sarna",
+          "points": 20
+        },
+        {
+          "answer": "dzik",
+          "points": 10
+        },
+        {
+          "answer": "lis",
+          "points": 5
+        }
+      ]
+    },
+    {
+      "question": "Co można znaleźć w kuchni?",
+      "answers": [
+        {
+          "answer": "garnek",
+          "points": 40
+        },
+        {
+          "answer": "talerz",
+          "points": 30
+        },
+        {
+          "answer": "łyżka",
+          "points": 20
+        }
+      ]
+    },
+    {
+      "question": "Jakie święta obchodzimy w Polsce?",
+      "answers": [
+        {
+          "answer": "Boże Narodzenie",
+          "points": 50
+        },
+        {
+          "answer": "Wielkanoc",
+          "points": 40
+        },
+        {
+          "answer": "Święto Niepodległości",
+          "points": 20
+        },
+        {
+          "answer": "Dzień Matki",
+          "points": 10
+        },
+        {
+          "answer": "Andrzejki",
+          "points": 5
+        }
+      ]
+    },
+    {
+      "question": "Jakie popularne sporty uprawiają Polacy?",
+      "answers": [
+        {
+          "answer": "piłka nożna",
+          "points": 45
+        },
+        {
+          "answer": "siatkówka",
+          "points": 30
+        },
+        {
+          "answer": "koszykówka",
+          "points": 15
+        },
+        {
+          "answer": "bieg",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Jakie są popularne owoce?",
+      "answers": [
+        {
+          "answer": "jabłko",
+          "points": 50
+        },
+        {
+          "answer": "banan",
+          "points": 40
+        },
+        {
+          "answer": "pomarańcza",
+          "points": 30
+        },
+        {
+          "answer": "truskawka",
+          "points": 15
+        }
+      ]
+    },
+    {
+      "question": "Co możemy zrobić w deszczowy dzień?",
+      "answers": [
+        {
+          "answer": "oglądać film",
+          "points": 40
+        },
+        {
+          "answer": "czytać książkę",
+          "points": 30
+        },
+        {
+          "answer": "grać w gry komputerowe",
+          "points": 20
+        },
+        {
+          "answer": "pić herbatę",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Co można zabrać na plażę?",
+      "answers": [
+        {
+          "answer": "ręcznik",
+          "points": 50
+        },
+        {
+          "answer": "klapki",
+          "points": 40
+        },
+        {
+          "answer": "parasol",
+          "points": 30
+        },
+        {
+          "answer": "krem przeciwsłoneczny",
+          "points": 20
+        },
+        {
+          "answer": "książka",
+          "points": 10
+        }
+      ]
+    }
+  ]
+}

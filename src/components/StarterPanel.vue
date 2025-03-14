@@ -42,7 +42,12 @@
             style="color: yellow;"
             :rules="[v => !!v || 'Plik z pytaniami jest wymagany']"
             prepend-icon="mdi-file-question"
+            @change="handleFileChange"
           ></v-file-input>
+
+          <div v-if="fileError" class="text-error mb-4 text-center">
+            {{ fileError }}
+          </div>
 
           <v-divider class="my-6"></v-divider>
 
@@ -106,7 +111,8 @@ export default {
       nameRules: [
         v => !!v || 'Nazwa drużyny jest wymagana',
         v => v.length <= 10 || 'Nazwa drużyny nie może być dłuższa niż 10 znaków'
-      ]
+      ],
+      fileError: null
     }
   },
   computed: {
@@ -132,6 +138,66 @@ export default {
         });
         this.show = false;
       }
+    },
+    async handleFileChange(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        // Czytamy i walidujemy plik
+        const content = await this.readFileContent(file);
+        const questionsData = JSON.parse(content);
+        
+        // Walidacja struktury
+        if (!questionsData.questions || !Array.isArray(questionsData.questions)) {
+          throw new Error('Nieprawidłowy format pliku - brak tablicy questions');
+        }
+
+        // Walidacja pytań
+        questionsData.questions.forEach((q, idx) => {
+          if (!q.question || !q.answers || !Array.isArray(q.answers)) {
+            throw new Error(`Nieprawidłowa struktura pytania ${idx + 1}`);
+          }
+          if (q.answers.length === 0) {
+            throw new Error(`Pytanie ${idx + 1} nie ma żadnych odpowiedzi`);
+          }
+          q.answers.forEach((a, aIdx) => {
+            if (!a.answer || typeof a.points !== 'number') {
+              throw new Error(`Nieprawidłowa struktura odpowiedzi ${aIdx + 1} w pytaniu ${idx + 1}`);
+            }
+          });
+        });
+
+        // Jeśli walidacja przeszła, zapisujemy plik
+        this.questionsFile = file;
+        this.fileError = null;
+      } catch (error) {
+        this.fileError = `Błąd walidacji pliku: ${error.message}`;
+        event.target.value = ''; // Reset input
+        this.questionsFile = null;
+      }
+    },
+
+    readFileContent(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target.result);
+        reader.onerror = () => reject(new Error('Błąd odczytu pliku'));
+        reader.readAsText(file);
+      });
+    },
+
+    handleSubmit() {
+      if (!this.team1Name || !this.team2Name || !this.questionsFile) {
+        this.formError = 'Wypełnij wszystkie pola';
+        return;
+      }
+      
+      this.$emit('game-start', {
+        team1Name: this.team1Name,
+        team2Name: this.team2Name,
+        questionsFile: this.questionsFile
+      });
     }
   }
 }

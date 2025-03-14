@@ -138,35 +138,41 @@ export default defineComponent({
     },
 
     async handleGameStart(config) {
-      // Czytamy zawartość pliku
-      const reader = new FileReader();
-      const fileContent = await new Promise((resolve, reject) => {
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = (e) => reject(e);
-        reader.readAsText(config.questionsFile);
-      });
+      try {
+        // Czytamy zawartość pliku
+        const reader = new FileReader();
+        const fileContent = await new Promise((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (e) => reject(e);
+          reader.readAsText(config.questionsFile);
+        });
 
-      // Zapisujemy konfigurację w localStorage bez obiektu File
-      localStorage.setItem('familyGameConfig', JSON.stringify({
-        team1Name: config.team1Name,
-        team2Name: config.team2Name,
-        questionsData: JSON.parse(fileContent),
-        isBluetoothConnected: this.isConnected
-      }));
+        const questionsData = JSON.parse(fileContent);
 
-      // Zapisujemy stan Bluetooth w globalnym obiekcie
-      window.bluetoothState = {
-        device: this.bluetoothDevice,
-        characteristic: this.bluetoothCharacteristic,
-        isConnected: this.isConnected,
-        server: this.bluetoothDevice?.gatt
-      };
+        // Zapisujemy konfigurację w localStorage
+        localStorage.setItem('familyGameConfig', JSON.stringify({
+          team1Name: config.team1Name,
+          team2Name: config.team2Name,
+          questionsData,
+          isBluetoothConnected: this.isConnected
+        }));
 
-      // Usuwamy nasłuchiwanie na rozłączenie z tego komponentu
-      this.bluetoothDevice?.removeEventListener('gattserverdisconnected', this.handleDisconnection);
+        // Zapisujemy stan Bluetooth w globalnym obiekcie
+        window.bluetoothState = {
+          device: this.bluetoothDevice,
+          characteristic: this.bluetoothCharacteristic,
+          isConnected: this.isConnected,
+          server: this.bluetoothDevice?.gatt
+        };
 
-      // Przekierowujemy do właściwej gry
-      this.$router.push('/family');
+        // Usuwamy nasłuchiwanie na rozłączenie z tego komponentu
+        this.bluetoothDevice?.removeEventListener('gattserverdisconnected', this.handleDisconnection);
+
+        // Przekierowujemy do właściwej gry
+        this.$router.push('/family');
+      } catch (error) {
+        alert(`Błąd wczytywania pliku: ${error.message}`);
+      }
     },
 
     handleTeamSelected(team) {

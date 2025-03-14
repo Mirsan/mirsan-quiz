@@ -1,0 +1,172 @@
+{
+  "questions": [
+    {
+      "question": "Jaki jest najczęstszy kolor oczu w Polsce?",
+      "answers": [
+        {
+          "answer": "niebieskie",
+          "points": 45
+        },
+        {
+          "answer": "brązowe",
+          "points": 30
+        },
+        {
+          "answer": "zielone",
+          "points": 15
+        },
+        {
+          "answer": "szare",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Jakie zwierzęta najczęściej trzymamy w domu?",
+      "answers": [
+        {
+          "answer": "pies",
+          "points": 50
+        },
+        {
+          "answer": "kot",
+          "points": 40
+        },
+        {
+          "answer": "rybki",
+          "points": 5
+        },
+        {
+          "answer": "królik",
+          "points": 3
+        },
+        {
+          "answer": "papuga",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "question": "Co można znaleźć w damskiej torebce?",
+      "answers": [
+        {
+          "answer": "portfel",
+          "points": 35
+        },
+        {
+          "answer": "telefon",
+          "points": 30
+        },
+        {
+          "answer": "klucze",
+          "points": 20
+        },
+        {
+          "answer": "kosmetyki",
+          "points": 10
+        },
+        {
+          "answer": "chusteczki",
+          "points": 5
+        }
+      ]
+    },
+    {
+      "question": "Jakie święto obchodzimy w grudniu?",
+      "answers": [
+        {
+          "answer": "Boże Narodzenie",
+          "points": 60
+        },
+        {
+          "answer": "Mikołajki",
+          "points": 30
+        },
+        {
+          "answer": "Sylwester",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Co robimy rano po przebudzeniu?",
+      "answers": [
+        {
+          "answer": "myjemy zęby",
+          "points": 40
+        },
+        {
+          "answer": "pijemy kawę",
+          "points": 30
+        },
+        {
+          "answer": "ubieramy się",
+          "points": 20
+        },
+        {
+          "answer": "sprawdzamy telefon",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Co kojarzy się z wakacjami?",
+      "answers": [
+        {
+          "answer": "morze",
+          "points": 40
+        },
+        {
+          "answer": "plaża",
+          "points": 30
+        },
+        {
+          "answer": "słońce",
+          "points": 20
+        },
+        {
+          "answer": "lody",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Jaki pojazd jeździ po torach?",
+      "answers": [
+        {
+          "answer": "pociąg",
+          "points": 60
+        },
+        {
+          "answer": "tramwaj",
+          "points": 30
+        },
+        {
+          "answer": "kolejka górska",
+          "points": 10
+        }
+      ]
+    },
+    {
+      "question": "Co można kupić w piekarni?",
+      "answers": [
+        {
+          "answer": "chleb",
+          "points": 50
+        },
+        {
+          "answer": "bułki",
+          "points": 30
+        },
+        {
+          "answer": "ciastka",
+          "points": 15
+        },
+        {
+          "answer": "bagietkę",
+          "points": 5
+        }
+      ]
+    }
+  ]
+}

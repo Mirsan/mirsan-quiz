@@ -120,19 +120,15 @@ export default defineComponent({
   data() {
     return {
       videoSrc: backgroundVideo,
-      question: "W sypialni na P?",
+      question: "",
       showBuzzCompetition: false,
       team1Name: '',
       team2Name: '',
       questionsData: null,
+      currentQuestionIndex: 0,
       activePlayer: null,
       pointsMultiplier: 1,
-      results: [
-        { id: 1, name: 'Posciel', points: 35, pass: false },
-        { id: 2, name: 'Poduszka', points: 17, pass: true },
-        { id: 3, name: 'Przescieradlo', points: 12, pass: false },
-        { id: 4, name: 'Polka', points: 8, pass: true },
-      ]
+      results: []
     }
   },
   async created() {
@@ -148,10 +144,18 @@ export default defineComponent({
       this.team2Name = team2Name;
       this.questionsData = questionsData;
       
+      if (this.questionsData?.questions?.length > 0) {
+        this.loadQuestion(0);
+        console.log('Załadowano pytania:', this.questionsData);
+      } else {
+        throw new Error('Brak pytań w pliku');
+      }
+      
       if (wasConnected) {
         await this.initializeBluetooth();
       }
     } catch (error) {
+      console.error('Błąd podczas ładowania konfiguracji:', error);
       this.$router.push('/start-family');
     }
   },
@@ -162,6 +166,19 @@ export default defineComponent({
     }
   },
   methods: {
+    loadQuestion(index) {
+      if (this.questionsData?.questions?.[index]) {
+        const questionData = this.questionsData.questions[index];
+        this.question = questionData.question;
+        this.results = questionData.answers.map((a, idx) => ({
+          id: idx + 1,
+          name: a.answer,
+          points: a.points,
+          pass: false
+        }));
+        this.currentQuestionIndex = index;
+      }
+    },
     handleToolAction(action) {
       switch (action) {
         case 'buzz':
