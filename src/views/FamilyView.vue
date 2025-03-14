@@ -210,12 +210,14 @@ export default defineComponent({
         this.currentQuestionIndex = index;
         this.currentSumPoints = 0;
         this.multiplierPoints = 1;
+        this.victoryMethod = null;
+        this.isCheckingAnswers = false;
+        this.roundCompleted = false;
       }
     },
     handleToolAction(action) {
       if (action.startsWith('show-answer-')) {
-        if (!this.activeTeam && !this.roundCompleted) return;
-        if (this.victoryMethod === 'failLimit' && !this.isCheckingAnswers) return;
+        if (!this.activeTeam && !this.roundCompleted && !this.victoryMethod) return;
         
         const num = parseInt(action.split('-').pop());
         const answer = this.results.find(r => r.id === num);
@@ -226,14 +228,25 @@ export default defineComponent({
             pass: true
           }
           
-          if (!this.isCheckingAnswers) {
+          if (!this.victoryMethod) {
             this.currentSumPoints = this.results
               .filter(item => item.pass)
               .reduce((acc, item) => acc + item.points, 0);
+
+            if ((this.team1Loss === 3 || this.team2Loss === 3) && answer.points > 0) {
+              this.victoryMethod = 3;
+              if (this.activeTeam === 1) {
+                this.team1Points += this.currentPoints;
+                this.pointsAnnouncementTeam = 1;
+              } else {
+                this.team2Points += this.currentPoints;
+                this.pointsAnnouncementTeam = 2;
+              }
+              this.showPointsAnnouncement = true;
+            }
           }
 
-          if (this.results.every(r => r.pass)) {
-            this.victoryMethod = 'correctAll';
+          if (this.results.every(r => r.pass) && (this.victoryMethod === 2 || this.victoryMethod === 3)) {
             this.showPointsAnnouncement = true;
           }
         }
@@ -284,17 +297,24 @@ export default defineComponent({
       const totalLosses = this.team1Loss + this.team2Loss;
       if (totalLosses >= 4) {
         this.roundCompleted = true;
-        this.victoryMethod = 'failLimit';
-        this.showPointsAnnouncement = true;
+        
+        if (this.victoryMethod !== 3) {
+          this.victoryMethod = 2;
+          if (this.team1Loss === 3) {
+            this.team2Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 2;
+          } else {
+            this.team1Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 1;
+          }
+          this.showPointsAnnouncement = true;
+        }
       }
     },
     handleRoundCompleteClose(value) {
-      if (!value && this.victoryMethod === 'failLimit' && !this.isCheckingAnswers) {
-        this.isCheckingAnswers = true;
-        this.showPointsAnnouncement = false;
-      } else {
-        this.showPointsAnnouncement = value;
-        if (!value) {
+      this.showPointsAnnouncement = value;
+      if (!value) {
+        if (this.results.every(r => r.pass)) {
           this.resetRound();
         }
       }
@@ -330,18 +350,22 @@ export default defineComponent({
         if (this.results.every(r => r.pass)) {
           this.roundCompleted = true;
           
-          if (this.activeTeam === 1) {
-            this.team1Points += this.currentPoints;
-          } else {
-            this.team2Points += this.currentPoints;
+          if (!this.victoryMethod) {
+            this.victoryMethod = 1;
+            
+            if (this.activeTeam === 1) {
+              this.team1Points += this.currentPoints;
+            } else {
+              this.team2Points += this.currentPoints;
+            }
+            
+            this.pointsAnnouncementTeam = this.activeTeam;
+            this.activeTeam = null;
+            
+            setTimeout(() => {
+              this.showPointsAnnouncement = true;
+            }, 1000);
           }
-          
-          this.pointsAnnouncementTeam = this.activeTeam;
-          this.activeTeam = null;
-          
-          setTimeout(() => {
-            this.showPointsAnnouncement = true;
-          }, 1000);
         } else if (this.team1Loss === 3 || this.team2Loss === 3) {
           this.checkLossCondition();
         }

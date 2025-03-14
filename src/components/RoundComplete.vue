@@ -51,7 +51,7 @@ export default {
       default: 0
     },
     victoryMethod: {
-      type: String,
+      type: Number,
       default: null
     },
     isCheckingAnswers: {
@@ -72,14 +72,19 @@ export default {
       }
     },
     showPointsAndTeam() {
-      return this.victoryMethod === 'correctAll' || 
-             (this.victoryMethod === 'failLimit' && this.allAnswersRevealed);
+      // VictoryMethod:
+      // null - gra trwa
+      // 1 - correctAll (wszystkie odkryte normalnie)
+      // 2 - failLimit (przegrana po 4 błędach)
+      // 3 - takeoverWin (wygrana po przejęciu)
+      return this.victoryMethod === 1 || 
+             ((this.victoryMethod === 2 || this.victoryMethod === 3) && !this.allAnswersRevealed);
     },
     buttonText() {
-      if (this.victoryMethod === 'failLimit' && !this.isCheckingAnswers) {
-        return 'Sprawdź odpowiedzi [enter]';
+      if (this.allAnswersRevealed) {
+        return 'Następna runda [enter]';
       }
-      return 'Następna runda [enter]';
+      return 'Sprawdź odpowiedzi [enter]';
     }
   },
   methods: {
