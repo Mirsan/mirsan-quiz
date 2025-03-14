@@ -7,8 +7,10 @@
     <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
         <div class="points-display">
-          <div class="points">+{{ points }}</div>
-          <div class="team-name">{{ teamName }}</div>
+          <template v-if="showPointsAndTeam">
+            <div class="points">+{{ points }}</div>
+            <div class="team-name">{{ teamName }}</div>
+          </template>
           <v-btn
             class="mt-6"
             color="primary"
@@ -47,6 +49,14 @@ export default {
       type: Number,
       required: true,
       default: 0
+    },
+    victoryMethod: {
+      type: String,
+      default: null
+    },
+    isCheckingAnswers: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -55,14 +65,21 @@ export default {
   computed: {
     dialog: {
       get() {
-        return this.modelValue || this.totalLoss >= 4;
+        return this.modelValue;
       },
       set(value) {
         this.$emit('update:modelValue', value);
       }
     },
+    showPointsAndTeam() {
+      return this.victoryMethod === 'correctAll' || 
+             (this.victoryMethod === 'failLimit' && this.allAnswersRevealed);
+    },
     buttonText() {
-      return this.allAnswersRevealed ? 'Następna runda' : 'Sprawdź odpowiedzi';
+      if (this.victoryMethod === 'failLimit' && !this.isCheckingAnswers) {
+        return 'Sprawdź odpowiedzi [enter]';
+      }
+      return 'Następna runda [enter]';
     }
   },
   methods: {

@@ -11,6 +11,10 @@
           v-model="showPointsAnnouncement"
           :points="currentPoints"
           :teamName="pointsAnnouncementTeam === 1 ? team1Name : team2Name"
+          :allAnswersRevealed="results.every(r => r.pass)"
+          :totalLoss="team1Loss + team2Loss"
+          :victoryMethod="victoryMethod"
+          :isCheckingAnswers="isCheckingAnswers"
           @update:modelValue="handleRoundCompleteClose"
         />
         <video
@@ -148,7 +152,9 @@ export default defineComponent({
       team2Points: 0,
       team1Loss: 2,
       team2Loss: 0,
-      roundCompleted: false
+      roundCompleted: false,
+      victoryMethod: null,
+      isCheckingAnswers: false,
     }
   },
   computed: {
@@ -209,18 +215,27 @@ export default defineComponent({
     handleToolAction(action) {
       if (action.startsWith('show-answer-')) {
         if (!this.activeTeam && !this.roundCompleted) return;
+        if (this.victoryMethod === 'failLimit' && !this.isCheckingAnswers) return;
         
         const num = parseInt(action.split('-').pop());
         const answer = this.results.find(r => r.id === num);
-        if (answer && !answer.pass && !this.roundCompleted) {
+        if (answer && !answer.pass) {
           const index = this.results.indexOf(answer);
           this.results[index] = {
             ...answer,
             pass: true
           }
-          this.currentSumPoints = this.results
-            .filter(item => item.pass)
-            .reduce((acc, item) => acc + item.points, 0);
+          
+          if (!this.isCheckingAnswers) {
+            this.currentSumPoints = this.results
+              .filter(item => item.pass)
+              .reduce((acc, item) => acc + item.points, 0);
+          }
+
+          if (this.results.every(r => r.pass)) {
+            this.victoryMethod = 'correctAll';
+            this.showPointsAnnouncement = true;
+          }
         }
         return;
       }
@@ -269,44 +284,31 @@ export default defineComponent({
       const totalLosses = this.team1Loss + this.team2Loss;
       if (totalLosses >= 4) {
         this.roundCompleted = true;
-        
-        // Przyznaj punkty drużynie z 3 loss
-        if (this.team1Loss === 3 && this.team2Loss === 1) {
-          this.team1Points += this.currentPoints;
-          this.pointsAnnouncementTeam = 1;
-        } else if (this.team2Loss === 3 && this.team1Loss === 1) {
-          this.team2Points += this.currentPoints;
-          this.pointsAnnouncementTeam = 2;
-        }
-        
-        this.activeTeam = null;
-        
-        setTimeout(() => {
-          this.showPointsAnnouncement = true;
-        }, 1000);
-      }
-    },
-    checkVictoryCondition() {
-      if (this.activeTeam && this.results.every(r => r.pass) && (this.team1Loss + this.team2Loss < 4)) {
-        this.roundCompleted = true;
-        
-        // Przyznaj punkty aktywnej drużynie
-        if (this.activeTeam === 1) {
-          this.team1Points += this.currentPoints;
-        } else {
-          this.team2Points += this.currentPoints;
-        }
-        
-        this.pointsAnnouncementTeam = this.activeTeam;
-        this.activeTeam = null;
-        
-        setTimeout(() => {
-          this.showPointsAnnouncement = true;
-        }, 1000);
+        this.victoryMethod = 'failLimit';
+        this.showPointsAnnouncement = true;
       }
     },
     handleRoundCompleteClose(value) {
-      this.showPointsAnnouncement = value;
+      if (!value && this.victoryMethod === 'failLimit' && !this.isCheckingAnswers) {
+        this.isCheckingAnswers = true;
+        this.showPointsAnnouncement = false;
+      } else {
+        this.showPointsAnnouncement = value;
+        if (!value) {
+          this.resetRound();
+        }
+      }
+    },
+    resetRound() {
+      this.currentSumPoints = 0;
+      this.multiplierPoints = 1;
+      this.victoryMethod = null;
+      this.isCheckingAnswers = false;
+      this.roundCompleted = false;
+      this.results.forEach(r => r.pass = false);
+      this.team1Loss = 0;
+      this.team2Loss = 0;
+      this.loadQuestion(this.currentQuestionIndex + 1);
     }
   },
   beforeUnmount() {
