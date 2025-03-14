@@ -11,6 +11,12 @@
           v-model="showPointsAnnouncement"
           :points="currentPoints"
           :teamName="pointsAnnouncementTeam === 1 ? team1Name : team2Name"
+          @update:modelValue="handleRoundCompleteClose"
+        />
+        <RoundNext
+          v-model="showRoundNext"
+          :points="currentPoints"
+          :teamName="pointsAnnouncementTeam === 1 ? team1Name : team2Name"
         />
         <video
             ref="videoPlayer"
@@ -109,6 +115,7 @@ import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import GameTools from '@/components/GameTools.vue';
 import RoundComplete from '@/components/RoundComplete.vue';
+import RoundNext from '@/components/RoundNext.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 
@@ -121,7 +128,8 @@ export default defineComponent({
     PlayerLabel,
     BuzzCompetition,
     GameTools,
-    RoundComplete
+    RoundComplete,
+    RoundNext
   },
   setup() {
     const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
@@ -133,6 +141,7 @@ export default defineComponent({
       question: "",
       showBuzzCompetition: false,
       showPointsAnnouncement: false,
+      showRoundNext: false,
       pointsAnnouncementTeam: null,
       team1Name: '',
       team2Name: '',
@@ -262,17 +271,23 @@ export default defineComponent({
       }
     },
     checkLossCondition() {
-      if ((this.team1Loss === 3 && this.team2Loss === 3) || 
-          (this.team1Loss === 3 && this.team2Loss === 1) || 
-          (this.team1Loss === 1 && this.team2Loss === 3)) {
+      const totalLosses = this.team1Loss + this.team2Loss;
+      if (totalLosses >= 4) {
         setTimeout(() => {
-          this.pointsAnnouncementTeam = this.team1Loss === 3 ? 2 : 1;
+          // Jeśli jeden z graczy ma 3 loss, a drugi 1 loss
+          if (this.team1Loss === 3 && this.team2Loss === 1) {
+            this.team2Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 2;
+          } else if (this.team2Loss === 3 && this.team1Loss === 1) {
+            this.team1Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 1;
+          }
           this.showPointsAnnouncement = true;
         }, 2000);
       }
     },
     checkVictoryCondition() {
-      if (this.activeTeam && this.results.every(r => r.pass)) {
+      if (this.activeTeam && this.results.every(r => r.pass) && (this.team1Loss + this.team2Loss < 4)) {
         setTimeout(() => {
           this.pointsAnnouncementTeam = this.activeTeam;
           this.showPointsAnnouncement = true;
@@ -284,6 +299,12 @@ export default defineComponent({
             this.team2Points += this.currentPoints;
           }
         }, 2000);
+      }
+    },
+    handleRoundCompleteClose(value) {
+      this.showPointsAnnouncement = value;
+      if (!value && this.results.every(r => r.pass)) {
+        this.showRoundNext = true;
       }
     }
   },
@@ -303,7 +324,11 @@ export default defineComponent({
     results: {
       deep: true,
       handler() {
-        this.checkVictoryCondition();
+        if (this.team1Loss === 3 || this.team2Loss === 3) {
+          this.checkLossCondition();
+        } else {
+          this.checkVictoryCondition();
+        }
       }
     }
   }
