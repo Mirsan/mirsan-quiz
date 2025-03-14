@@ -33,13 +33,13 @@
                       class="large-badge"
                     >
                         <SmallDigitalScreen
-                          :value=currentSumPoints*multiplierPoints
+                          :value="currentPoints"
                           :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                         />
                     </v-badge>
                     <SmallDigitalScreen
                       v-else
-                      :value=currentSumPoints*multiplierPoints 
+                      :value="currentPoints"
                       :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                     />
                 </v-col>          
@@ -138,6 +138,11 @@ export default defineComponent({
       team2Points: 0,
       team1Loss: 1,
       team2Loss: 0
+    }
+  },
+  computed: {
+    currentPoints() {
+      return this.currentSumPoints * this.multiplierPoints;
     }
   },
   async created() {
