@@ -33,13 +33,13 @@
                       class="large-badge"
                     >
                         <SmallDigitalScreen
-                          :value=currentPoints 
+                          :value=currentSumPoints*multiplierPoints
                           :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                         />
                     </v-badge>
                     <SmallDigitalScreen
                       v-else
-                      :value="currentPoints" 
+                      :value=currentSumPoints*multiplierPoints 
                       :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                     />
                 </v-col>          
@@ -132,11 +132,11 @@ export default defineComponent({
       activePlayer: null,
       multiplierPoints: 1,
       results: [],
-      currentPoints: 0,
+      currentSumPoints: 0,
       round: 1,
       team1Points: 0,
       team2Points: 0,
-      team1Loss: 0,
+      team1Loss: 1,
       team2Loss: 0
     }
   },
@@ -186,9 +186,27 @@ export default defineComponent({
           pass: false
         }));
         this.currentQuestionIndex = index;
+        this.currentSumPoints = 0;
+        this.multiplierPoints = 1;
       }
     },
     handleToolAction(action) {
+      if (action.startsWith('toggle-answer-')) {
+        const num = parseInt(action.split('-').pop());
+        const answer = this.results.find(r => r.id === num);
+        if (answer) {
+          const index = this.results.indexOf(answer);
+          this.results[index] = {
+            ...answer,
+            pass: !answer.pass
+          }
+          this.currentSumPoints = this.results
+            .filter(item => item.pass)
+            .reduce((acc, item) => acc + item.points, 0);
+        }
+        return;
+      }
+
       switch (action) {
         case 'buzz':
           this.showBuzzCompetition = true;

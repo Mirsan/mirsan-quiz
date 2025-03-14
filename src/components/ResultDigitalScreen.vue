@@ -4,8 +4,15 @@
       <div class="results-container">
         <!-- Pytanie -->
         <v-row no-gutters class="result-row flex-nowrap">
-          <v-col cols="12" class="text-center question-row">
-            {{ question }}
+          <v-col cols="12" class="text-center question-row marquee-wrapper">
+            <div class="question-container">
+              <div ref="questionText" :class="{'scrolling-text': shouldScroll}" class="question-text" style="font-size: smaller;">
+                <span class="duplicate-text">{{ question }}</span>
+                <span v-if="shouldScroll" class="duplicate-text">{{ question }}</span>
+                <span v-if="shouldScroll" class="duplicate-text">{{ question }}</span>
+                <span v-if="shouldScroll" class="duplicate-text">{{ question }}</span>
+              </div>
+            </div>
           </v-col>
         </v-row>
 
@@ -64,6 +71,11 @@
 <script>
 export default {
   name: 'FamilyResultDigitalScreen',
+  data() {
+    return {
+      shouldScroll: false
+    }
+  },
   props: {
     results: {
       type: Array,
@@ -73,6 +85,39 @@ export default {
     question: {
       type: String,
       required: true
+    }
+  },
+  mounted() {
+    window.addEventListener('resize', this.checkOverflow)
+    this.$nextTick(() => {
+      this.checkOverflow()
+    })
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.checkOverflow)
+  },
+  watch: {
+    question: {
+      immediate: true,
+      handler() {
+        this.$nextTick(() => {
+          this.checkOverflow()
+        })
+      }
+    }
+  },
+  methods: {
+    checkOverflow() {
+      const element = this.$refs.questionText
+      const container = element?.parentElement
+      if (element && container) {
+        const textWidth = element.getBoundingClientRect().width
+        const containerWidth = container.getBoundingClientRect().width
+        console.log('textWidth:', textWidth)
+        console.log('containerWidth:', containerWidth)
+        this.shouldScroll = textWidth > containerWidth
+        console.log('shouldScroll:', this.shouldScroll)
+      }
     }
   }
 }
@@ -102,5 +147,40 @@ export default {
 .question-row {
   padding-bottom: 0.1em;
   margin-bottom: 0.1em;
+}
+
+.marquee-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.question-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.question-text {
+  display: inline-flex;
+  white-space: nowrap;
+  position: relative;
+}
+
+.duplicate-text {
+  padding: 0 25px;
+}
+
+.scrolling-text {
+  animation: scroll-text 60s linear infinite;
+}
+
+@keyframes scroll-text {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 </style> 

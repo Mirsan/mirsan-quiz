@@ -160,6 +160,14 @@ export default {
         'NumpadAdd': 'points'        // Numpad +
       };
 
+      // Obsługa klawiszy numerycznych
+      const numKey = event.key;
+      if (/^[1-9]$/.test(numKey) || /^Numpad[1-9]$/.test(event.code)) {
+        const num = parseInt(numKey) || parseInt(event.code.slice(-1));
+        this.$emit('tool-action', `toggle-answer-${num}`);
+        return;
+      }
+
       const action = keyMap[event.key] || keyMap[event.code];
       if (action) {
         this.handleToolClick(action);
