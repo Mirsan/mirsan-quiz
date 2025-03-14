@@ -63,16 +63,16 @@
                         <v-col cols="8">
                             <v-card outlined style="background-color: #000; opacity: 0.88; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px; border-radius: 40px;">
                                 <v-row no-gutters>
-                                    <v-col cols="1">
-                                        <LossDigitalScreen :loss=team1Loss />
+                                    <v-col cols="1" style="padding-left: 2em;">
+                                        <LossDigitalScreen :myLoss="team1Loss" :oponentLoss="team2Loss" />
                                     </v-col>
                                     
                                     <v-col cols="10">
                                         <ResultDigitalScreen :question="question" :results="results" />
                                     </v-col>
                                     
-                                    <v-col cols="1">
-                                        <LossDigitalScreen :loss=team2Loss />
+                                    <v-col cols="1" style="margin-left: -2rem;">
+                                        <LossDigitalScreen :myLoss="team2Loss" :oponentLoss="team1Loss" />
                                     </v-col>
                                 </v-row>
                             </v-card>
@@ -145,8 +145,8 @@ export default defineComponent({
       round: 1,
       team1Points: 0,
       team2Points: 0,
-      team1Loss: 1,
-      team2Loss: 0
+      team1Loss: 3,
+      team2Loss: 1
     }
   },
   computed: {
