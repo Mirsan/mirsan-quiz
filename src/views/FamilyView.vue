@@ -269,31 +269,40 @@ export default defineComponent({
       const totalLosses = this.team1Loss + this.team2Loss;
       if (totalLosses >= 4) {
         this.roundCompleted = true;
+        
+        // Przyznaj punkty drużynie z 3 loss
+        if (this.team1Loss === 3 && this.team2Loss === 1) {
+          this.team1Points += this.currentPoints;
+          this.pointsAnnouncementTeam = 1;
+        } else if (this.team2Loss === 3 && this.team1Loss === 1) {
+          this.team2Points += this.currentPoints;
+          this.pointsAnnouncementTeam = 2;
+        }
+        
+        this.activeTeam = null;
+        
         setTimeout(() => {
-          if (this.team1Loss === 3 && this.team2Loss === 1) {
-            this.team2Points += this.currentPoints;
-            this.pointsAnnouncementTeam = 2;
-          } else if (this.team2Loss === 3 && this.team1Loss === 1) {
-            this.team1Points += this.currentPoints;
-            this.pointsAnnouncementTeam = 1;
-          }
           this.showPointsAnnouncement = true;
-        }, 2000);
+        }, 1000);
       }
     },
     checkVictoryCondition() {
       if (this.activeTeam && this.results.every(r => r.pass) && (this.team1Loss + this.team2Loss < 4)) {
         this.roundCompleted = true;
+        
+        // Przyznaj punkty aktywnej drużynie
+        if (this.activeTeam === 1) {
+          this.team1Points += this.currentPoints;
+        } else {
+          this.team2Points += this.currentPoints;
+        }
+        
+        this.pointsAnnouncementTeam = this.activeTeam;
+        this.activeTeam = null;
+        
         setTimeout(() => {
-          this.pointsAnnouncementTeam = this.activeTeam;
           this.showPointsAnnouncement = true;
-          
-          if (this.activeTeam === 1) {
-            this.team1Points += this.currentPoints;
-          } else {
-            this.team2Points += this.currentPoints;
-          }
-        }, 2000);
+        }, 1000);
       }
     },
     handleRoundCompleteClose(value) {
@@ -316,10 +325,23 @@ export default defineComponent({
     results: {
       deep: true,
       handler() {
-        if (this.team1Loss === 3 || this.team2Loss === 3) {
+        if (this.results.every(r => r.pass)) {
+          this.roundCompleted = true;
+          
+          if (this.activeTeam === 1) {
+            this.team1Points += this.currentPoints;
+          } else {
+            this.team2Points += this.currentPoints;
+          }
+          
+          this.pointsAnnouncementTeam = this.activeTeam;
+          this.activeTeam = null;
+          
+          setTimeout(() => {
+            this.showPointsAnnouncement = true;
+          }, 1000);
+        } else if (this.team1Loss === 3 || this.team2Loss === 3) {
           this.checkLossCondition();
-        } else {
-          this.checkVictoryCondition();
         }
       }
     }
