@@ -79,13 +79,6 @@ export default {
       showResetDialog: false,
       tools: [
         {
-          icon: 'mdi-bell-ring',
-          color: 'blue',
-          tooltip: 'Buzz - zgłaszanie drużyny [*]',
-          action: 'buzz',
-          shortcut: '*'
-        },
-        {
           icon: 'mdi-swap-horizontal',
           color: 'green',
           tooltip: 'Zmiana drużyny [/]',
@@ -149,12 +142,10 @@ export default {
     },
     handleKeyPress(event) {
       const keyMap = {
-        '*': 'buzz',
         '/': 'swap',
         '-': 'timer',
         '+': 'points',
         'Backspace': 'restart',
-        'NumpadMultiply': 'buzz',    // Numpad *
         'NumpadDivide': 'swap',      // Numpad /
         'NumpadSubtract': 'timer',   // Numpad -
         'NumpadAdd': 'points',       // Numpad +

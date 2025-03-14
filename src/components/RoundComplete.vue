@@ -9,7 +9,7 @@
         <div class="points-display">
           <template v-if="showPointsAndTeam">
             <div class="points">+{{ points }}</div>
-            <div class="team-name">{{ teamName }}</div>
+            <div class="team-name" :class="{ 'team-blue': isTeam1, 'team-red': !isTeam1 }">{{ teamName }}</div>
           </template>
           <v-btn
             class="mt-6"
@@ -57,6 +57,10 @@ export default {
     isCheckingAnswers: {
       type: Boolean,
       default: false
+    },
+    isTeam1: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -133,8 +137,17 @@ export default {
 
 .team-name {
   font-size: 3rem;
-  color: #ffffff;
   text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+.team-blue {
+  color: #0000ff;
+  text-shadow: 0 0 15px rgba(0, 0, 255, 0.8);
+}
+
+.team-red {
+  color: #ff0000;
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
 }
 
 @keyframes pointsPulse {

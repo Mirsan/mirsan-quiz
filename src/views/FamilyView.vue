@@ -15,6 +15,7 @@
           :totalLoss="team1Loss + team2Loss"
           :victoryMethod="victoryMethod"
           :isCheckingAnswers="isCheckingAnswers"
+          :isTeam1="pointsAnnouncementTeam === 1"
           @update:modelValue="handleRoundCompleteClose"
         />
         <video
@@ -150,7 +151,7 @@ export default defineComponent({
       round: 1,
       team1Points: 0,
       team2Points: 0,
-      team1Loss: 2,
+      team1Loss: 0,
       team2Loss: 0,
       roundCompleted: false,
       victoryMethod: null,
@@ -213,6 +214,10 @@ export default defineComponent({
         this.victoryMethod = null;
         this.isCheckingAnswers = false;
         this.roundCompleted = false;
+        
+        setTimeout(() => {
+          this.showBuzzCompetition = true;
+        }, 500);
       }
     },
     handleToolAction(action) {
