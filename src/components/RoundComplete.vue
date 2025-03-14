@@ -93,7 +93,7 @@ export default {
     text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
   }
   50% {
-    transform: scale(1.15);
+    transform: scale(1.5);
     text-shadow: 0 0 30px rgba(0, 255, 0, 1);
   }
   100% {
