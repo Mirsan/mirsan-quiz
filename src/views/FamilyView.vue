@@ -216,6 +216,8 @@ export default defineComponent({
       }
     },
     handleToolAction(action) {
+      if (this.showPointsAnnouncement) return;
+      
       if (action.startsWith('show-answer-')) {
         if (!this.activeTeam && !this.roundCompleted && !this.victoryMethod) return;
         
@@ -272,6 +274,7 @@ export default defineComponent({
 
       switch (action) {
         case 'buzz':
+          if (this.showPointsAnnouncement) return;
           this.showBuzzCompetition = true;
           this.activeTeam = null;
           break;
@@ -287,6 +290,7 @@ export default defineComponent({
           // TODO: Start/Stop timera
           break;
         case 'points':
+          if (this.showPointsAnnouncement) return;
           this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
         case 'loss':
@@ -349,6 +353,7 @@ export default defineComponent({
       this.victoryMethod = null;
       this.isCheckingAnswers = false;
       this.roundCompleted = false;
+      this.showPointsAnnouncement = false;
       this.results.forEach(r => r.pass = false);
       this.team1Loss = 0;
       this.team2Loss = 0;

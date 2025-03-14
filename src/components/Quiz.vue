@@ -26,6 +26,7 @@
 
 <script>
 export default {
+  name: 'GameFlow',
   data() {
     return {
       questions: [],

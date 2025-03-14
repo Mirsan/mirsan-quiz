@@ -48,6 +48,19 @@
             </v-tooltip>
           </v-col>
         </v-row>
+        
+        <v-row v-if="activeTeam" class="justify-center mt-6">
+          <v-col cols="6">
+            <v-btn 
+              color="primary" 
+              class="continue-btn"
+              @click="closeDialog"
+              @keyup.enter="closeDialog"
+            >
+              Kontynuuj [enter]
+            </v-btn>
+          </v-col>
+        </v-row>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -65,8 +78,7 @@ export default {
   data() {
     return {
       activeTeam: null,
-      isBlocked: false,
-      closeTimer: null
+      isBlocked: false
     }
   },
   props: {
@@ -94,21 +106,22 @@ export default {
       this.activeTeam = team;
       this.isBlocked = true;
       this.$emit('team-selected', team);
-
-      this.closeTimer = setTimeout(() => {
-        this.dialog = false;
-        this.isBlocked = false;
-      }, 3000);
+    },
+    closeDialog() {
+      this.dialog = false;
+      this.isBlocked = false;
     },
     handleKeyPress(event) {
-      if (!this.dialog || this.isBlocked) return;
+      if (!this.dialog) return;
       
-      if (event.key === 'Shift') {
+      if (event.key === 'Shift' && !this.isBlocked) {
         if (event.location === 1) {
           this.selectTeam(1);
         } else if (event.location === 2) {
           this.selectTeam(2);
         }
+      } else if (event.key === 'Enter' && this.activeTeam) {
+        this.closeDialog();
       }
     },
     handleBuzzerSignal(event) {
@@ -122,10 +135,6 @@ export default {
     resetState() {
       this.activeTeam = null;
       this.isBlocked = false;
-      if (this.closeTimer) {
-        clearTimeout(this.closeTimer);
-        this.closeTimer = null;
-      }
     }
   },
   watch: {
@@ -153,9 +162,6 @@ export default {
     window.removeEventListener('keydown', this.handleKeyPress);
     if (this.bluetoothCharacteristic) {
       this.bluetoothCharacteristic.removeEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
-    }
-    if (this.closeTimer) {
-      clearTimeout(this.closeTimer);
     }
   },
   computed: {
@@ -195,6 +201,12 @@ export default {
   border-radius: 12px;
   animation: borderPulse 1.5s infinite;
   pointer-events: none;
+}
+
+.continue-btn {
+  font-family: 'PixelFont';
+  font-size: 1.5rem;
+  height: 60px;
 }
 
 @keyframes pulse {
