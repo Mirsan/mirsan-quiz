@@ -145,8 +145,8 @@ export default defineComponent({
       round: 1,
       team1Points: 0,
       team2Points: 0,
-      team1Loss: 3,
-      team2Loss: 1
+      team1Loss: 2,
+      team2Loss: 0
     }
   },
   computed: {
@@ -241,10 +241,22 @@ export default defineComponent({
           this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
         case 'loss':
-          if (this.activeTeam === 1 && this.team1Loss < 3) {
-            this.team1Loss++;
-          } else if (this.activeTeam === 2 && this.team2Loss < 3) {
-            this.team2Loss++;
+          if (this.activeTeam === 1) {
+            if (this.team2Loss === 3 && this.team1Loss >= 1) return;
+            if (this.team1Loss < 3) {
+              this.team1Loss++;
+              if (this.team1Loss === 3) {
+                this.activeTeam = 2;
+              }
+            }
+          } else if (this.activeTeam === 2) {
+            if (this.team1Loss === 3 && this.team2Loss >= 1) return;
+            if (this.team2Loss < 3) {
+              this.team2Loss++;
+              if (this.team2Loss === 3) {
+                this.activeTeam = 1;
+              }
+            }
           }
           break;
       }
