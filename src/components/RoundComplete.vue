@@ -9,6 +9,14 @@
         <div class="points-display">
           <div class="points">+{{ points }}</div>
           <div class="team-name">{{ teamName }}</div>
+          <v-btn
+            class="mt-6"
+            color="primary"
+            @click="closeDialog"
+            @keyup.enter="closeDialog"
+          >
+            {{ buttonText }}
+          </v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -30,38 +38,47 @@ export default {
     teamName: {
       type: String,
       required: true
+    },
+    allAnswersRevealed: {
+      type: Boolean,
+      required: true
+    },
+    totalLoss: {
+      type: Number,
+      required: true,
+      default: 0
     }
   },
   data() {
-    return {
-      closeTimer: null
-    }
+    return {}
   },
   computed: {
     dialog: {
       get() {
-        return this.modelValue;
+        return this.modelValue || this.totalLoss >= 4;
       },
       set(value) {
         this.$emit('update:modelValue', value);
       }
+    },
+    buttonText() {
+      return this.allAnswersRevealed ? 'Następna runda' : 'Sprawdź odpowiedzi';
     }
   },
-  watch: {
-    dialog(newVal) {
-      if (newVal) {
-        this.closeTimer = setTimeout(() => {
-          this.dialog = false;
-        }, 7000);
-      } else if (this.closeTimer) {
-        clearTimeout(this.closeTimer);
-      }
+  methods: {
+    closeDialog() {
+      this.dialog = false;
     }
+  },
+  mounted() {
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter' && this.dialog) {
+        this.closeDialog();
+      }
+    });
   },
   beforeUnmount() {
-    if (this.closeTimer) {
-      clearTimeout(this.closeTimer);
-    }
+    window.removeEventListener('keyup', this.closeDialog);
   }
 }
 </script>

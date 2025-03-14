@@ -13,11 +13,6 @@
           :teamName="pointsAnnouncementTeam === 1 ? team1Name : team2Name"
           @update:modelValue="handleRoundCompleteClose"
         />
-        <RoundNext
-          v-model="showRoundNext"
-          :points="currentPoints"
-          :teamName="pointsAnnouncementTeam === 1 ? team1Name : team2Name"
-        />
         <video
             ref="videoPlayer"
             class="background-video"
@@ -115,7 +110,6 @@ import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import GameTools from '@/components/GameTools.vue';
 import RoundComplete from '@/components/RoundComplete.vue';
-import RoundNext from '@/components/RoundNext.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 
@@ -128,8 +122,7 @@ export default defineComponent({
     PlayerLabel,
     BuzzCompetition,
     GameTools,
-    RoundComplete,
-    RoundNext
+    RoundComplete
   },
   setup() {
     const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
@@ -141,7 +134,6 @@ export default defineComponent({
       question: "",
       showBuzzCompetition: false,
       showPointsAnnouncement: false,
-      showRoundNext: false,
       pointsAnnouncementTeam: null,
       team1Name: '',
       team2Name: '',
@@ -303,9 +295,6 @@ export default defineComponent({
     },
     handleRoundCompleteClose(value) {
       this.showPointsAnnouncement = value;
-      if (!value && this.results.every(r => r.pass)) {
-        this.showRoundNext = true;
-      }
     }
   },
   beforeUnmount() {
