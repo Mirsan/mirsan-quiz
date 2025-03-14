@@ -228,7 +228,7 @@ export default defineComponent({
             pass: true
           }
           
-          if (!this.victoryMethod) {
+          if (this.victoryMethod === null) {
             this.currentSumPoints = this.results
               .filter(item => item.pass)
               .reduce((acc, item) => acc + item.points, 0);
@@ -246,8 +246,25 @@ export default defineComponent({
             }
           }
 
-          if (this.results.every(r => r.pass) && this.victoryMethod) {
-            this.showPointsAnnouncement = true;
+          if (this.results.every(r => r.pass)) {
+            if (this.victoryMethod === 2 || this.victoryMethod === 3) {
+              this.showPointsAnnouncement = true;
+            } else if (this.victoryMethod === null) {
+              this.victoryMethod = 1;
+              
+              if (this.activeTeam === 1) {
+                this.team1Points += this.currentPoints;
+              } else {
+                this.team2Points += this.currentPoints;
+              }
+              
+              this.pointsAnnouncementTeam = this.activeTeam;
+              this.activeTeam = null;
+              
+              setTimeout(() => {
+                this.showPointsAnnouncement = true;
+              }, 1000);
+            }
           }
         }
         return;
@@ -274,48 +291,44 @@ export default defineComponent({
           break;
         case 'loss':
           if (this.activeTeam === 1) {
-            if (this.team2Loss === 3) {
-              this.team1Loss++;
+            this.team1Loss++;
+            if (this.team1Loss + this.team2Loss >= 4) {
               this.checkLossCondition();
               return;
             }
             
-            if (this.team1Loss < 3) {
-              this.team1Loss++;
-              if (this.team1Loss === 3) {
-                this.activeTeam = 2;
-              }
+            if (this.team1Loss === 3) {
+              this.activeTeam = 2;
             }
           } else if (this.activeTeam === 2) {
-            if (this.team1Loss === 3) {
-              this.team2Loss++;
+            this.team2Loss++;
+            if (this.team1Loss + this.team2Loss >= 4) {
               this.checkLossCondition();
               return;
             }
             
-            if (this.team2Loss < 3) {
-              this.team2Loss++;
-              if (this.team2Loss === 3) {
-                this.activeTeam = 1;
-              }
+            if (this.team2Loss === 3) {
+              this.activeTeam = 1;
             }
           }
           break;
       }
     },
     checkLossCondition() {
-      if ((this.team1Loss === 3 && this.team2Loss >= 1) || (this.team2Loss === 3 && this.team1Loss >= 1)) {
+      const totalLosses = this.team1Loss + this.team2Loss;
+      
+      if (totalLosses >= 4) {
         this.roundCompleted = true;
         
         if (this.victoryMethod !== 3) {
           this.victoryMethod = 2;
           
-          if (this.team1Loss === 3) {
-            this.team1Points += this.currentPoints;
-            this.pointsAnnouncementTeam = 1;
-          } else {
+          if (this.activeTeam === 1) {
             this.team2Points += this.currentPoints;
             this.pointsAnnouncementTeam = 2;
+          } else {
+            this.team1Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 1;
           }
           
           this.showPointsAnnouncement = true;
@@ -358,26 +371,7 @@ export default defineComponent({
     results: {
       deep: true,
       handler() {
-        if (this.results.every(r => r.pass)) {
-          this.roundCompleted = true;
-          
-          if (!this.victoryMethod) {
-            this.victoryMethod = 1;
-            
-            if (this.activeTeam === 1) {
-              this.team1Points += this.currentPoints;
-            } else {
-              this.team2Points += this.currentPoints;
-            }
-            
-            this.pointsAnnouncementTeam = this.activeTeam;
-            this.activeTeam = null;
-            
-            setTimeout(() => {
-              this.showPointsAnnouncement = true;
-            }, 1000);
-          }
-        } else if (this.team1Loss === 3 || this.team2Loss === 3) {
+        if (this.team1Loss === 3 || this.team2Loss === 3) {
           this.checkLossCondition();
         }
       }

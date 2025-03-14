@@ -78,8 +78,11 @@ export default {
       // 2 - failLimit (przegrana po 4 błędach)
       // 3 - takeoverWin (wygrana po przejęciu)
       
-      // Pokazujemy punkty i nazwę drużyny zawsze, niezależnie od stanu gry
-      return true;
+      // Pokazujemy punkty i nazwę drużyny tylko gdy:
+      // - victoryMethod === 1 (wszystkie odkryte normalnie)
+      // - lub gdy victoryMethod === 2 lub 3 (failLimit lub takeoverWin) i nie wszystkie odpowiedzi są odkryte
+      return this.victoryMethod === 1 || 
+             ((this.victoryMethod === 2 || this.victoryMethod === 3) && !this.allAnswersRevealed);
     },
     buttonText() {
       // Jeśli wszystkie odpowiedzi są odkryte, pokazujemy "Następna runda"
