@@ -5,7 +5,12 @@
           :team1Name="team1Name"
           :team2Name="team2Name"
           :bluetooth-characteristic="bluetoothCharacteristic"
-          @team-selected="activePlayer = $event"
+          @team-selected="activeTeam = $event"
+        />
+        <RoundComplete
+          v-model="showPointsAnnouncement"
+          :points="currentPoints"
+          :teamName="pointsAnnouncementTeam === 1 ? team1Name : team2Name"
         />
         <video
             ref="videoPlayer"
@@ -34,13 +39,13 @@
                     >
                         <SmallDigitalScreen
                           :value="currentPoints"
-                          :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
+                          :activeColor="activeTeam === 1 ? 'blue' : activeTeam === 2 ? 'red' : null"
                         />
                     </v-badge>
                     <SmallDigitalScreen
                       v-else
                       :value="currentPoints"
-                      :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
+                      :activeColor="activeTeam === 1 ? 'blue' : activeTeam === 2 ? 'red' : null"
                     />
                 </v-col>          
                 <v-col cols="3"></v-col>
@@ -52,7 +57,7 @@
                         <v-col cols="2" class="d-flex flex-column align-center large-badge">
                             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
                                 <SmallDigitalScreen :value=team1Points />
-                                <PlayerLabel playerNumber="1" :teamName="team1Name" :isActive="activePlayer === 1" />
+                                <PlayerLabel playerNumber="1" :teamName="team1Name" :isActive="activeTeam === 1" />
                             </div>
                         </v-col>
                         <v-col cols="8">
@@ -75,7 +80,7 @@
                         <v-col cols="2" class="d-flex flex-column align-center">
                             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
                                 <SmallDigitalScreen :value=team2Points />
-                                <PlayerLabel playerNumber="2" :teamName="team2Name" :isActive="activePlayer === 2" />
+                                <PlayerLabel playerNumber="2" :teamName="team2Name" :isActive="activeTeam === 2" />
                             </div>
                         </v-col>
                     </v-row>
@@ -103,6 +108,7 @@ import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
 import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import GameTools from '@/components/GameTools.vue';
+import RoundComplete from '@/components/RoundComplete.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 
@@ -114,7 +120,8 @@ export default defineComponent({
     LossDigitalScreen,
     PlayerLabel,
     BuzzCompetition,
-    GameTools
+    GameTools,
+    RoundComplete
   },
   setup() {
     const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
@@ -125,11 +132,13 @@ export default defineComponent({
       videoSrc: backgroundVideo,
       question: "",
       showBuzzCompetition: false,
+      showPointsAnnouncement: false,
+      pointsAnnouncementTeam: null,
       team1Name: '',
       team2Name: '',
       questionsData: null,
       currentQuestionIndex: 0,
-      activePlayer: null,
+      activeTeam: null,
       multiplierPoints: 1,
       results: [],
       currentSumPoints: 0,
@@ -215,11 +224,11 @@ export default defineComponent({
       switch (action) {
         case 'buzz':
           this.showBuzzCompetition = true;
-          this.activePlayer = null;
+          this.activeTeam = null;
           break;
         case 'swap':
-          if (this.activePlayer) {
-            this.activePlayer = this.activePlayer === 1 ? 2 : 1;
+          if (this.activeTeam) {
+            this.activeTeam = this.activeTeam === 1 ? 2 : 1;
           }
           break;
         case 'restart':
@@ -231,6 +240,23 @@ export default defineComponent({
         case 'points':
           this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
+        case 'loss':
+          if (this.activeTeam === 1 && this.team1Loss < 3) {
+            this.team1Loss++;
+          } else if (this.activeTeam === 2 && this.team2Loss < 3) {
+            this.team2Loss++;
+          }
+          break;
+      }
+    },
+    checkLossCondition() {
+      if ((this.team1Loss === 3 && this.team2Loss === 3) || 
+          (this.team1Loss === 3 && this.team2Loss === 1) || 
+          (this.team1Loss === 1 && this.team2Loss === 3)) {
+        setTimeout(() => {
+          this.pointsAnnouncementTeam = this.team1Loss === 3 ? 2 : 1;
+          this.showPointsAnnouncement = true;
+        }, 2000);
       }
     }
   },
@@ -238,8 +264,14 @@ export default defineComponent({
     this.cleanup();
   },
   watch: {
-    showBuzzCompetition(newVal) {
-      console.log('showBuzzCompetition changed to:', newVal); // Debug log
+    showBuzzCompetition() {
+      console.log('showBuzzCompetition changed to:', this.showBuzzCompetition);
+    },
+    team1Loss() {
+      this.checkLossCondition();
+    },
+    team2Loss() {
+      this.checkLossCondition();
     }
   }
 });

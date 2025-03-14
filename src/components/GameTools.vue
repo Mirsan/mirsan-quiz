@@ -157,7 +157,9 @@ export default {
         'NumpadMultiply': 'buzz',    // Numpad *
         'NumpadDivide': 'swap',      // Numpad /
         'NumpadSubtract': 'timer',   // Numpad -
-        'NumpadAdd': 'points'        // Numpad +
+        'NumpadAdd': 'points',       // Numpad +
+        '0': 'loss',                 // Dodanie straty
+        'Numpad0': 'loss'           // Numpad 0
       };
 
       // Obsługa klawiszy numerycznych
