@@ -147,7 +147,8 @@ export default defineComponent({
       team1Points: 0,
       team2Points: 0,
       team1Loss: 2,
-      team2Loss: 0
+      team2Loss: 0,
+      roundCompleted: false
     }
   },
   computed: {
@@ -207,6 +208,8 @@ export default defineComponent({
     },
     handleToolAction(action) {
       if (action.startsWith('show-answer-')) {
+        if (!this.activeTeam && !this.roundCompleted) return;
+        
         const num = parseInt(action.split('-').pop());
         const answer = this.results.find(r => r.id === num);
         if (answer && !answer.pass) {
@@ -265,8 +268,8 @@ export default defineComponent({
     checkLossCondition() {
       const totalLosses = this.team1Loss + this.team2Loss;
       if (totalLosses >= 4) {
+        this.roundCompleted = true;
         setTimeout(() => {
-          // Jeśli jeden z graczy ma 3 loss, a drugi 1 loss
           if (this.team1Loss === 3 && this.team2Loss === 1) {
             this.team2Points += this.currentPoints;
             this.pointsAnnouncementTeam = 2;
@@ -280,11 +283,11 @@ export default defineComponent({
     },
     checkVictoryCondition() {
       if (this.activeTeam && this.results.every(r => r.pass) && (this.team1Loss + this.team2Loss < 4)) {
+        this.roundCompleted = true;
         setTimeout(() => {
           this.pointsAnnouncementTeam = this.activeTeam;
           this.showPointsAnnouncement = true;
           
-          // Dodaj punkty odpowiedniej drużynie
           if (this.activeTeam === 1) {
             this.team1Points += this.currentPoints;
           } else {
