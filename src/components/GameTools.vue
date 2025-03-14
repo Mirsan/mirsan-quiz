@@ -1,23 +1,35 @@
 <template>
-  <div class="game-tools d-flex justify-center align-center" style="gap: 48px">
-    <v-btn
-      v-for="(tool, index) in tools"
-      :key="index"
-      :color="tool.color"
-      icon
-      size="x-large"
-      variant="tonal"
-      class="d-flex align-center justify-center"
-      @click="handleToolClick(tool.action)"
-    >
-      <v-icon :icon="tool.icon" size="32" class="d-flex align-center justify-center"></v-icon>
-      <v-tooltip
-        activator="parent"
-        location="top"
-      >
-        {{ tool.tooltip }}
-      </v-tooltip>
-    </v-btn>
+  <div class="game-tools">
+    <v-row no-gutters>
+      <v-col cols="3" class="d-flex align-center">
+        <div class="round-label">
+          Runda {{ round }}
+        </div>
+      </v-col>
+      
+      <v-col cols="6" class="d-flex justify-center align-center" style="gap: 48px">
+        <v-btn
+          v-for="(tool, index) in tools"
+          :key="index"
+          :color="tool.color"
+          icon
+          size="x-large"
+          variant="tonal"
+          class="d-flex align-center justify-center"
+          @click="handleToolClick(tool.action)"
+        >
+          <v-icon :icon="tool.icon" size="32" class="d-flex align-center justify-center"></v-icon>
+          <v-tooltip
+            activator="parent"
+            location="top"
+          >
+            {{ tool.tooltip }}
+          </v-tooltip>
+        </v-btn>
+      </v-col>
+
+      <v-col cols="3"></v-col>
+    </v-row>
 
     <!-- Dialog potwierdzenia resetu -->
     <v-dialog v-model="showResetDialog" max-width="400" @keydown="handleResetDialogKeyPress">
@@ -56,6 +68,12 @@
 <script>
 export default {
   name: 'GameTools',
+  props: {
+    round: {
+      type: Number,
+      required: true
+    }
+  },
   data() {
     return {
       showResetDialog: false,
@@ -157,6 +175,16 @@ export default {
   padding: 16px;
   border-radius: 16px;
   backdrop-filter: blur(8px);
+  width: 100%;
+}
+
+.round-label {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  font-family: 'PixelFont', monospace;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  padding-left: 24px;
 }
 
 .tool-container {

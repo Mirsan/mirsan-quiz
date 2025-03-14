@@ -84,7 +84,10 @@
             <v-row class="mt-n4">
                 <v-col cols="12" class="d-flex justify-center">
                     <v-col cols="8">
-                        <GameTools @tool-action="handleToolAction" />
+                        <GameTools 
+                          @tool-action="handleToolAction" 
+                          :round="round"
+                        />
                     </v-col>
                 </v-col>
             </v-row>
