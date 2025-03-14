@@ -270,6 +270,21 @@ export default defineComponent({
           this.showPointsAnnouncement = true;
         }, 2000);
       }
+    },
+    checkVictoryCondition() {
+      if (this.activeTeam && this.results.every(r => r.pass)) {
+        setTimeout(() => {
+          this.pointsAnnouncementTeam = this.activeTeam;
+          this.showPointsAnnouncement = true;
+          
+          // Dodaj punkty odpowiedniej drużynie
+          if (this.activeTeam === 1) {
+            this.team1Points += this.currentPoints;
+          } else {
+            this.team2Points += this.currentPoints;
+          }
+        }, 2000);
+      }
     }
   },
   beforeUnmount() {
@@ -284,6 +299,12 @@ export default defineComponent({
     },
     team2Loss() {
       this.checkLossCondition();
+    },
+    results: {
+      deep: true,
+      handler() {
+        this.checkVictoryCondition();
+      }
     }
   }
 });
