@@ -24,8 +24,8 @@
                 <v-col cols="3"></v-col>
                 <v-col cols="2" class="d-flex justify-center">
                     <v-badge 
-                      v-if="pointsMultiplier > 1"
-                      :content="`x${pointsMultiplier}`" 
+                      v-if="multiplierPoints > 1"
+                      :content="`x${multiplierPoints}`" 
                       overlap="true" 
                       bordered 
                       offset-x="30" 
@@ -33,13 +33,13 @@
                       class="large-badge"
                     >
                         <SmallDigitalScreen
-                          :value="164" 
+                          :value=currentPoints 
                           :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                         />
                     </v-badge>
                     <SmallDigitalScreen
                       v-else
-                      :value="164" 
+                      :value="currentPoints" 
                       :activeColor="activePlayer === 1 ? 'blue' : activePlayer === 2 ? 'red' : null"
                     />
                 </v-col>          
@@ -51,7 +51,7 @@
                     <v-row>
                         <v-col cols="2" class="d-flex flex-column align-center large-badge">
                             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-                                <SmallDigitalScreen :value="4" />
+                                <SmallDigitalScreen :value=team1Points />
                                 <PlayerLabel playerNumber="1" :teamName="team1Name" :isActive="activePlayer === 1" />
                             </div>
                         </v-col>
@@ -59,7 +59,7 @@
                             <v-card outlined style="background-color: #000; opacity: 0.88; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px; border-radius: 40px;">
                                 <v-row no-gutters>
                                     <v-col cols="1">
-                                        <LossDigitalScreen :loss="1" />
+                                        <LossDigitalScreen :loss=team1Loss />
                                     </v-col>
                                     
                                     <v-col cols="10">
@@ -67,14 +67,14 @@
                                     </v-col>
                                     
                                     <v-col cols="1">
-                                        <LossDigitalScreen :loss="3" />
+                                        <LossDigitalScreen :loss=team2Loss />
                                     </v-col>
                                 </v-row>
                             </v-card>
                         </v-col>
                         <v-col cols="2" class="d-flex flex-column align-center">
                             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-                                <SmallDigitalScreen :value="17" />
+                                <SmallDigitalScreen :value=team2Points />
                                 <PlayerLabel playerNumber="2" :teamName="team2Name" :isActive="activePlayer === 2" />
                             </div>
                         </v-col>
@@ -127,8 +127,14 @@ export default defineComponent({
       questionsData: null,
       currentQuestionIndex: 0,
       activePlayer: null,
-      pointsMultiplier: 1,
-      results: []
+      multiplierPoints: 1,
+      results: [],
+      currentPoints: 0,
+      round: 1,
+      team1Points: 0,
+      team2Points: 0,
+      team1Loss: 0,
+      team2Loss: 0
     }
   },
   async created() {
@@ -197,7 +203,7 @@ export default defineComponent({
           // TODO: Start/Stop timera
           break;
         case 'points':
-          this.pointsMultiplier = this.pointsMultiplier === 3 ? 1 : this.pointsMultiplier + 1;
+          this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
       }
     }
