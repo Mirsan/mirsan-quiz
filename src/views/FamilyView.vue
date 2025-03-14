@@ -212,7 +212,7 @@ export default defineComponent({
         
         const num = parseInt(action.split('-').pop());
         const answer = this.results.find(r => r.id === num);
-        if (answer && !answer.pass) {
+        if (answer && !answer.pass && !this.roundCompleted) {
           const index = this.results.indexOf(answer);
           this.results[index] = {
             ...answer,
