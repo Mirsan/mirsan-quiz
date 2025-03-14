@@ -166,7 +166,7 @@ export default {
       const numKey = event.key;
       if (/^[1-9]$/.test(numKey) || /^Numpad[1-9]$/.test(event.code)) {
         const num = parseInt(numKey) || parseInt(event.code.slice(-1));
-        this.$emit('tool-action', `toggle-answer-${num}`);
+        this.$emit('tool-action', `show-answer-${num}`);
         return;
       }
 

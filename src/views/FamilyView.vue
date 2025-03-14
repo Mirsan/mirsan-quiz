@@ -205,14 +205,14 @@ export default defineComponent({
       }
     },
     handleToolAction(action) {
-      if (action.startsWith('toggle-answer-')) {
+      if (action.startsWith('show-answer-')) {
         const num = parseInt(action.split('-').pop());
         const answer = this.results.find(r => r.id === num);
-        if (answer) {
+        if (answer && !answer.pass) {
           const index = this.results.indexOf(answer);
           this.results[index] = {
             ...answer,
-            pass: !answer.pass
+            pass: true
           }
           this.currentSumPoints = this.results
             .filter(item => item.pass)

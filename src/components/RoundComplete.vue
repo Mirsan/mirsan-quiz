@@ -52,7 +52,7 @@ export default {
       if (newVal) {
         this.closeTimer = setTimeout(() => {
           this.dialog = false;
-        }, 3000);
+        }, 7000);
       } else if (this.closeTimer) {
         clearTimeout(this.closeTimer);
       }
