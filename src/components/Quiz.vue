@@ -2,13 +2,14 @@
   <div>
     <h2 v-if="VictoryMethod === 1">Gratulacje! Wygrałeś!</h2>
     <h2 v-else-if="VictoryMethod === 2">Przegrałeś!</h2>
+    <h2 v-else-if="VictoryMethod === 3">Przejęcie wygranej!</h2>
     <!-- VictoryMethod: 1 - correctAll, 2 - failLimit, 3 - takeoverWin -->
     <div v-for="(question, index) in questions" :key="index">
       <button 
         v-for="answer in question.answers" 
         :key="answer"
         @click="handleAnswer(answer, index)"
-        :disabled="question.isRevealed || (VictoryMethod === 2 && !isCheckingAnswers)"
+        :disabled="question.isRevealed"
       >
         {{ answer }}
       </button>
@@ -39,7 +40,7 @@ export default {
       return this.questions.every(q => q.isRevealed);
     },
     getRoundCompleteButtonText() {
-      if (this.VictoryMethod === 2 && !this.isCheckingAnswers) {
+      if (!this.allAnswersRevealed) {
         return 'Sprawdź odpowiedzi [enter]';
       }
       return 'Następna runda [enter]';
@@ -47,11 +48,9 @@ export default {
   },
   methods: {
     handleAnswer(answer, index) {
-      if (this.isCheckingAnswers) {
+      // Jeśli mamy już zwycięzcę, po prostu odkrywamy odpowiedź
+      if (this.VictoryMethod) {
         this.questions[index].isRevealed = true;
-        if (this.allAnswersRevealed) {
-          this.VictoryMethod = 1; // correctAll
-        }
         return;
       }
       
@@ -68,8 +67,9 @@ export default {
       }
     },
     handleRoundComplete() {
-      if (this.VictoryMethod === 2 && !this.isCheckingAnswers) {
-        this.isCheckingAnswers = true;
+      // Jeśli nie wszystkie odpowiedzi są odkryte, nie robimy nic
+      // Użytkownik musi ręcznie odkryć wszystkie odpowiedzi
+      if (!this.allAnswersRevealed) {
         return;
       }
       this.resetGame();

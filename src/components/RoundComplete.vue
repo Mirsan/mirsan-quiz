@@ -77,10 +77,13 @@ export default {
       // 1 - correctAll (wszystkie odkryte normalnie)
       // 2 - failLimit (przegrana po 4 błędach)
       // 3 - takeoverWin (wygrana po przejęciu)
-      return this.victoryMethod === 1 || 
-             ((this.victoryMethod === 2 || this.victoryMethod === 3) && !this.allAnswersRevealed);
+      
+      // Pokazujemy punkty i nazwę drużyny zawsze, niezależnie od stanu gry
+      return true;
     },
     buttonText() {
+      // Jeśli wszystkie odpowiedzi są odkryte, pokazujemy "Następna runda"
+      // W przeciwnym razie pokazujemy "Sprawdź odpowiedzi"
       if (this.allAnswersRevealed) {
         return 'Następna runda [enter]';
       }
@@ -93,14 +96,19 @@ export default {
     }
   },
   mounted() {
-    window.addEventListener('keyup', (e) => {
+    // Tworzymy funkcję obsługi zdarzenia
+    this.handleKeyUp = (e) => {
       if (e.key === 'Enter' && this.dialog) {
         this.closeDialog();
       }
-    });
+    };
+    
+    // Dodajemy nasłuchiwanie zdarzenia
+    window.addEventListener('keyup', this.handleKeyUp);
   },
   beforeUnmount() {
-    window.removeEventListener('keyup', this.closeDialog);
+    // Usuwamy nasłuchiwanie zdarzenia
+    window.removeEventListener('keyup', this.handleKeyUp);
   }
 }
 </script>

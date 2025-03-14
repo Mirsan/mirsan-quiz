@@ -246,7 +246,7 @@ export default defineComponent({
             }
           }
 
-          if (this.results.every(r => r.pass) && (this.victoryMethod === 2 || this.victoryMethod === 3)) {
+          if (this.results.every(r => r.pass) && this.victoryMethod) {
             this.showPointsAnnouncement = true;
           }
         }
@@ -274,7 +274,12 @@ export default defineComponent({
           break;
         case 'loss':
           if (this.activeTeam === 1) {
-            if (this.team2Loss === 3 && this.team1Loss >= 1) return;
+            if (this.team2Loss === 3) {
+              this.team1Loss++;
+              this.checkLossCondition();
+              return;
+            }
+            
             if (this.team1Loss < 3) {
               this.team1Loss++;
               if (this.team1Loss === 3) {
@@ -282,7 +287,12 @@ export default defineComponent({
               }
             }
           } else if (this.activeTeam === 2) {
-            if (this.team1Loss === 3 && this.team2Loss >= 1) return;
+            if (this.team1Loss === 3) {
+              this.team2Loss++;
+              this.checkLossCondition();
+              return;
+            }
+            
             if (this.team2Loss < 3) {
               this.team2Loss++;
               if (this.team2Loss === 3) {
@@ -294,19 +304,20 @@ export default defineComponent({
       }
     },
     checkLossCondition() {
-      const totalLosses = this.team1Loss + this.team2Loss;
-      if (totalLosses >= 4) {
+      if ((this.team1Loss === 3 && this.team2Loss >= 1) || (this.team2Loss === 3 && this.team1Loss >= 1)) {
         this.roundCompleted = true;
         
         if (this.victoryMethod !== 3) {
           this.victoryMethod = 2;
+          
           if (this.team1Loss === 3) {
-            this.team2Points += this.currentPoints;
-            this.pointsAnnouncementTeam = 2;
-          } else {
             this.team1Points += this.currentPoints;
             this.pointsAnnouncementTeam = 1;
+          } else {
+            this.team2Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 2;
           }
+          
           this.showPointsAnnouncement = true;
         }
       }
