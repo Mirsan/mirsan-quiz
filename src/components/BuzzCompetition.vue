@@ -106,6 +106,7 @@ export default {
       
       this.activeTeam = team;
       this.isBlocked = true;
+      this.audioManager.stopAll();
       this.audioManager.playBuzz();
       this.$emit('team-selected', team);
     },
