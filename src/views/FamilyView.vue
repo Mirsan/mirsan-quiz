@@ -16,6 +16,7 @@
           :victoryMethod="victoryMethod"
           :isCheckingAnswers="isCheckingAnswers"
           :isTeam1="pointsAnnouncementTeam === 1"
+          :activeTeam="activeTeam"
           @update:modelValue="handleRoundCompleteClose"
           @dialogOpened="handleDialogOpened"
           @dialogClosed="handleDialogClosed"
@@ -293,7 +294,6 @@ export default defineComponent({
               }
               
               this.pointsAnnouncementTeam = this.activeTeam;
-              this.activeTeam = null;
               
               setTimeout(() => {
                 this.logGameState();
@@ -376,6 +376,7 @@ export default defineComponent({
     handleRoundCompleteClose(value) {
       this.showPointsAnnouncement = value;
       if (!value) {
+        this.activeTeam = null;
         if (this.results.every(r => r.pass)) {
           this.resetRound();
         }

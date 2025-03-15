@@ -7,9 +7,9 @@
     <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
         <div class="points-display">
-          <template v-if="showPointsAndTeam">
+          <template v-if="activeTeam != null">
             <div class="points">+{{ points }}</div>
-            <div class="team-name" :class="{ 'team-blue': isTeam1, 'team-red': !isTeam1 }">{{ teamName }}</div>
+            <div class="team-name" :class="{ 'team-blue': activeTeam === 1, 'team-red': activeTeam === 2 }">{{ teamName }}</div>
           </template>
           <v-btn
             class="mt-6 confirm-btn"
@@ -32,6 +32,10 @@ export default {
     modelValue: {
       type: Boolean,
       required: true
+    },
+    activeTeam: {
+      type: Number,
+      default: null
     },
     points: {
       type: Number,
@@ -65,8 +69,7 @@ export default {
   },
   data() {
     return {
-      isVisible: false,
-      lastAnswerWasTakeoverWin: false
+      isVisible: false
     }
   },
   computed: {
@@ -78,25 +81,7 @@ export default {
         this.$emit('update:modelValue', value);
       }
     },
-    showPointsAndTeam() {
-      // VictoryMethod:
-      // null - gra trwa
-      // 1 - correctAll (wszystkie odkryte normalnie)
-      // 2 - failLimit (przegrana po 4 błędach)
-      // 3 - takeoverWin (wygrana po przejęciu)
-      
-      // Pokazujemy punkty i nazwę drużyny tylko gdy:
-      // - victoryMethod === 1 (wszystkie odkryte normalnie)
-      // - lub gdy victoryMethod === 2 (failLimit) i nie wszystkie odpowiedzi są odkryte
-      // - lub gdy victoryMethod === 3 (takeoverWin) i nie wszystkie odpowiedzi są odkryte
-      // - lub gdy victoryMethod === 3 (takeoverWin) i ostatnia odpowiedź była tą, która dała zwycięstwo (lastAnswerWasTakeoverWin)
-      return this.victoryMethod === 1 || 
-             (this.victoryMethod === 2 && !this.allAnswersRevealed) ||
-             (this.victoryMethod === 3 && (!this.allAnswersRevealed || this.lastAnswerWasTakeoverWin));
-    },
     buttonText() {
-      // Jeśli wszystkie odpowiedzi są odkryte, pokazujemy "Następna runda"
-      // W przeciwnym razie pokazujemy "Sprawdź odpowiedzi"
       if (this.allAnswersRevealed) {
         return 'Następna runda [enter]';
       }
@@ -130,21 +115,9 @@ export default {
   watch: {
     modelValue(newVal) {
       if (newVal === true) {
-        // Używamy $nextTick, aby upewnić się, że dialog jest już wyświetlony
         this.$nextTick(() => {
           this.$emit('dialogOpened');
         });
-      }
-    },
-    // Wykrywamy specyficzny przypadek: victoryMethod=3 i allAnswersRevealed=true
-    victoryMethod(newVal) {
-      if (newVal === 3 && this.allAnswersRevealed) {
-        this.lastAnswerWasTakeoverWin = true;
-      }
-    },
-    allAnswersRevealed(newVal, oldVal) {
-      if (newVal === true && !oldVal && this.victoryMethod === 3) {
-        this.lastAnswerWasTakeoverWin = true;
       }
     }
   },
