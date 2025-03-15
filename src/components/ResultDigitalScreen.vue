@@ -25,12 +25,14 @@
             <v-col cols="8" class="d-flex justify-center">
               <div class="text-left" style="width: 100%;">
                 <template v-if="result.pass">
-                  <template v-if="result.name.length > 18">
-                    {{ result.name.substring(0, 18) + '.' }}
-                  </template>
-                  <template v-else>
-                    {{ result.name }}
-                  </template>
+                  <div class="answer-text" :class="{'swipe-in': result.animated}">
+                    <template v-if="result.name.length > 18">
+                      {{ result.name.substring(0, 18) + '.' }}
+                    </template>
+                    <template v-else>
+                      {{ result.name }}
+                    </template>
+                  </div>
                 </template>
                 <template v-else>
                   ................................................
@@ -80,7 +82,8 @@ export default {
   data() {
     return {
       shouldScroll: false,
-      previousResults: []
+      previousResults: [],
+      animationTimeout: null
     }
   },
   props: {
@@ -102,7 +105,8 @@ export default {
     this.previousResults = JSON.parse(JSON.stringify(this.results));
   },
   beforeUnmount() {
-    window.removeEventListener('resize', this.checkOverflow)
+    window.removeEventListener('resize', this.checkOverflow);
+    clearTimeout(this.animationTimeout);
   },
   watch: {
     question: {
@@ -135,6 +139,25 @@ export default {
           this.audioManager.playBad();
         } else if (newlyRevealed.length > 0) {
           this.audioManager.playGood();
+          
+          // Dodajemy flagę animacji do nowo odkrytych odpowiedzi
+          newlyRevealed.forEach(revealed => {
+            const resultIndex = newResults.findIndex(r => r.id === revealed.id);
+            if (resultIndex !== -1) {
+              // Bezpośrednie przypisanie w Vue 3 zamiast this.$set
+              newResults[resultIndex].animated = true;
+              
+              // Usuwamy flagę animacji po zakończeniu animacji
+              clearTimeout(this.animationTimeout);
+              this.animationTimeout = setTimeout(() => {
+                newResults.forEach(result => {
+                  if (result.animated) {
+                    result.animated = false;
+                  }
+                });
+              }, 1000); // 1 sekunda (czas trwania animacji)
+            }
+          });
         }
         
         // Aktualizujemy poprzedni stan
@@ -217,6 +240,25 @@ export default {
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+.answer-text {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.swipe-in {
+  animation: swipe-right 0.8s ease-out forwards;
+}
+
+@keyframes swipe-right {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
   }
 }
 </style> 
