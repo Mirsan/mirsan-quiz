@@ -65,7 +65,8 @@ export default {
   },
   data() {
     return {
-      isVisible: false
+      isVisible: false,
+      lastAnswerWasTakeoverWin: false
     }
   },
   computed: {
@@ -86,9 +87,12 @@ export default {
       
       // Pokazujemy punkty i nazwę drużyny tylko gdy:
       // - victoryMethod === 1 (wszystkie odkryte normalnie)
-      // - lub gdy victoryMethod === 2 lub 3 (failLimit lub takeoverWin) i nie wszystkie odpowiedzi są odkryte
+      // - lub gdy victoryMethod === 2 (failLimit) i nie wszystkie odpowiedzi są odkryte
+      // - lub gdy victoryMethod === 3 (takeoverWin) i nie wszystkie odpowiedzi są odkryte
+      // - lub gdy victoryMethod === 3 (takeoverWin) i ostatnia odpowiedź była tą, która dała zwycięstwo (lastAnswerWasTakeoverWin)
       return this.victoryMethod === 1 || 
-             ((this.victoryMethod === 2 || this.victoryMethod === 3) && !this.allAnswersRevealed);
+             (this.victoryMethod === 2 && !this.allAnswersRevealed) ||
+             (this.victoryMethod === 3 && (!this.allAnswersRevealed || this.lastAnswerWasTakeoverWin));
     },
     buttonText() {
       // Jeśli wszystkie odpowiedzi są odkryte, pokazujemy "Następna runda"
@@ -130,6 +134,17 @@ export default {
         this.$nextTick(() => {
           this.$emit('dialogOpened');
         });
+      }
+    },
+    // Wykrywamy specyficzny przypadek: victoryMethod=3 i allAnswersRevealed=true
+    victoryMethod(newVal) {
+      if (newVal === 3 && this.allAnswersRevealed) {
+        this.lastAnswerWasTakeoverWin = true;
+      }
+    },
+    allAnswersRevealed(newVal, oldVal) {
+      if (newVal === true && !oldVal && this.victoryMethod === 3) {
+        this.lastAnswerWasTakeoverWin = true;
       }
     }
   },
