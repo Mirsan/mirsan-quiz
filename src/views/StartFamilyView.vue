@@ -144,6 +144,9 @@ export default defineComponent({
 
     async handleGameStart(config) {
       try {
+        // Zatrzymaj odtwarzanie dźwięku przed rozpoczęciem gry
+        this.audioManager.stopAll();
+        
         // Czytamy zawartość pliku
         const reader = new FileReader();
         const fileContent = await new Promise((resolve, reject) => {
@@ -193,6 +196,9 @@ export default defineComponent({
     }
   },
   beforeUnmount() {
+    // Zatrzymaj odtwarzanie dźwięku przed usunięciem komponentu
+    this.audioManager.stopAll();
+    
     // Usuwamy automatyczne rozłączanie przy przejściu do następnego widoku
     if (this.$router.currentRoute.value.path === '/family') {
       return;

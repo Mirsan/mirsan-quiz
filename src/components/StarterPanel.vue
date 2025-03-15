@@ -147,6 +147,9 @@ export default {
     async startGame() {
       const { valid } = await this.$refs.form.validate()
       if (valid && this.isFormValid) {
+        // Zatrzymaj odtwarzanie dźwięku przed rozpoczęciem gry
+        this.audioManager.stopAll();
+        
         this.$emit('game-start', {
           team1Name: this.team1Name,
           team2Name: this.team2Name,
@@ -215,6 +218,10 @@ export default {
         questionsFile: this.questionsFile
       });
     }
+  },
+  beforeUnmount() {
+    // Zatrzymaj odtwarzanie dźwięku przed usunięciem komponentu
+    this.audioManager.stopAll();
   }
 }
 </script>

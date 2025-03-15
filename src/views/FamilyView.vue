@@ -117,6 +117,7 @@ import GameTools from '@/components/GameTools.vue';
 import RoundComplete from '@/components/RoundComplete.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
+import { useAudioManager } from '@/composables/useAudioManager';
 
 export default defineComponent({
   name: 'FamilyView',
@@ -131,7 +132,8 @@ export default defineComponent({
   },
   setup() {
     const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
-    return { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup };
+    const audioManager = useAudioManager();
+    return { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup, audioManager };
   },
   data() {
     return {
@@ -164,6 +166,8 @@ export default defineComponent({
     }
   },
   async created() {
+    this.audioManager.stopAll();
+    
     const config = localStorage.getItem('familyGameConfig');
     if (!config) {
       this.$router.push('/start-family');
