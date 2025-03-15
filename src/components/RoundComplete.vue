@@ -15,6 +15,7 @@
             class="mt-6 confirm-btn"
             @click="closeDialog"
             @keyup.enter="closeDialog"
+            style="width: 100%;"
           >
             {{ buttonText }}
           </v-btn>
@@ -153,7 +154,7 @@ export default {
   font-family: 'PixelFont';
   font-size: 1.5rem;
   height: 60px;
-  width: 80%;
+  width: 100%;
   background: rgba(255, 255, 0, 0.7);
   color: #000;
   border: 2px solid rgba(255, 255, 0, 0.9);
