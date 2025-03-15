@@ -33,7 +33,9 @@
 
         <v-container class="content-container flex-wrap">
             <v-row>
-                <v-col cols="2"></v-col>
+                <v-col cols="2">
+                    <v-btn>Przycisk</v-btn>
+                </v-col>
                 <v-col cols="3"></v-col>
                 <v-col cols="2" class="d-flex justify-center">
                     <v-badge 
@@ -63,7 +65,13 @@
                 <v-col cols="12">
                     <v-row>
                         <v-col cols="2" class="d-flex flex-column align-center large-badge">
-                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
+                                <EventTeam 
+                                  :teamNumber="1"
+                                  :team1Loss="team1Loss"
+                                  :team2Loss="team2Loss"
+                                  :victoryMethod="victoryMethod"
+                                />
                                 <SmallDigitalScreen :value=team1Points />
                                 <PlayerLabel playerNumber="1" :teamName="team1Name" :isActive="activeTeam === 1" />
                             </div>
@@ -86,7 +94,13 @@
                             </v-card>
                         </v-col>
                         <v-col cols="2" class="d-flex flex-column align-center">
-                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
+                                <EventTeam 
+                                  :teamNumber="2"
+                                  :team1Loss="team1Loss"
+                                  :team2Loss="team2Loss"
+                                  :victoryMethod="victoryMethod"
+                                />
                                 <SmallDigitalScreen :value=team2Points />
                                 <PlayerLabel playerNumber="2" :teamName="team2Name" :isActive="activeTeam === 2" />
                             </div>
@@ -117,6 +131,7 @@ import PlayerLabel from '@/components/PlayerLabel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import GameTools from '@/components/GameTools.vue';
 import RoundComplete from '@/components/RoundComplete.vue';
+import EventTeam from '@/components/EventTeam.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 import { useAudioManager } from '@/composables/useAudioManager';
@@ -130,7 +145,8 @@ export default defineComponent({
     PlayerLabel,
     BuzzCompetition,
     GameTools,
-    RoundComplete
+    RoundComplete,
+    EventTeam
   },
   setup() {
     const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
@@ -473,5 +489,19 @@ export default defineComponent({
     border-width: 3px !important;
     z-index: 6;
     color: red;
+}
+
+.tooltip-label {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 10;
+    white-space: nowrap;
 }
 </style>
