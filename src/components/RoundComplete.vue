@@ -1,6 +1,7 @@
 <template>
   <v-dialog
-    v-model="dialog"
+    v-if="modelValue"
+    :model-value="true"
     width="600"
     persistent
   >
@@ -13,8 +14,7 @@
           </template>
           <v-btn
             class="mt-6 confirm-btn"
-            @click="closeDialog"
-            @keyup.enter="closeDialog"
+            @click="handleClose"
             style="width: 100%;"
           >
             {{ buttonText }}
@@ -73,14 +73,6 @@ export default {
     }
   },
   computed: {
-    dialog: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit('update:modelValue', value);
-      }
-    },
     buttonText() {
       if (this.allAnswersRevealed) {
         return 'Następna runda [enter]';
@@ -89,40 +81,32 @@ export default {
     }
   },
   methods: {
-    closeDialog() {
-      this.dialog = false;
+    handleClose() {
+      this.$emit('update:modelValue', false);
       this.$emit('dialogClosed', this.allAnswersRevealed);
     }
   },
   mounted() {
-    // Tworzymy funkcję obsługi zdarzenia
     this.handleKeyUp = (e) => {
-      if (e.key === 'Enter' && this.dialog) {
-        this.closeDialog();
+      if (e.key === 'Enter' && this.modelValue) {
+        e.preventDefault();
+        this.handleClose();
       }
     };
-    
-    // Dodajemy nasłuchiwanie zdarzenia
     window.addEventListener('keyup', this.handleKeyUp);
     
-    // Jeśli dialog jest już otwarty przy montowaniu, emitujemy zdarzenie
     if (this.modelValue) {
-      this.$nextTick(() => {
-        this.$emit('dialogOpened');
-      });
+      this.$emit('dialogOpened');
     }
   },
   watch: {
     modelValue(newVal) {
-      if (newVal === true) {
-        this.$nextTick(() => {
-          this.$emit('dialogOpened');
-        });
+      if (newVal) {
+        this.$emit('dialogOpened');
       }
     }
   },
   beforeUnmount() {
-    // Usuwamy nasłuchiwanie zdarzenia
     window.removeEventListener('keyup', this.handleKeyUp);
   }
 }
