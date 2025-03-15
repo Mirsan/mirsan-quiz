@@ -12,8 +12,7 @@
             <div class="team-name" :class="{ 'team-blue': isTeam1, 'team-red': !isTeam1 }">{{ teamName }}</div>
           </template>
           <v-btn
-            class="mt-6"
-            color="primary"
+            class="mt-6 confirm-btn"
             @click="closeDialog"
             @keyup.enter="closeDialog"
           >
@@ -148,6 +147,24 @@ export default {
 .team-red {
   color: #ff0000;
   text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+}
+
+.confirm-btn {
+  font-family: 'PixelFont';
+  font-size: 1.5rem;
+  height: 60px;
+  width: 80%;
+  background: rgba(255, 255, 0, 0.7);
+  color: #000;
+  border: 2px solid rgba(255, 255, 0, 0.9);
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  background: rgba(255, 255, 0, 0.9);
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+  transform: scale(1.05);
 }
 
 @keyframes pointsPulse {

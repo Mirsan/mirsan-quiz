@@ -52,14 +52,16 @@
           <v-divider class="my-6"></v-divider>
 
           <v-btn
-            :color="isConnected ? 'success' : 'primary'"
+            color="yellow"
             block
             class="mb-2"
             @click="toggleBluetooth"
             :loading="isConnecting"
             :disabled="isConnecting"
-            prepend-icon="mdi-bluetooth"
           >
+            <template v-slot:prepend>
+              <v-icon color="black">mdi-bluetooth</v-icon>
+            </template>
             {{ isConnected ? 'Odłącz kontroler buzzerów' : 'Podłącz kontroler buzzerów' }}
           </v-btn>
 

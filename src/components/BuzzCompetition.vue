@@ -52,8 +52,7 @@
         <v-row v-if="activeTeam" class="justify-center mt-6">
           <v-col cols="6">
             <v-btn 
-              color="primary" 
-              class="continue-btn"
+              class="confirm-btn"
               @click="closeDialog"
               @keyup.enter="closeDialog"
             >
@@ -238,5 +237,23 @@ export default {
 
 .team-btn:disabled {
   opacity: 0.1;
+}
+
+.confirm-btn {
+  font-family: 'PixelFont';
+  font-size: 1.5rem;
+  height: 60px;
+  width: 100%;
+  background: rgba(255, 255, 0, 0.7);
+  color: #000;
+  border: 2px solid rgba(255, 255, 0, 0.9);
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  background: rgba(255, 255, 0, 0.9);
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+  transform: scale(1.05);
 }
 </style> 
