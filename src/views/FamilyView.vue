@@ -34,7 +34,6 @@
         <v-container class="content-container flex-wrap">
             <v-row>
                 <v-col cols="2">
-                    <v-btn>Przycisk</v-btn>
                 </v-col>
                 <v-col cols="3"></v-col>
                 <v-col cols="2" class="d-flex justify-center">
