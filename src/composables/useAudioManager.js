@@ -3,7 +3,7 @@ import badSound from '@/assets/sounds/bad.mp3';
 import goodSound from '@/assets/sounds/good.mp3';
 import introSound from '@/assets/sounds/intro.mp3';
 import roundSound from '@/assets/sounds/round.mp3';
-import pauseSound from '@/assets/sounds/pause.mp3';
+import pauseSound from '@/assets/sounds/win.mp3';
 
 export function useAudioManager() {
   // Inicjalizacja obiektów Audio

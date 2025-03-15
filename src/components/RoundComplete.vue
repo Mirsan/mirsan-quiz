@@ -64,7 +64,9 @@ export default {
     }
   },
   data() {
-    return {}
+    return {
+      isVisible: false
+    }
   },
   computed: {
     dialog: {
@@ -100,6 +102,7 @@ export default {
   methods: {
     closeDialog() {
       this.dialog = false;
+      this.$emit('dialogClosed', this.allAnswersRevealed);
     }
   },
   mounted() {
@@ -112,6 +115,23 @@ export default {
     
     // Dodajemy nasłuchiwanie zdarzenia
     window.addEventListener('keyup', this.handleKeyUp);
+    
+    // Jeśli dialog jest już otwarty przy montowaniu, emitujemy zdarzenie
+    if (this.modelValue) {
+      this.$nextTick(() => {
+        this.$emit('dialogOpened');
+      });
+    }
+  },
+  watch: {
+    modelValue(newVal) {
+      if (newVal === true) {
+        // Używamy $nextTick, aby upewnić się, że dialog jest już wyświetlony
+        this.$nextTick(() => {
+          this.$emit('dialogOpened');
+        });
+      }
+    }
   },
   beforeUnmount() {
     // Usuwamy nasłuchiwanie zdarzenia
@@ -154,7 +174,7 @@ export default {
   font-family: 'PixelFont';
   font-size: 1.5rem;
   height: 60px;
-  width: 100%;
+  width: 80%;
   background: rgba(255, 255, 0, 0.7);
   color: #000;
   border: 2px solid rgba(255, 255, 0, 0.9);

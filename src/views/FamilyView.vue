@@ -17,6 +17,8 @@
           :isCheckingAnswers="isCheckingAnswers"
           :isTeam1="pointsAnnouncementTeam === 1"
           @update:modelValue="handleRoundCompleteClose"
+          @dialogOpened="handleDialogOpened"
+          @dialogClosed="handleDialogClosed"
         />
         <video
             ref="videoPlayer"
@@ -399,6 +401,17 @@ export default defineComponent({
         isCheckingAnswers: this.isCheckingAnswers,
         currentPoints: this.currentPoints
       });
+    },
+    handleDialogOpened() {
+      this.audioManager.stopAll();
+      setTimeout(() => {
+        this.audioManager.playPause();
+      }, 100);
+    },
+    handleDialogClosed(isNextRound) {
+      if (isNextRound) {
+        this.audioManager.stopAll();
+      }
     }
   },
   beforeUnmount() {
