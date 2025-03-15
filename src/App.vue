@@ -19,7 +19,6 @@ export default {
       const pixelFont = new FontFace('PixelFont', 'url(./assets/fonts/PixelFont.ttf)');
       pixelFont.load().then((loadedFont) => {
         document.fonts.add(loadedFont);
-        console.log('PixelFont loaded successfully');
       }).catch((error) => {
         console.error('Error loading PixelFont:', error);
       });

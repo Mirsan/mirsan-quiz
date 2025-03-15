@@ -275,14 +275,12 @@ export default defineComponent({
                 this.pointsAnnouncementTeam = 2;
               }
               
-              this.logGameState();
               this.showPointsAnnouncement = true;
             }
           }
 
           if (this.results.every(r => r.pass)) {
             if (this.victoryMethod === 2 || this.victoryMethod === 3) {
-              this.logGameState();
               this.showPointsAnnouncement = true;
             } else if (this.victoryMethod === null) {
               this.victoryMethod = 1;
@@ -296,7 +294,6 @@ export default defineComponent({
               this.pointsAnnouncementTeam = this.activeTeam;
               
               setTimeout(() => {
-                this.logGameState();
                 this.showPointsAnnouncement = true;
               }, 1000);
             }
@@ -369,7 +366,6 @@ export default defineComponent({
           this.pointsAnnouncementTeam = 1;
         }
         
-        this.logGameState();
         this.showPointsAnnouncement = true;
       }
     },
@@ -394,30 +390,6 @@ export default defineComponent({
       this.team2Loss = 0;
       this.loadQuestion(this.currentQuestionIndex + 1);
     },
-    logGameState() {
-      console.log('Game State:', {
-        question: this.question,
-        showBuzzCompetition: this.showBuzzCompetition,
-        showPointsAnnouncement: this.showPointsAnnouncement,
-        pointsAnnouncementTeam: this.pointsAnnouncementTeam,
-        team1Name: this.team1Name,
-        team2Name: this.team2Name,
-        currentQuestionIndex: this.currentQuestionIndex,
-        activeTeam: this.activeTeam,
-        multiplierPoints: this.multiplierPoints,
-        results: this.results,
-        currentSumPoints: this.currentSumPoints,
-        round: this.round,
-        team1Points: this.team1Points,
-        team2Points: this.team2Points,
-        team1Loss: this.team1Loss,
-        team2Loss: this.team2Loss,
-        roundCompleted: this.roundCompleted,
-        victoryMethod: this.victoryMethod,
-        isCheckingAnswers: this.isCheckingAnswers,
-        currentPoints: this.currentPoints
-      });
-    },
     handleDialogOpened() {
       this.audioManager.stopAll();
       setTimeout(() => {
@@ -434,9 +406,6 @@ export default defineComponent({
     this.cleanup();
   },
   watch: {
-    showBuzzCompetition() {
-      console.log('showBuzzCompetition changed to:', this.showBuzzCompetition);
-    },
     team1Loss() {
       this.checkLossCondition();
     },

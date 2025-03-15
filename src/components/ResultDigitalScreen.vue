@@ -172,10 +172,7 @@ export default {
       if (element && container) {
         const textWidth = element.getBoundingClientRect().width
         const containerWidth = container.getBoundingClientRect().width
-        console.log('textWidth:', textWidth)
-        console.log('containerWidth:', containerWidth)
         this.shouldScroll = textWidth > containerWidth
-        console.log('shouldScroll:', this.shouldScroll)
       }
     }
   }
