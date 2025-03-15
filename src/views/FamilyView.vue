@@ -200,7 +200,6 @@ export default defineComponent({
       
       if (this.questionsData?.questions?.length > 0) {
         this.loadQuestion(0);
-        console.log('Załadowano pytania:', this.questionsData);
       } else {
         throw new Error('Brak pytań w pliku');
       }
