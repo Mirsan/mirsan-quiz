@@ -52,17 +52,22 @@
           <v-divider class="my-6"></v-divider>
 
           <v-btn
-            color="yellow"
+            :color="isConnected ? 'success' : 'primary'"
             block
-            class="mb-2"
+            class="mb-4 bluetooth-btn"
             @click="toggleBluetooth"
             :loading="isConnecting"
             :disabled="isConnecting"
+            elevation="4"
+            size="large"
+            height="50"
           >
             <template v-slot:prepend>
-              <v-icon color="black">mdi-bluetooth</v-icon>
+              <v-icon :color="isConnected ? 'white' : 'white'" size="large">
+                {{ isConnected ? 'mdi-bluetooth-connect' : 'mdi-bluetooth-off' }}
+              </v-icon>
             </template>
-            {{ isConnected ? 'Odłącz kontroler buzzerów' : 'Podłącz kontroler buzzerów' }}
+            <span class="bluetooth-text">{{ isConnected ? 'Odłącz kontroler buzzerów' : 'Podłącz kontroler buzzerów' }}</span>
           </v-btn>
 
           <div v-if="bluetoothError" class="text-error mb-4 text-center">
@@ -72,14 +77,17 @@
           <v-btn
             color="yellow"
             block
-            size="large"
-            height="60"
+            size="x-large"
+            height="70"
             :disabled="!isFormValid"
             @click="startGame"
-            prepend-icon="mdi-rocket-launch"
-            class="start-button"
+            class="start-button mt-6"
+            elevation="8"
           >
-            START!
+            <template v-slot:prepend>
+              <v-icon color="black" size="large">mdi-rocket-launch</v-icon>
+            </template>
+            <span class="start-text">START!</span>
           </v-btn>
         </v-form>
       </v-card-text>
@@ -88,8 +96,14 @@
 </template>
 
 <script>
+import { useAudioManager } from '@/composables/useAudioManager';
+
 export default {
   name: 'StarterPanel',
+  setup() {
+    const audioManager = useAudioManager();
+    return { audioManager };
+  },
   props: {
     isConnected: {
       type: Boolean,
@@ -228,6 +242,39 @@ export default {
 .start-button {
   color: black !important;
   font-weight: bold;
+  font-family: 'PixelFont';
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.start-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: 0.5s;
+}
+
+.start-button:hover::before {
+  left: 100%;
+}
+
+.start-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.7);
+}
+
+.start-text {
+  font-family: 'PixelFont';
+  font-size: 2rem;
 }
 
 .start-button :deep(.v-icon) {
@@ -236,6 +283,23 @@ export default {
 
 .start-button:hover :deep(.v-icon) {
   color: black !important;
+}
+
+.bluetooth-btn {
+  font-family: 'PixelFont';
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.bluetooth-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(100, 100, 255, 0.5);
+}
+
+.bluetooth-text {
+  font-family: 'PixelFont';
+  font-size: 1.2rem;
 }
 
 :deep(.v-messages) {

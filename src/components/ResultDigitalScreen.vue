@@ -69,11 +69,18 @@
 </template>
 
 <script>
+import { useAudioManager } from '@/composables/useAudioManager';
+
 export default {
   name: 'FamilyResultDigitalScreen',
+  setup() {
+    const audioManager = useAudioManager();
+    return { audioManager };
+  },
   data() {
     return {
-      shouldScroll: false
+      shouldScroll: false,
+      previousResults: []
     }
   },
   props: {
@@ -92,6 +99,7 @@ export default {
     this.$nextTick(() => {
       this.checkOverflow()
     })
+    this.previousResults = JSON.parse(JSON.stringify(this.results));
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.checkOverflow)
@@ -103,6 +111,34 @@ export default {
         this.$nextTick(() => {
           this.checkOverflow()
         })
+      }
+    },
+    results: {
+      deep: true,
+      handler(newResults) {
+        // Sprawdzamy, czy pojawiła się nowa odkryta odpowiedź
+        const newlyRevealed = newResults.filter(result => 
+          result.pass && !this.previousResults.some(prev => 
+            prev.id === result.id && prev.pass
+          )
+        );
+        
+        // Sprawdzamy, czy pojawiła się nowa błędna odpowiedź (X)
+        const newlyFailed = newResults.some(result => 
+          result.loss && !this.previousResults.some(prev => 
+            prev.id === result.id && prev.loss
+          )
+        );
+        
+        // Odtwarzamy odpowiedni dźwięk
+        if (newlyFailed) {
+          this.audioManager.playBad();
+        } else if (newlyRevealed.length > 0) {
+          this.audioManager.playGood();
+        }
+        
+        // Aktualizujemy poprzedni stan
+        this.previousResults = JSON.parse(JSON.stringify(newResults));
       }
     }
   },

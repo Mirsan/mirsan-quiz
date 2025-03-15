@@ -33,6 +33,7 @@ import { defineComponent } from 'vue';
 import StarterPanel from '@/components/StarterPanel.vue';
 import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
+import { useAudioManager } from '@/composables/useAudioManager';
 
 export default defineComponent({
   name: 'StartFamilyView',
@@ -52,6 +53,10 @@ export default defineComponent({
       bluetoothError: null,
       isConnecting: false
     }
+  },
+  setup() {
+    const audioManager = useAudioManager();
+    return { audioManager };
   },
   methods: {
     async toggleBluetooth() {
@@ -193,6 +198,10 @@ export default defineComponent({
       return;
     }
     this.disconnectBluetooth();
+  },
+  mounted() {
+    // Odtwarzamy dźwięk intro po załadowaniu komponentu
+    this.audioManager.playIntro();
   }
 });
 </script>

@@ -56,7 +56,7 @@
               @click="closeDialog"
               @keyup.enter="closeDialog"
             >
-              Kontynuuj [enter]
+              Dalej [Enter]
             </v-btn>
           </v-col>
         </v-row>
@@ -67,12 +67,14 @@
 
 <script>
 import { useBluetooth } from '@/composables/useBluetooth';
+import { useAudioManager } from '@/composables/useAudioManager';
 
 export default {
   name: 'BuzzCompetition',
   setup() {
     const { BUZZER_SIGNALS } = useBluetooth();
-    return { BUZZER_SIGNALS };
+    const audioManager = useAudioManager();
+    return { BUZZER_SIGNALS, audioManager };
   },
   data() {
     return {
@@ -104,6 +106,7 @@ export default {
       
       this.activeTeam = team;
       this.isBlocked = true;
+      this.audioManager.playBuzz();
       this.$emit('team-selected', team);
     },
     closeDialog() {
@@ -142,6 +145,7 @@ export default {
       handler(newVal) {
         if (newVal) {
           this.resetState();
+          this.audioManager.playRound();
           if (this.bluetoothCharacteristic) {
             this.bluetoothCharacteristic.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
           }

@@ -66,8 +66,14 @@
 </template>
 
 <script>
+import { useAudioManager } from '@/composables/useAudioManager';
+
 export default {
   name: 'GameTools',
+  setup() {
+    const audioManager = useAudioManager();
+    return { audioManager };
+  },
   props: {
     round: {
       type: Number,
@@ -119,6 +125,10 @@ export default {
     handleToolClick(action) {
       if (action === 'restart') {
         this.showResetDialog = true;
+      } else if (action === 'loss') {
+        // Odtwarzamy dźwięk bad.mp3 przy skuciu
+        this.audioManager.playBad();
+        this.$emit('tool-action', action);
       } else {
         this.$emit('tool-action', action);
       }
