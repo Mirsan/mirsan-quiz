@@ -18,7 +18,7 @@
               <template v-slot:activator="{ props }">
                 <v-btn 
                   v-bind="props"
-                  :color="activeTeam === 1 ? '#0000ff' : '#ccccff'" 
+                  :color="activeTeam === 1 ? '#0000ff' : '#66b3ff'" 
                   :class="['text-white', 'team-btn', { 'v-btn--active': activeTeam === 1 }]"
                   style="width: 100%; height: 100px;"
                   @click="selectTeam(1)"
@@ -35,7 +35,7 @@
               <template v-slot:activator="{ props }">
                 <v-btn 
                   v-bind="props"
-                  :color="activeTeam === 2 ? '#ff0000' : '#ffcccc'" 
+                  :color="activeTeam === 2 ? '#ff0000' : '#ff9999'" 
                   :class="['text-white', 'team-btn', { 'v-btn--active': activeTeam === 2 }]"
                   style="width: 100%; height: 100px;"
                   @click="selectTeam(2)"
