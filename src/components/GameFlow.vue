@@ -55,8 +55,8 @@ export default {
         return;
       }
       
-      if (answer === this.currentQuestion.correctAnswer) {
-        this.questions[this.currentQuestionIndex].isRevealed = true;
+      if (answer === this.questions[index].correctAnswer) {
+        this.questions[index].isRevealed = true;
         if (this.allAnswersRevealed) {
           this.VictoryMethod = 1; // correctAll
         }

@@ -3,7 +3,7 @@
     v-model="dialog"
     width="800"
     height="500"
-    @click:outside="isBlocked ? null : dialog = false"
+    persistent
   >
     <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
