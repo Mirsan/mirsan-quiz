@@ -16,7 +16,7 @@ export default {
   methods: {
     preloadFonts() {
       // Preload PixelFont
-      const pixelFont = new FontFace('PixelFont', 'url(./assets/PixelFont.ttf)');
+      const pixelFont = new FontFace('PixelFont', 'url(./assets/fonts/PixelFont.ttf)');
       pixelFont.load().then((loadedFont) => {
         document.fonts.add(loadedFont);
         console.log('PixelFont loaded successfully');
@@ -25,7 +25,7 @@ export default {
       });
 
       // Preload DigitalFont
-      const digitalFont = new FontFace('DigitalFont', 'url(./assets/DigitalFont.ttf)');
+      const digitalFont = new FontFace('DigitalFont', 'url(./assets/fonts/DigitalFont.ttf)');
       digitalFont.load().then((loadedFont) => {
         document.fonts.add(loadedFont);
         console.log('DigitalFont loaded successfully');
@@ -53,18 +53,18 @@ html {
 /* Global styles */
 @font-face {
   font-family: 'PixelFont';
-  src: url('./assets/PixelFont.ttf') format('truetype');
+  src: url('./assets/fonts/PixelFont.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
   font-family: 'DigitalFont';
-  src: url('./assets/DigitalFont.ttf') format('truetype');
+  src: url('./assets/fonts/DigitalFont.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 body {

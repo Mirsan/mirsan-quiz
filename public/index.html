@@ -6,6 +6,27 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <!-- Preładowanie czcionek -->
+    <link rel="preload" href="<%= BASE_URL %>../src/assets/fonts/PixelFont.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="<%= BASE_URL %>../src/assets/fonts/DigitalFont.ttf" as="font" type="font/ttf" crossorigin>
+    <style>
+      /* Dodanie definicji czcionek bezpośrednio w HTML, aby były dostępne od razu */
+      @font-face {
+        font-family: 'PixelFont';
+        src: url('<%= BASE_URL %>../src/assets/fonts/PixelFont.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+      }
+      
+      @font-face {
+        font-family: 'DigitalFont';
+        src: url('<%= BASE_URL %>../src/assets/fonts/DigitalFont.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+      }
+    </style>
   </head>
   <body>
     <noscript>

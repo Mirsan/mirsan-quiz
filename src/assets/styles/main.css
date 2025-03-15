@@ -1,9 +1,15 @@
 @font-face {
   font-family: 'PixelFont';
-  src: url('../PixelFont.ttf') format('truetype');
+  src: url('../fonts/PixelFont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
 }
 
 @font-face {
-    font-family: 'DigitalFont';
-    src: url('../DigitalFont.ttf') format('truetype');
-  }
+  font-family: 'DigitalFont';
+  src: url('../fonts/DigitalFont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
