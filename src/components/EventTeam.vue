@@ -1,13 +1,8 @@
 <template>
   <div class="event-team">
     <transition name="alert-fade">
-      <div v-if="showNarada" class="alert-label narada">
-        NARADA
-      </div>
-    </transition>
-    <transition name="alert-fade">
-      <div v-if="showPrzejecie" class="alert-label przejecie">
-        PRÓBA PRZEJĘCIA
+      <div v-if="showAlert" class="alert-label" :class="{ 'przejecie': showPrzejecie, 'narada': !showPrzejecie }">
+        {{ alertText }}
       </div>
     </transition>
   </div>
@@ -51,6 +46,12 @@ export default {
       } else {
         return this.team1Loss === 3 && this.victoryMethod === null;
       }
+    },
+    showAlert() {
+      return this.showNarada || this.showPrzejecie;
+    },
+    alertText() {
+      return this.showPrzejecie ? 'PRÓBA PRZEJĘCIA' : 'NARADA';
     }
   }
 }
@@ -78,48 +79,30 @@ export default {
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 5px;
+  background-color: rgba(255, 0, 0, 0.9);
+  color: white;
 }
 
 .narada {
-  background-color: rgba(255, 165, 0, 0.9);
-  color: black;
-  animation: pulse 1.5s infinite;
+  animation: shake 1.5s infinite;
 }
 
 .przejecie {
-  background-color: rgba(255, 0, 0, 0.9);
-  color: white;
-  animation: blink 1s infinite;
+  animation: shake 0.8s infinite;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes blink {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+@keyframes shake {
+  0% { transform: translateX(0); }
+  10% { transform: translateX(-3px) rotate(-1deg); }
+  20% { transform: translateX(3px) rotate(1deg); }
+  30% { transform: translateX(-3px) rotate(-1deg); }
+  40% { transform: translateX(3px) rotate(1deg); }
+  50% { transform: translateX(-3px) rotate(-1deg); }
+  60% { transform: translateX(3px) rotate(1deg); }
+  70% { transform: translateX(-3px) rotate(-1deg); }
+  80% { transform: translateX(3px) rotate(1deg); }
+  90% { transform: translateX(-3px) rotate(-1deg); }
+  100% { transform: translateX(0); }
 }
 
 .alert-fade-enter-active, .alert-fade-leave-active {

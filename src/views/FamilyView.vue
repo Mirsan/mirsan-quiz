@@ -236,6 +236,7 @@ export default defineComponent({
         this.victoryMethod = null;
         this.isCheckingAnswers = false;
         this.roundCompleted = false;
+        this.activeTeam = null;
         
         this.round = index + 1;
         
@@ -245,9 +246,7 @@ export default defineComponent({
       }
     },
     handleToolAction(action) {
-      if (this.showPointsAnnouncement) return;
-      
-      if (this.showBuzzCompetition && action.startsWith('show-answer-')) return;
+      if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
       
       if (action.startsWith('show-answer-')) {
         if (!this.activeTeam && !this.roundCompleted && !this.victoryMethod) return;
@@ -329,6 +328,7 @@ export default defineComponent({
           this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
         case 'loss':
+          if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
           if (this.team1Loss + this.team2Loss >= 4) return;
           
           if (this.activeTeam === 1) {
