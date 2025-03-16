@@ -111,6 +111,7 @@ export default {
       this.$emit('team-selected', team);
     },
     closeDialog() {
+      this.$emit('dialog-closed');
       this.dialog = false;
       this.isBlocked = false;
     },

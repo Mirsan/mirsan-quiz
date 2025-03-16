@@ -6,6 +6,7 @@
           :team2Name="team2Name"
           :bluetooth-characteristic="bluetoothCharacteristic"
           @team-selected="activeTeam = $event"
+          @dialog-closed="showQuestion"
         />
         <RoundComplete
           v-model="showPointsAnnouncement"
@@ -249,14 +250,6 @@ export default defineComponent({
       }
 
       if (this.questionsData?.questions?.[index]) {
-        const questionData = this.questionsData.questions[index];
-        this.question = questionData.question;
-        this.results = questionData.answers.map((a, idx) => ({
-          id: idx + 1,
-          name: a.answer,
-          points: a.points,
-          pass: false
-        }));
         this.currentQuestionIndex = index;
         this.currentSumPoints = 0;
         
@@ -278,6 +271,16 @@ export default defineComponent({
         this.roundCompleted = false;
         this.activeTeam = null;
         
+        // Pokazujemy tylko strukturę bez pytania
+        this.question = "";
+        const questionData = this.questionsData.questions[index];
+        this.results = questionData.answers.map((a, idx) => ({
+          id: idx + 1,
+          name: "",
+          points: a.points,
+          pass: false
+        }));
+        
         this.round = index + 1;
         
         setTimeout(() => {
@@ -289,6 +292,16 @@ export default defineComponent({
           this.endGameType = 'questions';
         }
       }
+    },
+    showQuestion() {
+      const questionData = this.questionsData.questions[this.currentQuestionIndex];
+      this.question = questionData.question;
+      this.results = questionData.answers.map((a, idx) => ({
+        id: idx + 1,
+        name: a.answer,
+        points: a.points,
+        pass: false
+      }));
     },
     handleToolAction(action) {
       if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
