@@ -21,6 +21,15 @@
           @dialogOpened="handleDialogOpened"
           @dialogClosed="handleDialogClosed"
         />
+        <EndGame
+          v-model="showEndGame"
+          :team1Name="team1Name"
+          :team2Name="team2Name"
+          :team1Points="team1Points"
+          :team2Points="team2Points"
+          :endGameType="endGameType"
+          :totalRounds="round"
+        />
         <video
             ref="videoPlayer"
             class="background-video"
@@ -132,6 +141,7 @@ import BuzzCompetition from '@/components/BuzzCompetition.vue';
 import GameTools from '@/components/GameTools.vue';
 import RoundComplete from '@/components/RoundComplete.vue';
 import EventTeam from '@/components/EventTeam.vue';
+import EndGame from '@/components/EndGame.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 import { useAudioManager } from '@/composables/useAudioManager';
@@ -146,7 +156,8 @@ export default defineComponent({
     BuzzCompetition,
     GameTools,
     RoundComplete,
-    EventTeam
+    EventTeam,
+    EndGame
   },
   setup() {
     const { bluetoothDevice, bluetoothCharacteristic, isBluetoothConnected, initializeBluetooth, cleanup } = useBluetooth();
@@ -176,6 +187,8 @@ export default defineComponent({
       roundCompleted: false,
       victoryMethod: null,
       isCheckingAnswers: false,
+      showEndGame: false,
+      endGameType: null,
     }
   },
   computed: {
@@ -256,6 +269,20 @@ export default defineComponent({
         setTimeout(() => {
           this.showBuzzCompetition = true;
         }, 500);
+      } else {
+        // Koniec gry - najpierw przyznajemy punkty jeśli są
+        if (this.currentPoints > 0) {
+          if (this.activeTeam === 1) {
+            this.team1Points += this.currentPoints;
+          } else if (this.activeTeam === 2) {
+            this.team2Points += this.currentPoints;
+          }
+          this.pointsAnnouncementTeam = this.activeTeam;
+          this.showPointsAnnouncement = true;
+        } else {
+          this.showEndGame = true;
+          this.endGameType = 'questions';
+        }
       }
     },
     handleToolAction(action) {
@@ -385,10 +412,17 @@ export default defineComponent({
     handleRoundCompleteClose(value) {
       this.showPointsAnnouncement = value;
       if (!value) {
-        this.activeTeam = null;
         if (this.results.every(r => r.pass)) {
-          this.resetRound();
+          if (this.currentQuestionIndex + 1 >= this.questionsData.questions.length) {
+            setTimeout(() => {
+              this.showEndGame = true;
+              this.endGameType = 'questions';
+            }, 100);
+          } else {
+            this.resetRound();
+          }
         }
+        this.activeTeam = null;
       }
     },
     resetRound() {
@@ -413,6 +447,10 @@ export default defineComponent({
       if (isNextRound) {
         this.audioManager.stopAll();
       }
+    },
+    handleEndGameClose() {
+      this.showEndGame = false;
+      this.$router.push('/start-family');
     }
   },
   beforeUnmount() {

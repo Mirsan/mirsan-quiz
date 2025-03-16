@@ -170,13 +170,18 @@ export default {
         // Zatrzymaj odtwarzanie dźwięku przed rozpoczęciem gry
         this.audioManager.stopAll();
         
-        this.$emit('game-start', {
+        const gameConfig = {
           team1Name: this.team1Name,
           team2Name: this.team2Name,
           questionsFile: this.questionsFile,
           randomizeQuestions: this.randomizeQuestions,
-          autoIncreaseMultiplier: this.autoIncreaseMultiplier
-        });
+          autoIncreaseMultiplier: this.autoIncreaseMultiplier,
+          isBluetoothConnected: this.isConnected
+        };
+        
+        localStorage.setItem('familyGameConfig', JSON.stringify(gameConfig));
+        
+        this.$emit('game-start', gameConfig);
         this.show = false;
       }
     },

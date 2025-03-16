@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "question": "Co można kupić w piekarni?",
+      "answers": [
+        {
+          "answer": "chleb",
+          "points": 50
+        },
+        {
+          "answer": "bułki",
+          "points": 30
+        },
+        {
+          "answer": "ciastka",
+          "points": 15
+        },
+        {
+          "answer": "bagietkę",
+          "points": 5
+        }
+      ]
+    }
+  ]
+}
