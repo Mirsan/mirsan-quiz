@@ -6,10 +6,11 @@
     persistent
   >
     <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
-      <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
+      <v-card-text class="text-h4 pa-12" style="color: yellow; font-family: 'PixelFont';">
         <v-tooltip location="top" text="Buzz">
           <template v-slot:activator="{ props }">
-            <span v-bind="props">BUZZ TIME!</span>
+            <span v-bind="props">{{ questionShown ? question : 'BUZZ TIME!' }}</span>
+            <br><br>
           </template>
         </v-tooltip>
         <v-row class="justify-center">
@@ -53,10 +54,10 @@
           <v-col cols="6">
             <v-btn 
               class="confirm-btn"
-              @click="closeDialog"
-              @keyup.enter="closeDialog"
+              @click="handleConfirm"
+              @keyup.enter="handleConfirm"
             >
-              Dalej [Enter]
+              {{ questionShown ? 'Dalej [Enter]' : 'Pokaż pytanie [Enter]' }}
             </v-btn>
           </v-col>
         </v-row>
@@ -79,7 +80,8 @@ export default {
   data() {
     return {
       activeTeam: null,
-      isBlocked: false
+      isBlocked: false,
+      questionShown: false
     }
   },
   props: {
@@ -98,6 +100,10 @@ export default {
     bluetoothCharacteristic: {
       type: Object,
       default: null
+    },
+    question: {
+      type: String,
+      required: true
     }
   },
   methods: {
@@ -115,6 +121,13 @@ export default {
       this.dialog = false;
       this.isBlocked = false;
     },
+    handleConfirm() {
+      if (!this.questionShown) {
+        this.questionShown = true;
+      } else {
+        this.closeDialog();
+      }
+    },
     handleKeyPress(event) {
       if (!this.dialog) return;
       
@@ -125,7 +138,7 @@ export default {
           this.selectTeam(2);
         }
       } else if (event.key === 'Enter' && this.activeTeam) {
-        this.closeDialog();
+        this.handleConfirm();
       }
     },
     handleBuzzerSignal(event) {
@@ -139,6 +152,7 @@ export default {
     resetState() {
       this.activeTeam = null;
       this.isBlocked = false;
+      this.questionShown = false;
     }
   },
   watch: {

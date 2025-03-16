@@ -5,6 +5,7 @@
           :team1Name="team1Name"
           :team2Name="team2Name"
           :bluetooth-characteristic="bluetoothCharacteristic"
+          :question="question"
           @team-selected="activeTeam = $event"
           @dialog-closed="showQuestion"
         />
@@ -271,9 +272,9 @@ export default defineComponent({
         this.roundCompleted = false;
         this.activeTeam = null;
         
-        // Pokazujemy tylko strukturę bez pytania
-        this.question = "";
+        // Ustawiamy pytanie od razu, ale ukrywamy odpowiedzi
         const questionData = this.questionsData.questions[index];
+        this.question = questionData.question;
         this.results = questionData.answers.map((a, idx) => ({
           id: idx + 1,
           name: "",
@@ -295,7 +296,7 @@ export default defineComponent({
     },
     showQuestion() {
       const questionData = this.questionsData.questions[this.currentQuestionIndex];
-      this.question = questionData.question;
+      // Teraz tylko pokazujemy odpowiedzi
       this.results = questionData.answers.map((a, idx) => ({
         id: idx + 1,
         name: a.answer,
