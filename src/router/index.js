@@ -27,12 +27,12 @@ const routes = [
     name: 'family',
     component: FamilyView,
     beforeEnter: (to, from, next) => {
-      // Jeśli przychodzimy ze strony konfiguracji, pozwalamy przejść
-      if (from.path === '/start-family') {
-        next()
+      // Sprawdź czy mamy konfigurację w localStorage
+      const config = localStorage.getItem('familyGameConfig');
+      if (config) {
+        next(); // Pozwól przejść jeśli jest konfiguracja
       } else {
-        // W przeciwnym razie przekierowujemy do konfiguracji
-        next('/start-family')
+        next('/start-family'); // Przekieruj jeśli nie ma konfiguracji
       }
     }
   },
@@ -40,6 +40,10 @@ const routes = [
     path: '/start-family',
     name: 'start-family',
     component: StartFamilyView
+  },
+  {
+    path: '/',
+    redirect: '/start-family'
   }
 ]
 
@@ -47,5 +51,14 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+// Dodaj globalny guard dla bezpośredniego dostępu do /family
+router.beforeEach((to, from, next) => {
+  if (to.path === '/family' && from.path === '/') {
+    next('/start-family');
+  } else {
+    next();
+  }
+});
 
 export default router

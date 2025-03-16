@@ -123,6 +123,10 @@
                         <GameTools 
                           @tool-action="handleToolAction" 
                           :round="round"
+                          :current-points="team1Points + team2Points"
+                          :answered-questions="currentQuestionIndex + 1"
+                          :total-questions="questionsData?.questions?.length || 0"
+                          :game-config="gameConfig"
                         />
                     </v-col>
                 </v-col>
@@ -167,6 +171,7 @@ export default defineComponent({
   data() {
     return {
       videoSrc: backgroundVideo,
+      gameConfig: null,
       question: "",
       showBuzzCompetition: false,
       showPointsAnnouncement: false,
@@ -206,18 +211,22 @@ export default defineComponent({
     }
 
     try {
-      const { team1Name, team2Name, questionsData, isBluetoothConnected: wasConnected } = JSON.parse(config);
-      this.team1Name = team1Name;
-      this.team2Name = team2Name;
-      this.questionsData = questionsData;
+      const parsedConfig = JSON.parse(config);
       
-      if (this.questionsData?.questions?.length > 0) {
-        this.loadQuestion(0);
-      } else {
+      if (!parsedConfig.questionsData || !Array.isArray(parsedConfig.questionsData) || parsedConfig.questionsData.length === 0) {
         throw new Error('Brak pytań w pliku');
       }
+
+      this.team1Name = parsedConfig.team1Name;
+      this.team2Name = parsedConfig.team2Name;
+      this.questionsData = {
+        questions: parsedConfig.questionsData
+      };
+      this.gameConfig = parsedConfig;
       
-      if (wasConnected) {
+      this.loadQuestion(0);
+      
+      if (parsedConfig.isBluetoothConnected) {
         await this.initializeBluetooth();
       }
     } catch (error) {
@@ -233,6 +242,10 @@ export default defineComponent({
   },
   methods: {
     loadQuestion(index) {
+      if (this.checkGameEndCondition()) {
+        return;
+      }
+
       if (this.questionsData?.questions?.[index]) {
         const questionData = this.questionsData.questions[index];
         this.question = questionData.question;
@@ -245,12 +258,11 @@ export default defineComponent({
         this.currentQuestionIndex = index;
         this.currentSumPoints = 0;
         
-        // Sprawdzamy czy automatyczne zwiększanie mnożnika jest włączone
         const config = JSON.parse(localStorage.getItem('familyGameConfig'));
         if (config?.autoIncreaseMultiplier) {
-          if (index >= 4) { // 5 runda i kolejne
+          if (index >= 4) {
             this.multiplierPoints = 3;
-          } else if (index === 3) { // 4 runda
+          } else if (index === 3) {
             this.multiplierPoints = 2;
           } else {
             this.multiplierPoints = 1;
@@ -270,16 +282,7 @@ export default defineComponent({
           this.showBuzzCompetition = true;
         }, 500);
       } else {
-        // Koniec gry - najpierw przyznajemy punkty jeśli są
-        if (this.currentPoints > 0) {
-          if (this.activeTeam === 1) {
-            this.team1Points += this.currentPoints;
-          } else if (this.activeTeam === 2) {
-            this.team2Points += this.currentPoints;
-          }
-          this.pointsAnnouncementTeam = this.activeTeam;
-          this.showPointsAnnouncement = true;
-        } else {
+        if (this.gameConfig.gameEndCondition === 'all') {
           this.showEndGame = true;
           this.endGameType = 'questions';
         }
@@ -451,6 +454,28 @@ export default defineComponent({
     handleEndGameClose() {
       this.showEndGame = false;
       this.$router.push('/start-family');
+    },
+    checkGameEndCondition() {
+      if (!this.gameConfig) return false;
+
+      switch (this.gameConfig.gameEndCondition) {
+        case 'points':
+          if (Math.max(this.team1Points, this.team2Points) >= this.gameConfig.gameEndLimit) {
+            this.showEndGame = true;
+            this.endGameType = 'points';
+            return true;
+          }
+          break;
+        
+        case 'questions':
+          if (this.currentQuestionIndex + 1 >= this.gameConfig.gameEndLimit) {
+            this.showEndGame = true;
+            this.endGameType = 'rounds';
+            return true;
+          }
+          break;
+      }
+      return false;
     }
   },
   beforeUnmount() {
@@ -470,6 +495,12 @@ export default defineComponent({
           this.checkLossCondition();
         }
       }
+    },
+    team1Points() {
+      this.checkGameEndCondition();
+    },
+    team2Points() {
+      this.checkGameEndCondition();
     }
   }
 });

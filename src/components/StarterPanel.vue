@@ -4,7 +4,7 @@
     persistent
     width="600"
   >
-    <v-card class="text-center pa-6" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
+    <v-card class="text-center pa-4" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
       <v-card-title class="text-h4 mb-6" style="color: yellow; font-family: 'PixelFont';">
         KONFIGURACJA GRY
       </v-card-title>
@@ -15,7 +15,7 @@
             v-model="team1Name"
             label="Nazwa Drużyny 1"
             variant="outlined"
-            class="mb-4"
+            class="mb-2"
             style="color: yellow;"
             :rules="nameRules"
             prepend-icon="mdi-account-group"
@@ -26,7 +26,7 @@
             v-model="team2Name"
             label="Nazwa Drużyny 2"
             variant="outlined"
-            class="mb-4"
+            class="mb-2"
             style="color: yellow;"
             :rules="nameRules"
             prepend-icon="mdi-account-group"
@@ -37,13 +37,42 @@
             v-model="questionsFile"
             label="Zestaw pytań"
             variant="outlined"
-            class="mb-4"
+            class="mb-2"
             accept=".json"
             style="color: yellow;"
             :rules="[v => !!v || 'Plik z pytaniami jest wymagany']"
             prepend-icon="mdi-file-question"
             @change="handleFileChange"
           ></v-file-input>
+
+          <v-row>
+            <v-col :cols="gameEndCondition !== 'all' ? 6 : 12">
+              <v-select
+                v-model="gameEndCondition"
+                :items="gameEndConditions"
+                label="Warunek końca gry"
+                variant="outlined"
+                class="mb-2"
+                style="color: yellow;"
+                prepend-icon="mdi-flag-checkered"
+                hide-details
+              ></v-select>
+            </v-col>
+            
+            <v-col cols="6" v-if="gameEndCondition !== 'all'">
+              <v-text-field
+                v-model.number="gameEndLimit"
+                :label="gameEndCondition === 'points' ? 'Limit punktów' : 'Limit pytań'"
+                variant="outlined"
+                class="mb-2"
+                style="color: yellow;"
+                type="number"
+                :rules="limitRules"
+                prepend-icon="mdi-numeric"
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
 
           <v-checkbox
             v-model="randomizeQuestions"
@@ -148,16 +177,38 @@ export default {
         v => !!v || 'Nazwa drużyny jest wymagana',
         v => v.length <= 10 || 'Nazwa drużyny nie może być dłuższa niż 10 znaków'
       ],
-      fileError: null
+      fileError: null,
+      gameEndCondition: 'all',
+      gameEndConditions: [
+        { title: 'Wszystkie pytania', value: 'all' },
+        { title: 'Limit punktów', value: 'points' },
+        { title: 'Limit pytań', value: 'questions' }
+      ],
+      gameEndLimit: null,
+      limitRules: [
+        v => !!v || 'Limit jest wymagany',
+        v => v > 0 || 'Limit musi być większy od 0',
+        v => Number.isInteger(Number(v)) || 'Limit musi być liczbą całkowitą'
+      ]
     }
   },
   computed: {
     isFormValid() {
-      return this.team1Name && 
+      const basicValidation = this.team1Name && 
              this.team2Name && 
              this.questionsFile &&
              this.team1Name.length <= 10 &&
-             this.team2Name.length <= 10
+             this.team2Name.length <= 10;
+
+      // Dodatkowa walidacja dla limitu
+      if (this.gameEndCondition !== 'all') {
+        return basicValidation && 
+               this.gameEndLimit && 
+               this.gameEndLimit > 0 && 
+               Number.isInteger(Number(this.gameEndLimit));
+      }
+
+      return basicValidation;
     }
   },
   methods: {
@@ -167,22 +218,27 @@ export default {
     async startGame() {
       const { valid } = await this.$refs.form.validate()
       if (valid && this.isFormValid) {
-        // Zatrzymaj odtwarzanie dźwięku przed rozpoczęciem gry
-        this.audioManager.stopAll();
-        
-        const gameConfig = {
-          team1Name: this.team1Name,
-          team2Name: this.team2Name,
-          questionsFile: this.questionsFile,
-          randomizeQuestions: this.randomizeQuestions,
-          autoIncreaseMultiplier: this.autoIncreaseMultiplier,
-          isBluetoothConnected: this.isConnected
-        };
-        
-        localStorage.setItem('familyGameConfig', JSON.stringify(gameConfig));
-        
-        this.$emit('game-start', gameConfig);
-        this.show = false;
+        try {
+          // Zatrzymaj odtwarzanie dźwięku przed rozpoczęciem gry
+          this.audioManager.stopAll();
+          
+          const gameConfig = {
+            team1Name: this.team1Name,
+            team2Name: this.team2Name,
+            questionsFile: this.questionsFile,
+            randomizeQuestions: this.randomizeQuestions,
+            autoIncreaseMultiplier: this.autoIncreaseMultiplier,
+            isBluetoothConnected: this.isConnected,
+            gameEndCondition: this.gameEndCondition,
+            gameEndLimit: this.gameEndLimit
+          };
+          
+          this.$emit('game-start', gameConfig);
+          this.show = false;
+        } catch (error) {
+          console.error('Błąd podczas startowania gry:', error);
+          this.fileError = 'Wystąpił błąd podczas uruchamiania gry';
+        }
       }
     },
     async handleFileChange(event) {
@@ -231,24 +287,23 @@ export default {
         reader.onerror = () => reject(new Error('Błąd odczytu pliku'));
         reader.readAsText(file);
       });
-    },
-
-    handleSubmit() {
-      if (!this.team1Name || !this.team2Name || !this.questionsFile) {
-        this.formError = 'Wypełnij wszystkie pola';
-        return;
-      }
-      
-      this.$emit('game-start', {
-        team1Name: this.team1Name,
-        team2Name: this.team2Name,
-        questionsFile: this.questionsFile
-      });
     }
   },
   beforeUnmount() {
     // Zatrzymaj odtwarzanie dźwięku przed usunięciem komponentu
     this.audioManager.stopAll();
+  },
+  watch: {
+    gameEndCondition: {
+      immediate: true,
+      handler(newValue) {
+        if (newValue === 'points') {
+          this.gameEndLimit = 300;
+        } else if (newValue === 'questions') {
+          this.gameEndLimit = 7;
+        }
+      }
+    }
   }
 }
 </script>
@@ -355,5 +410,14 @@ export default {
 
 :deep(.v-checkbox .v-selection-control__input) {
   color: yellow !important;
+}
+
+:deep(.v-row) {
+  margin: 0;
+  padding: 0;
+}
+
+:deep(.v-col) {
+  padding: 4px;
 }
 </style> 

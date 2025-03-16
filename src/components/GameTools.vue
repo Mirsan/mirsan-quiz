@@ -4,6 +4,9 @@
       <v-col cols="3" class="d-flex align-center">
         <div class="round-label">
           Runda {{ round }}
+          <div class="game-progress" v-if="showProgress">
+            {{ progressText }}
+          </div>
         </div>
       </v-col>
       
@@ -78,6 +81,22 @@ export default {
     round: {
       type: Number,
       required: true
+    },
+    currentPoints: {
+      type: Number,
+      default: 0
+    },
+    totalQuestions: {
+      type: Number,
+      default: 0
+    },
+    answeredQuestions: {
+      type: Number,
+      default: 0
+    },
+    gameConfig: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -113,6 +132,18 @@ export default {
           shortcut: 'Backspace'
         }
       ]
+    }
+  },
+  computed: {
+    showProgress() {
+      return this.gameConfig?.gameEndCondition !== 'all';
+    },
+    progressText() {
+      if (!this.gameConfig) return '';
+      if (this.gameConfig.gameEndCondition === 'points') {
+        return `${this.currentPoints}/${this.gameConfig.gameEndLimit} pkt`;
+      }
+      return `${this.answeredQuestions}/${this.gameConfig.gameEndLimit} pytań`;
     }
   },
   mounted() {
@@ -225,5 +256,11 @@ export default {
   font-size: 12px;
   font-weight: bold;
   opacity: 0.8;
+}
+
+.game-progress {
+  font-size: 16px;
+  color: #ffeb3b;
+  margin-top: 4px;
 }
 </style> 

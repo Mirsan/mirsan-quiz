@@ -143,49 +143,81 @@ export default defineComponent({
     },
 
     async handleGameStart(config) {
+      console.log('Otrzymana konfiguracja:', config);
+      
+      if (!config.questionsFile) {
+        console.error('Brak pliku z pytaniami');
+        alert('Brak pliku z pytaniami');
+        return;
+      }
+
       try {
-        // Zatrzymaj odtwarzanie dźwięku przed rozpoczęciem gry
         this.audioManager.stopAll();
         
         // Czytamy zawartość pliku
         const reader = new FileReader();
+        
         const fileContent = await new Promise((resolve, reject) => {
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = (e) => reject(e);
+          reader.onload = (event) => {
+            console.log('Plik wczytany pomyślnie');
+            resolve(event.target.result);
+          };
+          reader.onerror = () => {
+            console.error('Błąd podczas czytania pliku');
+            reject(new Error('Błąd odczytu pliku'));
+          };
           reader.readAsText(config.questionsFile);
         });
 
         const questionsData = JSON.parse(fileContent);
+        
+        if (!questionsData.questions || !Array.isArray(questionsData.questions)) {
+          throw new Error('Nieprawidłowy format pliku z pytaniami');
+        }
 
         // Jeśli włączono losową kolejność, mieszamy pytania
         if (config.randomizeQuestions) {
           questionsData.questions = this.shuffleArray([...questionsData.questions]);
         }
 
-        // Zapisujemy konfigurację w localStorage
-        localStorage.setItem('familyGameConfig', JSON.stringify({
+        // Przygotuj konfigurację do zapisania
+        const fullConfig = {
           team1Name: config.team1Name,
           team2Name: config.team2Name,
-          questionsData,
+          questionsData: questionsData.questions,
+          randomizeQuestions: config.randomizeQuestions,
+          autoIncreaseMultiplier: config.autoIncreaseMultiplier,
           isBluetoothConnected: this.isConnected,
-          autoIncreaseMultiplier: config.autoIncreaseMultiplier
-        }));
-
-        // Zapisujemy stan Bluetooth w globalnym obiekcie
-        window.bluetoothState = {
-          device: this.bluetoothDevice,
-          characteristic: this.bluetoothCharacteristic,
-          isConnected: this.isConnected,
-          server: this.bluetoothDevice?.gatt
+          gameEndCondition: config.gameEndCondition,
+          gameEndLimit: config.gameEndLimit
         };
 
-        // Usuwamy nasłuchiwanie na rozłączenie z tego komponentu
-        this.bluetoothDevice?.removeEventListener('gattserverdisconnected', this.handleDisconnection);
+        // Zapisz konfigurację
+        localStorage.setItem('familyGameConfig', JSON.stringify(fullConfig));
 
-        // Przekierowujemy do właściwej gry
-        this.$router.push('/family');
+        // Zapisz stan Bluetooth
+        if (this.bluetoothDevice) {
+          window.bluetoothState = {
+            device: this.bluetoothDevice,
+            characteristic: this.bluetoothCharacteristic,
+            isConnected: this.isConnected,
+            server: this.bluetoothDevice?.gatt
+          };
+          this.bluetoothDevice.removeEventListener('gattserverdisconnected', this.handleDisconnection);
+        }
+
+        // Zmiana sposobu nawigacji
+        try {
+          await this.$router.replace('/family');
+        } catch (navigationError) {
+          console.error('Błąd nawigacji:', navigationError);
+          // Spróbuj alternatywną metodę
+          window.location.href = '/family';
+        }
+        
       } catch (error) {
-        alert(`Błąd wczytywania pliku: ${error.message}`);
+        console.error('Szczegółowy błąd:', error);
+        alert(`Błąd podczas uruchamiania gry: ${error.message}`);
       }
     },
 
