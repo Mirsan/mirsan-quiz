@@ -14,10 +14,10 @@
           </template>
           <v-btn
             class="mt-6 confirm-btn"
-            @click="handleClose"
+            @click="closeDialog"
             style="width: 100%;"
           >
-            {{ buttonText }}
+            {{ isLastRound ? 'Przejdź do podsumowania [enter]' : 'Następna runda [enter]' }}
           </v-btn>
         </div>
       </v-card-text>
@@ -65,6 +65,10 @@ export default {
     isTeam1: {
       type: Boolean,
       default: true
+    },
+    isLastRound: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -84,13 +88,16 @@ export default {
     handleClose() {
       this.$emit('update:modelValue', false);
       this.$emit('dialogClosed', this.allAnswersRevealed);
+    },
+    closeDialog() {
+      this.handleClose();
     }
   },
   mounted() {
     this.handleKeyUp = (e) => {
       if (e.key === 'Enter' && this.modelValue) {
         e.preventDefault();
-        this.handleClose();
+        this.closeDialog();
       }
     };
     window.addEventListener('keyup', this.handleKeyUp);

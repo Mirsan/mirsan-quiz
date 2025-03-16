@@ -17,6 +17,7 @@
           :isCheckingAnswers="isCheckingAnswers"
           :isTeam1="pointsAnnouncementTeam === 1"
           :activeTeam="activeTeam"
+          :isLastRound="isLastRound"
           @update:modelValue="handleRoundCompleteClose"
           @dialogOpened="handleDialogOpened"
           @dialogClosed="handleDialogClosed"
@@ -123,7 +124,7 @@
                         <GameTools 
                           @tool-action="handleToolAction" 
                           :round="round"
-                          :current-points="team1Points + team2Points"
+                          :current-points="Math.max(team1Points, team2Points)"
                           :answered-questions="currentQuestionIndex + 1"
                           :total-questions="questionsData?.questions?.length || 0"
                           :game-config="gameConfig"
@@ -194,6 +195,7 @@ export default defineComponent({
       isCheckingAnswers: false,
       showEndGame: false,
       endGameType: null,
+      isLastRound: false,
     }
   },
   computed: {
@@ -415,15 +417,13 @@ export default defineComponent({
     handleRoundCompleteClose(value) {
       this.showPointsAnnouncement = value;
       if (!value) {
-        if (this.results.every(r => r.pass)) {
-          if (this.currentQuestionIndex + 1 >= this.questionsData.questions.length) {
-            setTimeout(() => {
-              this.showEndGame = true;
-              this.endGameType = 'questions';
-            }, 100);
-          } else {
-            this.resetRound();
-          }
+        if (this.isLastRound) {
+          setTimeout(() => {
+            this.showEndGame = true;
+            this.endGameType = this.gameConfig.gameEndCondition;
+          }, 100);
+        } else if (this.results.every(r => r.pass)) {
+          this.resetRound();
         }
         this.activeTeam = null;
       }
@@ -458,24 +458,40 @@ export default defineComponent({
     checkGameEndCondition() {
       if (!this.gameConfig) return false;
 
+      // Zadeklaruj zmienną przed switch
+      const maxPoints = Math.max(this.team1Points, this.team2Points);
+      let endConditionMet = false;
+
+      // Najpierw sprawdź warunki końca gry według konfiguracji
       switch (this.gameConfig.gameEndCondition) {
         case 'points':
-          if (Math.max(this.team1Points, this.team2Points) >= this.gameConfig.gameEndLimit) {
-            this.showEndGame = true;
+          if (maxPoints >= this.gameConfig.gameEndLimit) {
+            this.isLastRound = true;
             this.endGameType = 'points';
-            return true;
+            endConditionMet = true;
           }
           break;
         
         case 'questions':
           if (this.currentQuestionIndex + 1 >= this.gameConfig.gameEndLimit) {
-            this.showEndGame = true;
+            this.isLastRound = true;
             this.endGameType = 'rounds';
-            return true;
+            endConditionMet = true;
           }
           break;
       }
-      return false;
+
+      // Sprawdź, czy skończyły się pytania (niezależnie od warunku końca gry)
+      const noMoreQuestions = this.currentQuestionIndex + 1 >= this.questionsData.questions.length;
+      
+      // Jeśli skończyły się pytania, a nie było wcześniejszego warunku końca
+      if (noMoreQuestions && !endConditionMet) {
+        this.isLastRound = true;
+        this.endGameType = 'questions';
+        return true;
+      }
+
+      return endConditionMet;
     }
   },
   beforeUnmount() {

@@ -84,9 +84,11 @@ export default {
       return this.isTeam1Winner ? this.team1Name : this.team2Name;
     },
     endGameReason() {
+      if (this.endGameType === 'questions') {
+        return 'Wykorzystano wszystkie dostępne pytania!';
+      }
+      
       switch(this.endGameType) {
-        case 'questions':
-          return 'Wszystkie pytania zostały wykorzystane!';
         case 'points':
           return 'Osiągnięto limit punktów!';
         case 'rounds':
