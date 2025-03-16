@@ -126,7 +126,8 @@ export default {
           origin: { x: 0 },
           colors: colors,
           gravity: 0.8,
-          scalar: 1.5
+          scalar: 1.5,
+          zIndex: 100000
         });
         confetti({
           particleCount: 8,
@@ -135,7 +136,8 @@ export default {
           origin: { x: 1 },
           colors: colors,
           gravity: 0.8,
-          scalar: 1.5
+          scalar: 1.5,
+          zIndex: 100000
         });
 
         if (Date.now() < end) {
@@ -155,6 +157,25 @@ export default {
   }
 }
 </script>
+
+<style>
+/* Dodajemy style globalne (bez scoped) */
+.v-overlay {
+  z-index: 1000 !important;
+}
+
+canvas {
+  z-index: 100000 !important;
+}
+
+#confetti-canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  pointer-events: none !important;
+  z-index: 100000 !important;
+}
+</style>
 
 <style scoped>
 .victory-text {
@@ -247,14 +268,5 @@ export default {
   100% {
     transform: scale(1);
   }
-}
-
-:deep(.end-game-dialog) {
-  z-index: 100;
-}
-
-:deep(.v-overlay__content) {
-  position: relative;
-  z-index: 100;
 }
 </style> 
