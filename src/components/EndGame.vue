@@ -26,10 +26,10 @@
         </div>
         <v-btn
           class="mt-6 confirm-btn"
-          @click="finishGame"
+          @click="router.push('/')"
           style="width: 100%;"
         >
-          Powrót do menu [enter]
+         Powrót do menu [enter]
         </v-btn>
       </v-card-text>
     </v-card>
@@ -107,10 +107,6 @@ export default {
       if (e.key === 'Enter' && this.modelValue) {
         this.$emit('update:modelValue', false);
       }
-    },
-    finishGame() {
-      this.$emit('update:modelValue', false);
-      this.router.push('/');
     },
     fireConfetti() {
       const duration = 10000;
