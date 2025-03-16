@@ -157,6 +157,11 @@ export default defineComponent({
 
         const questionsData = JSON.parse(fileContent);
 
+        // Jeśli włączono losową kolejność, mieszamy pytania
+        if (config.randomizeQuestions) {
+          questionsData.questions = this.shuffleArray([...questionsData.questions]);
+        }
+
         // Zapisujemy konfigurację w localStorage
         localStorage.setItem('familyGameConfig', JSON.stringify({
           team1Name: config.team1Name,
@@ -193,6 +198,14 @@ export default defineComponent({
       setTimeout(() => {
         this.showBuzz = false;
       }, 3000);
+    },
+
+    shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
     }
   },
   beforeUnmount() {

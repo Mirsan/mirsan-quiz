@@ -45,6 +45,15 @@
             @change="handleFileChange"
           ></v-file-input>
 
+          <v-checkbox
+            v-model="randomizeQuestions"
+            label="Losowa kolejność pytań"
+            color="yellow"
+            hide-details
+            class="mb-4"
+            style="margin: -1em;"
+          ></v-checkbox>
+
           <div v-if="fileError" class="text-error mb-4 text-center">
             {{ fileError }}
           </div>
@@ -124,6 +133,7 @@ export default {
       team1Name: '',
       team2Name: '',
       questionsFile: null,
+      randomizeQuestions: false,
       nameRules: [
         v => !!v || 'Nazwa drużyny jest wymagana',
         v => v.length <= 10 || 'Nazwa drużyny nie może być dłuższa niż 10 znaków'
@@ -153,7 +163,8 @@ export default {
         this.$emit('game-start', {
           team1Name: this.team1Name,
           team2Name: this.team2Name,
-          questionsFile: this.questionsFile
+          questionsFile: this.questionsFile,
+          randomizeQuestions: this.randomizeQuestions
         });
         this.show = false;
       }
@@ -315,5 +326,18 @@ export default {
 
 :deep(.v-counter) {
   color: white !important;
+}
+
+:deep(.v-checkbox) {
+  color: yellow !important;
+}
+
+:deep(.v-checkbox .v-label) {
+  color: yellow !important;
+  font-family: 'PixelFont';
+}
+
+:deep(.v-checkbox .v-selection-control__input) {
+  color: yellow !important;
 }
 </style> 
