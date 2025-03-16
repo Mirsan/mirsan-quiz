@@ -26,7 +26,7 @@
         </div>
         <v-btn
           class="mt-6 confirm-btn"
-          @click="router.push('/')"
+          @click="cleanupAndNavigate"
           style="width: 100%;"
         >
          Powrót do menu [enter]
@@ -96,30 +96,94 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      animationFrameId: null,
+      myConfetti: null,
+      isAnimating: false
+    }
+  },
   mounted() {
     window.addEventListener('keyup', this.handleKeyUp);
   },
   beforeUnmount() {
+    this.isAnimating = false;
+    if (this.myConfetti) {
+      this.myConfetti.reset();
+      this.myConfetti = null;
+    }
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
     window.removeEventListener('keyup', this.handleKeyUp);
   },
   methods: {
     handleKeyUp(e) {
       if (e.key === 'Enter' && this.modelValue) {
-        this.$emit('update:modelValue', false);
+        this.stopConfettiAndNavigate();
       }
     },
-    fireConfetti() {
-      const duration = 10000;
-      const end = Date.now() + duration;
+    stopConfettiAndNavigate() {
+      this.isAnimating = false;
+      
+      // Zatrzymaj wszystkie animacje
+      if (this.myConfetti) {
+        this.myConfetti.reset();
+        this.myConfetti = null;
+      }
+      
+      if (this.animationFrameId) {
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
+      }
 
+      // Usuń wszystkie canvasy
+      const canvases = document.querySelectorAll('canvas');
+      canvases.forEach(canvas => canvas.remove());
+
+      // Poczekaj na wyczyszczenie animacji
+      setTimeout(() => {
+        window.location.href = '/';
+        window.location.reload();
+      }, 100);
+    },
+    cleanupAndNavigate() {
+      window.location.replace('/');
+      window.location.reload(true);
+    },
+    fireConfetti() {
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+
+      // Stwórz nowy canvas dla konfetti
+      const canvas = document.createElement('canvas');
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.pointerEvents = 'none';
+      canvas.style.zIndex = '100000';
+      document.body.appendChild(canvas);
+
+      this.myConfetti = confetti.create(canvas, {
+        resize: true,
+        useWorker: true
+      });
+
+      const duration = 6000;
+      const end = Date.now() + duration;
       const colors = this.isDraw 
         ? ['#FFD700', '#ffffff', '#FFA500']
         : this.isTeam1Winner 
           ? ['#0000ff', '#ffffff', '#4169E1']
           : ['#ff0000', '#ffffff', '#FF4500'];
 
-      (function frame() {
-        confetti({
+      const frame = () => {
+        if (!this.isAnimating) return;
+
+        this.myConfetti({
           particleCount: 8,
           angle: 60,
           spread: 70,
@@ -129,7 +193,7 @@ export default {
           scalar: 1.5,
           zIndex: 100000
         });
-        confetti({
+        this.myConfetti({
           particleCount: 8,
           angle: 120,
           spread: 70,
@@ -140,10 +204,12 @@ export default {
           zIndex: 100000
         });
 
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
+        if (Date.now() < end && this.isAnimating) {
+          this.animationFrameId = requestAnimationFrame(frame);
         }
-      }());
+      };
+
+      frame();
     }
   },
   watch: {
