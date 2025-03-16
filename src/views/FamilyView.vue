@@ -5,9 +5,11 @@
           :team1Name="team1Name"
           :team2Name="team2Name"
           :bluetooth-characteristic="bluetoothCharacteristic"
-          :question="question"
+          :question="currentQuestion"
+          :answersCount="questionsData?.questions[currentQuestionIndex]?.answers?.length || 0"
           @team-selected="activeTeam = $event"
-          @dialog-closed="showQuestion"
+          @show-question="showQuestionOnBoard"
+          @dialog-closed="handleBuzzClose"
         />
         <RoundComplete
           v-model="showPointsAnnouncement"
@@ -198,6 +200,7 @@ export default defineComponent({
       showEndGame: false,
       endGameType: null,
       isLastRound: false,
+      currentQuestion: "",
     }
   },
   computed: {
@@ -272,9 +275,9 @@ export default defineComponent({
         this.roundCompleted = false;
         this.activeTeam = null;
         
-        // Ustawiamy pytanie od razu, ale ukrywamy odpowiedzi
+        this.question = "";
+        this.currentQuestion = this.questionsData.questions[index].question;
         const questionData = this.questionsData.questions[index];
-        this.question = questionData.question;
         this.results = questionData.answers.map((a, idx) => ({
           id: idx + 1,
           name: "",
@@ -294,9 +297,9 @@ export default defineComponent({
         }
       }
     },
-    showQuestion() {
+    showQuestionOnBoard() {
       const questionData = this.questionsData.questions[this.currentQuestionIndex];
-      // Teraz tylko pokazujemy odpowiedzi
+      this.question = questionData.question;
       this.results = questionData.answers.map((a, idx) => ({
         id: idx + 1,
         name: a.answer,
@@ -506,6 +509,9 @@ export default defineComponent({
       }
 
       return endConditionMet;
+    },
+    handleBuzzClose() {
+      this.showBuzzCompetition = false;
     }
   },
   beforeUnmount() {

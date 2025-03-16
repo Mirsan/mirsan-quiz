@@ -9,7 +9,12 @@
       <v-card-text class="text-h4 pa-12" style="color: yellow; font-family: 'PixelFont';">
         <v-tooltip location="top" text="Buzz">
           <template v-slot:activator="{ props }">
-            <span v-bind="props">{{ questionShown ? question : 'BUZZ TIME!' }}</span>
+            <span v-if="!questionShown" v-bind="props">
+              Pytanie z <span class="bold-number">{{ answersCount }}</span> odpowiedziami
+            </span>
+            <span v-else v-bind="props">
+              {{ question }}
+            </span>
             <br><br>
           </template>
         </v-tooltip>
@@ -49,13 +54,14 @@
             </v-tooltip>
           </v-col>
         </v-row>
-        
-        <v-row v-if="activeTeam" class="justify-center mt-6">
+
+        <v-row class="justify-center mb-6">
           <v-col cols="6">
             <v-btn 
               class="confirm-btn"
               @click="handleConfirm"
               @keyup.enter="handleConfirm"
+              :disabled="questionShown && !activeTeam"
             >
               {{ questionShown ? 'Dalej [Enter]' : 'Pokaż pytanie [Enter]' }}
             </v-btn>
@@ -104,6 +110,10 @@ export default {
     question: {
       type: String,
       required: true
+    },
+    answersCount: {
+      type: Number,
+      required: true
     }
   },
   methods: {
@@ -124,7 +134,8 @@ export default {
     handleConfirm() {
       if (!this.questionShown) {
         this.questionShown = true;
-      } else {
+      } else if (this.activeTeam) {
+        this.$emit('show-question');
         this.closeDialog();
       }
     },
@@ -137,7 +148,7 @@ export default {
         } else if (event.location === 2) {
           this.selectTeam(2);
         }
-      } else if (event.key === 'Enter' && this.activeTeam) {
+      } else if (event.key === 'Enter') {
         this.handleConfirm();
       }
     },
@@ -152,6 +163,9 @@ export default {
     resetState() {
       this.activeTeam = null;
       this.isBlocked = false;
+    },
+    fullReset() {
+      this.resetState();
       this.questionShown = false;
     }
   },
@@ -160,7 +174,7 @@ export default {
       immediate: true,
       handler(newVal) {
         if (newVal) {
-          this.resetState();
+          this.fullReset();
           this.audioManager.playRound();
           if (this.bluetoothCharacteristic) {
             this.bluetoothCharacteristic.addEventListener('characteristicvaluechanged', this.handleBuzzerSignal);
@@ -191,6 +205,9 @@ export default {
       set(value) {
         this.$emit('update:modelValue', value);
       }
+    },
+    displayText() {
+      return this.questionShown ? this.question : `Pytanie z <span class="bold-number">${this.answersCount}</span> odpowiedziami`;
     }
   }
 }
@@ -275,5 +292,17 @@ export default {
   background: rgba(255, 255, 0, 0.9);
   box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
   transform: scale(1.05);
+}
+
+.bold-number {
+  display: inline-block;
+  text-shadow: 0 0 3px yellow, 
+               0 0 3px yellow, 
+               0 0 3px yellow, 
+               0 0 3px yellow;
+  letter-spacing: 1px;
+  font-size: 1.2em;
+  position: relative;
+  top: 2px;
 }
 </style> 
