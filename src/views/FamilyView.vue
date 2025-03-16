@@ -231,7 +231,21 @@ export default defineComponent({
         }));
         this.currentQuestionIndex = index;
         this.currentSumPoints = 0;
-        this.multiplierPoints = 1;
+        
+        // Sprawdzamy czy automatyczne zwiększanie mnożnika jest włączone
+        const config = JSON.parse(localStorage.getItem('familyGameConfig'));
+        if (config?.autoIncreaseMultiplier) {
+          if (index >= 4) { // 5 runda i kolejne
+            this.multiplierPoints = 3;
+          } else if (index === 3) { // 4 runda
+            this.multiplierPoints = 2;
+          } else {
+            this.multiplierPoints = 1;
+          }
+        } else {
+          this.multiplierPoints = 1;
+        }
+        
         this.victoryMethod = null;
         this.isCheckingAnswers = false;
         this.roundCompleted = false;

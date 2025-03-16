@@ -167,7 +167,8 @@ export default defineComponent({
           team1Name: config.team1Name,
           team2Name: config.team2Name,
           questionsData,
-          isBluetoothConnected: this.isConnected
+          isBluetoothConnected: this.isConnected,
+          autoIncreaseMultiplier: config.autoIncreaseMultiplier
         }));
 
         // Zapisujemy stan Bluetooth w globalnym obiekcie
