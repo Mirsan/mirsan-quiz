@@ -4,9 +4,15 @@
     :model-value="true"
     width="600"
     persistent
-    :class="{ 'dialog-top': shouldShowAtTop }"
+    :class="{ 'round-complete-dialog-top': shouldShowAtTop }"
   >
-    <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
+    <template v-slot:activator="{ props }">
+      <div v-bind="props"></div>
+    </template>
+    <v-card 
+      class="text-center" 
+      style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;"
+    >
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
         <div class="points-display">
           <template v-if="activeTeam != null">
@@ -85,7 +91,7 @@ export default {
       return this.isLastRound ? 'Przejdź do podsumowania [enter]' : 'Następna runda [enter]';
     },
     shouldShowAtTop() {
-      return this.isLastRound && this.buttonText === 'Następna runda [enter]';
+      return this.allAnswersRevealed && this.activeTeam == null && this.buttonText === 'Następna runda [enter]';
     }
   },
   methods: {
@@ -122,6 +128,20 @@ export default {
   }
 }
 </script>
+
+<style>
+/* Zmieniamy nazwy klas na bardziej specyficzne */
+.v-dialog.round-complete-dialog-top {
+  position: fixed !important;
+  top: 20px !important;
+  margin-top: 0 !important;
+}
+
+.v-dialog.round-complete-dialog-top .v-overlay__content {
+  margin-top: 0 !important;
+  align-self: start !important;
+}
+</style>
 
 <style scoped>
 .points-display {
@@ -186,13 +206,23 @@ export default {
   }
 }
 
-:deep(.v-dialog) {
-  position: fixed;
-  margin: auto;
+:deep(.v-overlay__content) {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
 }
 
-:deep(.dialog-top) {
-  position: fixed;
-  margin: 20px auto auto auto !important;
+:deep(.round-complete-dialog-top) {
+  margin-top: 20px !important;
+}
+
+:deep(.v-dialog) {
+  position: relative !important;
+  margin: 0 !important;
+}
+
+.dialog-card {
+  position: relative !important;
+  width: 600px !important;
 }
 </style> 
