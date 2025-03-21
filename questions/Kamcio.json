@@ -1,191 +1,191 @@
 {
-  "questions": [
-    {
-      "question": "Co można znaleźć w kieszeni?",
-      "answers": [
-        {
-          "answer": "Klucze",
-          "points": 28
-        },
-        {
-          "answer": "Portfel",
-          "points": 24
-        },
-        {
-          "answer": "Telefon",
-          "points": 21
-        },
-        {
-          "answer": "Chusteczki",
-          "points": 14
-        },
-        {
-          "answer": "Drobne monety",
-          "points": 7
-        },
-        {
-          "answer": "Stare paragony",
-          "points": 6
-        }
-      ]
-    },
-    {
-      "question": "Co robimy przed snem?",
-      "answers": [
-        {
-          "answer": "Myjemy zęby",
-          "points": 37
-        },
-        {
-          "answer": "Czytamy",
-          "points": 32
-        },
-        {
-          "answer": "Modlimy się",
-          "points": 18
-        },
-        {
-          "answer": "Próbujemy zasnąć",
-          "points": 9
-        },
-        {
-          "answer": "Rozmyślamy o przeszłości",
-          "points": 4
-        }
-      ]
-    },
-    {
-      "question": "Narodowy sport Polaków?",
-      "answers": [
-        {
-          "answer": "Piłka nożna",
-          "points": 38
-        },
-        {
-          "answer": "Siatkówka",
-          "points": 28
-        },
-        {
-          "answer": "Skoki narciarskie",
-          "points": 25
-        },
-        {
-          "answer": "Lekkoatletyka",
-          "points": 9
-        }
-      ]
-    },
-    {
-      "question": "Jakie są najważniejsze wydarzenia rodzinne?",
-      "answers": [
-        {
-          "answer": "Ślub/Wesele",
-          "points": 28
-        },
-        {
-          "answer": "Komunia",
-          "points": 22
-        },
-        {
-          "answer": "Chrzest",
-          "points": 15
-        },
-        {
-          "answer": "Boże Narodzenie",
-          "points": 13
-        },
-        {
-          "answer": "Urodziny",
-          "points": 12
-        },
-        {
-          "answer": "Imieniny",
-          "points": 7
-        },
-        {
-          "answer": "Pogrzeb",
-          "points": 3
-        }
-      ]
-    },
-    {
-      "question": "Ulubione polskie potrawy",
-      "answers": [
-        {
-          "answer": "Pierogi",
-          "points": 28
-        },
-        {
-          "answer": "Schabowy z ziemniakami",
-          "points": 22
-        },
-        {
-          "answer": "Bigos",
-          "points": 15
-        },
-        {
-          "answer": "Żurek",
-          "points": 13
-        },
-        {
-          "answer": "Gołąbki",
-          "points": 12
-        }
-      ]
-    },
-		    {
-      "question": "Co jest w każdym filmie o Bondzie?",
-      "answers": [
-        {
-          "answer": "James Bond",
-          "points": 30
-        },
-        {
-          "answer": "Broń",
-          "points": 25
-        },
-        {
-          "answer": "Samochody",
-          "points": 16
-        },
-        {
-          "answer": "Kobiety",
-          "points": 14
-        },    
-        {
-          "answer": "Alkohol",
-          "points": 11
-        }, 		
-		{
-          "answer": "Wybuchy",
-          "points": 4
-        }
-      ]
-    },
-    {
-      "question": "Co może być nazywane 'czarnym złotem'?",
-      "answers": [
-        {
-          "answer": "Ropa naftowa",
-          "points": 41
-        },
-        {
-          "answer": "Węgiel",
-          "points": 33
-        },
-        {
-          "answer": "Kawa",
-          "points": 14
-        },
-        {
-          "answer": "Czarna perła",
-          "points": 7
-        },
-        {
-          "answer": "Czarna trufla",
-          "points": 5
-        }
-      ]
-    }
+  "questions":[
+     {
+        "question":"Co można znaleźć w kieszeni?",
+        "answers":[
+           {
+              "answer":"Klucze",
+              "points":28
+           },
+           {
+              "answer":"Portfel",
+              "points":24
+           },
+           {
+              "answer":"Telefon",
+              "points":21
+           },
+           {
+              "answer":"Chusteczki",
+              "points":14
+           },
+           {
+              "answer":"Drobne monety",
+              "points":7
+           },
+           {
+              "answer":"Stare paragony",
+              "points":6
+           }
+        ]
+     },
+     {
+        "question":"Co robimy przed snem?",
+        "answers":[
+           {
+              "answer":"Myjemy zęby",
+              "points":37
+           },
+           {
+              "answer":"Czytamy",
+              "points":32
+           },
+           {
+              "answer":"Modlimy się",
+              "points":18
+           },
+           {
+              "answer":"Próbujemy zasnąć",
+              "points":9
+           },
+           {
+              "answer":"Rozmyślamy o przeszłości",
+              "points":4
+           }
+        ]
+     },
+     {
+        "question":"Narodowy sport Polaków?",
+        "answers":[
+           {
+              "answer":"Piłka nożna",
+              "points":38
+           },
+           {
+              "answer":"Siatkówka",
+              "points":28
+           },
+           {
+              "answer":"Skoki narciarskie",
+              "points":25
+           },
+           {
+              "answer":"Lekkoatletyka",
+              "points":9
+           }
+        ]
+     },
+     {
+        "question":"Jakie są najważniejsze wydarzenia rodzinne?",
+        "answers":[
+           {
+              "answer":"Ślub/Wesele",
+              "points":28
+           },
+           {
+              "answer":"Komunia",
+              "points":22
+           },
+           {
+              "answer":"Chrzest",
+              "points":15
+           },
+           {
+              "answer":"Boże Narodzenie",
+              "points":13
+           },
+           {
+              "answer":"Urodziny",
+              "points":12
+           },
+           {
+              "answer":"Imieniny",
+              "points":7
+           },
+           {
+              "answer":"Pogrzeb",
+              "points":3
+           }
+        ]
+     },
+     {
+        "question":"Ulubione polskie potrawy",
+        "answers":[
+           {
+              "answer":"Pierogi",
+              "points":28
+           },
+           {
+              "answer":"Schabowy z ziemniakami",
+              "points":22
+           },
+           {
+              "answer":"Bigos",
+              "points":15
+           },
+           {
+              "answer":"Żurek",
+              "points":13
+           },
+           {
+              "answer":"Gołąbki",
+              "points":12
+           }
+        ]
+     },
+     {
+        "question":"Co jest w każdym filmie o Bondzie?",
+        "answers":[
+           {
+              "answer":"James Bond",
+              "points":30
+           },
+           {
+              "answer":"Broń",
+              "points":25
+           },
+           {
+              "answer":"Samochody",
+              "points":16
+           },
+           {
+              "answer":"Kobiety",
+              "points":14
+           },
+           {
+              "answer":"Alkohol",
+              "points":11
+           },
+           {
+              "answer":"Wybuchy",
+              "points":4
+           }
+        ]
+     },
+     {
+        "question":"Co może być nazywane 'czarnym złotem'?",
+        "answers":[
+           {
+              "answer":"Ropa naftowa",
+              "points":41
+           },
+           {
+              "answer":"Węgiel",
+              "points":33
+           },
+           {
+              "answer":"Kawa",
+              "points":14
+           },
+           {
+              "answer":"Czarna perła",
+              "points":7
+           },
+           {
+              "answer":"Czarna trufla",
+              "points":5
+           }
+        ]
+     }
   ]
 }
