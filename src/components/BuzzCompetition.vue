@@ -31,7 +31,6 @@
                   :disabled="isBlocked && activeTeam !== 1"
                 >
                   {{ team1Name }} <br>
-                  [Lewy Shift]
                 </v-btn>
               </template>
             </v-tooltip>
@@ -48,7 +47,6 @@
                   :disabled="isBlocked && activeTeam !== 2"
                 >
                   {{ team2Name }} <br>
-                  [Prawy Shift]
                 </v-btn>
               </template>
             </v-tooltip>
