@@ -15,5 +15,10 @@
       "dom.iterable",
       "scripthost"
     ]
+  },
+  "homepage": "https://mirsan.github.io/mirsan-quiz/",
+  "scripts": {
+    "build": "vue-cli-service build",
+    "deploy": "gh-pages -d dist"
   }
 }

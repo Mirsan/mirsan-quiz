@@ -89,27 +89,6 @@
       ]
     },
     {
-      "question": "Co robimy rano po przebudzeniu?",
-      "answers": [
-        {
-          "answer": "myjemy zęby",
-          "points": 40
-        },
-        {
-          "answer": "pijemy kawę",
-          "points": 30
-        },
-        {
-          "answer": "ubieramy się",
-          "points": 20
-        },
-        {
-          "answer": "sprawdzamy telefon",
-          "points": 10
-        }
-      ]
-    },
-    {
       "question": "Co kojarzy się z wakacjami?",
       "answers": [
         {
