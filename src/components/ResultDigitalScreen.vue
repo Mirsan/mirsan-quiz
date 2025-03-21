@@ -60,7 +60,7 @@
           <v-col cols="2" class="text-center">{{ results.filter(item => item.pass).reduce((acc, item) => acc + item.points, 0) }}</v-col>
         </v-row>
 
-        <template v-for="index in (6 - results.length)" :key="'empty-'+index">
+        <template v-for="index in getEmptyRowsCount()" :key="'empty-'+index">
           <v-row no-gutters class="result-row flex-nowrap">
             <v-col cols="12">&nbsp;</v-col>
           </v-row>
@@ -119,7 +119,11 @@ export default {
     },
     results: {
       deep: true,
+      immediate: true,
       handler(newResults) {
+        console.log('Results changed:', newResults);
+        console.log('Results length:', newResults?.length);
+        
         // Sprawdzamy, czy pojawiła się nowa odkryta odpowiedź
         const newlyRevealed = newResults.filter(result => 
           result.pass && !this.previousResults.some(prev => 
@@ -166,6 +170,13 @@ export default {
     }
   },
   methods: {
+    getEmptyRowsCount() {
+      console.log('Results length:', this.results?.length);
+      const resultsLength = this.results?.length || 0;
+      const emptyRows = Math.max(0, Math.min(6 - resultsLength, 6));
+      console.log('Empty rows to render:', emptyRows);
+      return emptyRows;
+    },
     checkOverflow() {
       const element = this.$refs.questionText
       const container = element?.parentElement

@@ -98,7 +98,7 @@
                                     </v-col>
                                     
                                     <v-col cols="10">
-                                        <ResultDigitalScreen :question="question" :results="results" />
+                                        <ResultDigitalScreen :question="question" :results="results || []" />
                                     </v-col>
                                     
                                     <v-col cols="1" style="margin-left: -2rem;">
@@ -220,7 +220,7 @@ export default defineComponent({
     try {
       const parsedConfig = JSON.parse(config);
       
-      if (!parsedConfig.questionsData || !Array.isArray(parsedConfig.questionsData) || parsedConfig.questionsData.length === 0) {
+      if (!Array.isArray(parsedConfig.questionsData)) {
         throw new Error('Brak pytań w pliku');
       }
 
@@ -237,7 +237,6 @@ export default defineComponent({
         await this.initializeBluetooth();
       }
     } catch (error) {
-      console.error('Błąd podczas ładowania konfiguracji:', error);
       this.$router.push('/start-family');
     }
   },
@@ -257,8 +256,7 @@ export default defineComponent({
         this.currentQuestionIndex = index;
         this.currentSumPoints = 0;
         
-        const config = JSON.parse(localStorage.getItem('familyGameConfig'));
-        if (config?.autoIncreaseMultiplier) {
+        if (this.gameConfig?.autoIncreaseMultiplier) {
           if (index >= 4) {
             this.multiplierPoints = 3;
           } else if (index === 3) {
@@ -276,12 +274,19 @@ export default defineComponent({
         this.activeTeam = null;
         
         this.question = "";
-        this.currentQuestion = this.questionsData.questions[index].question;
         const questionData = this.questionsData.questions[index];
+        this.currentQuestion = questionData.question;
+        
+        if (!questionData?.answers || !Array.isArray(questionData.answers)) {
+          console.error('Brak poprawnych odpowiedzi dla pytania:', index);
+          this.results = [];
+          return;
+        }
+
         this.results = questionData.answers.map((a, idx) => ({
           id: idx + 1,
           name: "",
-          points: a.points,
+          points: a.points || 0,
           pass: false
         }));
         
@@ -299,13 +304,31 @@ export default defineComponent({
     },
     showQuestionOnBoard() {
       const questionData = this.questionsData.questions[this.currentQuestionIndex];
-      this.question = questionData.question;
-      this.results = questionData.answers.map((a, idx) => ({
-        id: idx + 1,
-        name: a.answer,
-        points: a.points,
-        pass: false
-      }));
+      if (!questionData?.answers || !Array.isArray(questionData.answers)) {
+        console.error('Brak poprawnych odpowiedzi dla pytania:', this.currentQuestionIndex);
+        this.results = [];
+        return;
+      }
+
+      this.question = this.currentQuestion;
+      try {
+        const newResults = questionData.answers.map((a, idx) => ({
+          id: idx + 1,
+          name: a.answer || "",
+          points: a.points || 0,
+          pass: false
+        }));
+        
+        if (newResults.length > 0 && newResults.length <= 10) {
+          this.results = newResults;
+        } else {
+          console.error('Nieprawidłowa liczba odpowiedzi:', newResults.length);
+          this.results = [];
+        }
+      } catch (error) {
+        console.error('Błąd podczas tworzenia tablicy wyników:', error);
+        this.results = [];
+      }
     },
     handleToolAction(action) {
       if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
@@ -440,7 +463,9 @@ export default defineComponent({
             this.endGameType = this.gameConfig.gameEndCondition;
           }, 100);
         } else if (this.results.every(r => r.pass)) {
-          this.resetRound();
+          if (Array.isArray(this.results) && this.results.length > 0) {
+            this.resetRound();
+          }
         }
         this.activeTeam = null;
       }
@@ -452,7 +477,7 @@ export default defineComponent({
       this.isCheckingAnswers = false;
       this.roundCompleted = false;
       this.showPointsAnnouncement = false;
-      this.results.forEach(r => r.pass = false);
+      this.results = [];
       this.team1Loss = 0;
       this.team2Loss = 0;
       this.loadQuestion(this.currentQuestionIndex + 1);
@@ -475,11 +500,9 @@ export default defineComponent({
     checkGameEndCondition() {
       if (!this.gameConfig) return false;
 
-      // Zadeklaruj zmienną przed switch
       const maxPoints = Math.max(this.team1Points, this.team2Points);
       let endConditionMet = false;
 
-      // Najpierw sprawdź warunki końca gry według konfiguracji
       switch (this.gameConfig.gameEndCondition) {
         case 'points':
           if (maxPoints >= this.gameConfig.gameEndLimit) {
@@ -498,10 +521,8 @@ export default defineComponent({
           break;
       }
 
-      // Sprawdź, czy skończyły się pytania (niezależnie od warunku końca gry)
-      const noMoreQuestions = this.currentQuestionIndex + 1 >= this.questionsData.questions.length;
+      const noMoreQuestions = this.currentQuestionIndex + 1 >= (this.questionsData?.questions?.length || 0);
       
-      // Jeśli skończyły się pytania, a nie było wcześniejszego warunku końca
       if (noMoreQuestions && !endConditionMet) {
         this.isLastRound = true;
         this.endGameType = 'questions';
