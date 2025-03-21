@@ -458,10 +458,14 @@ export default defineComponent({
       this.showPointsAnnouncement = value;
       if (!value) {
         if (this.isLastRound) {
-          setTimeout(() => {
-            this.showEndGame = true;
-            this.endGameType = this.gameConfig.gameEndCondition;
-          }, 100);
+          if (this.results.every(r => r.pass)) {
+            setTimeout(() => {
+              this.showEndGame = true;
+              this.endGameType = this.gameConfig.gameEndCondition;
+            }, 100);
+          } else {
+            this.activeTeam = null;
+          }
         } else if (this.results.every(r => r.pass)) {
           if (Array.isArray(this.results) && this.results.length > 0) {
             this.resetRound();
