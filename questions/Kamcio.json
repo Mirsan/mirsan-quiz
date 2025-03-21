@@ -133,6 +133,35 @@
         }
       ]
     },
+		    {
+      "question": "Co jest w każdym filmie o Bondzie?",
+      "answers": [
+        {
+          "answer": "James Bond",
+          "points": 30
+        },
+        {
+          "answer": "Broń",
+          "points": 25
+        },
+        {
+          "answer": "Samochody",
+          "points": 16
+        },
+        {
+          "answer": "Kobiety",
+          "points": 14
+        },    
+        {
+          "answer": "Alkohol",
+          "points": 11
+        }, 		
+		{
+          "answer": "Wybuchy",
+          "points": 4
+        }
+      ]
+    },
     {
       "question": "Co może być nazywane 'czarnym złotem'?",
       "answers": [
@@ -146,11 +175,11 @@
         },
         {
           "answer": "Kawa",
-          "points": 15
+          "points": 14
         },
         {
           "answer": "Czarna perła",
-          "points": 8
+          "points": 7
         },
         {
           "answer": "Czarna trufla",
