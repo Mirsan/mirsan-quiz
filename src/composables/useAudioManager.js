@@ -4,6 +4,7 @@ import goodSound from '@/assets/sounds/good.mp3';
 import introSound from '@/assets/sounds/intro.mp3';
 import roundSound from '@/assets/sounds/round.mp3';
 import pauseSound from '@/assets/sounds/win.mp3';
+import outroSound from '@/assets/sounds/outro.mp3';
 
 export function useAudioManager() {
   // Inicjalizacja obiektów Audio
@@ -13,7 +14,8 @@ export function useAudioManager() {
     good: new Audio(goodSound),
     intro: new Audio(introSound),
     round: new Audio(roundSound),
-    pause: new Audio(pauseSound)
+    pause: new Audio(pauseSound),
+    outro: new Audio(outroSound)
   };
 
   // Ustawienie głośności dla wszystkich dźwięków
@@ -64,6 +66,7 @@ export function useAudioManager() {
     playGood: () => play('good'),
     playIntro: () => play('intro'),
     playRound: () => play('round'),
-    playPause: () => play('pause')
+    playPause: () => play('pause'),
+    playOutro: () => play('outro')
   };
 } 

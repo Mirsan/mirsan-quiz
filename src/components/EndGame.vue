@@ -39,6 +39,7 @@
 <script>
 import confetti from 'canvas-confetti';
 import { useRouter } from 'vue-router';
+import { useAudioManager } from '@/composables/useAudioManager';
 
 export default {
   name: 'EndGame',
@@ -59,7 +60,8 @@ export default {
   },
   setup() {
     const router = useRouter();
-    return { router };
+    const audioManager = useAudioManager();
+    return { router, audioManager };
   },
   computed: {
     dialogVisible: {
@@ -128,6 +130,7 @@ export default {
     },
     stopConfettiAndNavigate() {
       this.isAnimating = false;
+      this.audioManager.stopAll();
       
       // Zatrzymaj wszystkie animacje
       if (this.myConfetti) {
@@ -151,6 +154,7 @@ export default {
       }, 100);
     },
     cleanupAndNavigate() {
+      this.audioManager.stopAll();
       window.location.replace('/');
       window.location.reload(true);
     },
@@ -219,6 +223,8 @@ export default {
       if (newVal) {
         this.$nextTick(() => {
           this.fireConfetti();
+          this.audioManager.stopAll();
+          this.audioManager.playOutro();
         });
       }
     }
