@@ -4,6 +4,7 @@
     :model-value="true"
     width="600"
     persistent
+    :class="{ 'dialog-top': shouldShowAtTop }"
   >
     <v-card class="text-center" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
@@ -17,7 +18,7 @@
             @click="closeDialog"
             style="width: 100%;"
           >
-            {{ isLastRound ? 'Przejdź do podsumowania [enter]' : 'Następna runda [enter]' }}
+            {{ buttonText }}
           </v-btn>
         </div>
       </v-card-text>
@@ -78,10 +79,13 @@ export default {
   },
   computed: {
     buttonText() {
-      if (this.allAnswersRevealed) {
-        return 'Następna runda [enter]';
+      if (!this.allAnswersRevealed) {
+        return 'Sprawdź odpowiedzi [enter]';
       }
-      return 'Sprawdź odpowiedzi [enter]';
+      return this.isLastRound ? 'Przejdź do podsumowania [enter]' : 'Następna runda [enter]';
+    },
+    shouldShowAtTop() {
+      return this.isLastRound && this.buttonText === 'Następna runda [enter]';
     }
   },
   methods: {
@@ -180,5 +184,15 @@ export default {
     transform: scale(1);
     text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
   }
+}
+
+:deep(.v-dialog) {
+  position: fixed;
+  margin: auto;
+}
+
+:deep(.dialog-top) {
+  position: fixed;
+  margin: 20px auto auto auto !important;
 }
 </style> 
