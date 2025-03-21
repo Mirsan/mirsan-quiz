@@ -15,9 +15,12 @@
     >
       <v-card-text class="text-h2 pa-12" style="color: yellow; font-family: 'PixelFont';">
         <div class="points-display">
-          <template v-if="activeTeam != null">
+          <template v-if="points > 0 && activeTeam != null">
             <div class="points">+{{ points }}</div>
             <div class="team-name" :class="{ 'team-blue': activeTeam === 1, 'team-red': activeTeam === 2 }">{{ teamName }}</div>
+          </template>
+          <template v-else-if="points === 0 && activeTeam != null">
+            <div class="draw-text">Remis</div>
           </template>
           <v-btn
             class="mt-6 confirm-btn"
@@ -224,5 +227,12 @@ export default {
 .dialog-card {
   position: relative !important;
   width: 600px !important;
+}
+
+.draw-text {
+  font-size: 5rem;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  animation: pointsPulse 1.5s infinite;
 }
 </style> 
