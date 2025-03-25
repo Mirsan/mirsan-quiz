@@ -123,6 +123,10 @@ export default {
       this.audioManager.stopAll();
       this.audioManager.playBuzz();
       this.$emit('team-selected', team);
+
+      if (!this.questionShown) {
+        this.questionShown = true;
+      }
     },
     closeDialog() {
       this.$emit('dialog-closed');
