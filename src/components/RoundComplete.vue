@@ -17,7 +17,7 @@
         <div class="points-display">
           <template v-if="points > 0 && activeTeam != null">
             <div class="points">+{{ points }}</div>
-            <div class="team-name" :class="{ 'team-blue': activeTeam === 1, 'team-red': activeTeam === 2 }">{{ teamName }}</div>
+            <div class="team-name" :class="{ 'team-blue': isTeam1, 'team-red': !isTeam1 }">{{ teamName }}</div>
           </template>
           <template v-else-if="points === 0 && activeTeam != null">
             <div class="draw-text">Remis</div>
