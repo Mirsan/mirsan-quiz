@@ -133,6 +133,9 @@
                           :total-questions="questionsData?.questions?.length || 0"
                           :game-config="gameConfig"
                           :is-preparation-phase="isPreparationPhase"
+                          :active-team="activeTeam"
+                          :team1Loss="team1Loss"
+                          :team2Loss="team2Loss"
                         />
                     </v-col>
                 </v-col>

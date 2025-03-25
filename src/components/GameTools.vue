@@ -3,7 +3,7 @@
     <v-row no-gutters>
       <v-col cols="3" class="d-flex align-center">
         <div class="round-label">
-          {{ roundLabel }}
+          Runda {{ round }}
           <div class="game-progress" v-if="showProgress">
             {{ progressText }}
           </div>
@@ -31,7 +31,11 @@
         </v-btn>
       </v-col>
 
-      <v-col cols="3"></v-col>
+      <v-col cols="3" class="d-flex align-center">
+        <div class="status-label">
+          {{ statusGame }}
+        </div>
+      </v-col>
     </v-row>
 
     <!-- Dialog potwierdzenia resetu -->
@@ -101,6 +105,22 @@ export default {
     isPreparationPhase: {
       type: Boolean,
       default: false
+    },
+    activeTeam: {
+      type: Number,
+      default: null
+    },
+    isTeamConsulting: {
+      type: Boolean,
+      default: false
+    },
+    team1Loss: {
+      type: Number,
+      default: 0
+    },
+    team2Loss: {
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -155,6 +175,25 @@ export default {
         label += ' - Wybór Drużyny';
       }
       return label;
+    },
+    statusGame() {
+      if (this.isPreparationPhase) {
+        return 'Wybór Drużyny';
+      }
+      
+      // Sprawdzamy czy jest narada (2 straty aktywnej drużyny)
+      if ((this.activeTeam === 1 && this.team1Loss === 2) || 
+          (this.activeTeam === 2 && this.team2Loss === 2)) {
+        return 'NARADA';
+      }
+      
+      // Sprawdzamy czy jest próba przejęcia (3 straty przeciwnika)
+      if ((this.activeTeam === 1 && this.team2Loss === 3) || 
+          (this.activeTeam === 2 && this.team1Loss === 3)) {
+        return 'PRÓBA PRZEJĘCIA';
+      }
+      
+      return '';
     }
   },
   mounted() {
@@ -273,5 +312,15 @@ export default {
   font-size: 16px;
   color: #ffeb3b;
   margin-top: 4px;
+}
+
+.status-label {
+  color: #ffeb3b;
+  font-size: 24px;
+  font-weight: bold;
+  font-family: 'PixelFont', monospace;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  width: 100%;
+  text-align: center;
 }
 </style> 
