@@ -94,7 +94,7 @@ export default {
       return this.isLastRound ? 'Przejdź do podsumowania [enter]' : 'Następna runda [enter]';
     },
     shouldShowAtTop() {
-      return this.allAnswersRevealed && this.activeTeam == null && this.buttonText === 'Następna runda [enter]';
+      return this.allAnswersRevealed && this.activeTeam == null;
     }
   },
   methods: {
