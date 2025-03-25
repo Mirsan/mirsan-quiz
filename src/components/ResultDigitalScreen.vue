@@ -95,6 +95,10 @@ export default {
     question: {
       type: String,
       required: true
+    },
+    isPreparationPhase: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
@@ -141,6 +145,14 @@ export default {
         // Odtwarzamy odpowiedni dźwięk
         if (newlyFailed) {
           this.audioManager.playBad();
+          // Nie pokazujemy X podczas fazy przygotowawczej
+          if (this.isPreparationPhase) {
+            newResults.forEach(result => {
+              if (result.loss) {
+                result.loss = false;
+              }
+            });
+          }
         } else if (newlyRevealed.length > 0) {
           this.audioManager.playGood();
           

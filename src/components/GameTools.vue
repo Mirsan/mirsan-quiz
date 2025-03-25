@@ -3,7 +3,7 @@
     <v-row no-gutters>
       <v-col cols="3" class="d-flex align-center">
         <div class="round-label">
-          Runda {{ round }}
+          {{ roundLabel }}
           <div class="game-progress" v-if="showProgress">
             {{ progressText }}
           </div>
@@ -97,6 +97,10 @@ export default {
     gameConfig: {
       type: Object,
       required: true
+    },
+    isPreparationPhase: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -144,6 +148,13 @@ export default {
         return `${this.currentPoints}/${this.gameConfig.gameEndLimit} pkt`;
       }
       return `${this.answeredQuestions}/${this.gameConfig.gameEndLimit} pytań`;
+    },
+    roundLabel() {
+      let label = `Runda ${this.round}`;
+      if (this.isPreparationPhase) {
+        label += ' - Wybór Drużyny';
+      }
+      return label;
     }
   },
   mounted() {

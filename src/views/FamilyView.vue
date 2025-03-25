@@ -98,7 +98,7 @@
                                     </v-col>
                                     
                                     <v-col cols="10">
-                                        <ResultDigitalScreen :question="question" :results="results || []" />
+                                        <ResultDigitalScreen :question="question" :results="results || []" :is-preparation-phase="isPreparationPhase" />
                                     </v-col>
                                     
                                     <v-col cols="1" style="margin-left: -2rem;">
@@ -132,6 +132,7 @@
                           :answered-questions="currentQuestionIndex + 1"
                           :total-questions="questionsData?.questions?.length || 0"
                           :game-config="gameConfig"
+                          :is-preparation-phase="isPreparationPhase"
                         />
                     </v-col>
                 </v-col>
@@ -201,11 +202,18 @@ export default defineComponent({
       endGameType: null,
       isLastRound: false,
       currentQuestion: "",
+      isPreparationPhase: false,
+      preparationPhaseTeam1Score: null,
+      preparationPhaseTeam2Score: null,
     }
   },
   computed: {
     currentPoints() {
-      return this.currentSumPoints * this.multiplierPoints;
+      const revealedPoints = this.results
+        .filter(item => item.pass)
+        .reduce((acc, item) => acc + item.points, 0);
+      
+      return revealedPoints * this.multiplierPoints;
     }
   },
   async created() {
@@ -292,6 +300,10 @@ export default defineComponent({
         
         this.round = index + 1;
         
+        this.isPreparationPhase = true;
+        this.preparationPhaseTeam1Score = null;
+        this.preparationPhaseTeam2Score = null;
+        
         setTimeout(() => {
           this.showBuzzCompetition = true;
         }, 500);
@@ -333,6 +345,37 @@ export default defineComponent({
     handleToolAction(action) {
       if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
       
+      if (action === 'loss' && this.isPreparationPhase) {
+        const currentTeam = this.activeTeam;
+        const otherTeam = currentTeam === 1 ? 2 : 1;
+        
+        // Traktuj loss jak trafienie w 0 punktów
+        if (currentTeam === 1) {
+          this.preparationPhaseTeam1Score = 0;
+        } else {
+          this.preparationPhaseTeam2Score = 0;
+        }
+
+        const otherTeamScore = currentTeam === 1 ? this.preparationPhaseTeam2Score : this.preparationPhaseTeam1Score;
+
+        // Jeśli to pierwsza odpowiedź
+        if (otherTeamScore === null) {
+          this.activeTeam = otherTeam;
+          return;
+        }
+
+        // Jeśli poprzednia drużyna trafiła (ma punkty)
+        if (otherTeamScore > 0) {
+          this.isPreparationPhase = false;
+          this.activeTeam = otherTeam; // Poprzednia drużyna wygrywa, bo ma więcej niż 0
+          return;
+        }
+
+        // Jeśli obie drużyny spudłowały - kontynuujemy
+        this.activeTeam = otherTeam;
+        return;
+      }
+
       if (action.startsWith('show-answer-')) {
         if (!this.activeTeam && !this.roundCompleted && !this.victoryMethod) return;
         
@@ -345,6 +388,61 @@ export default defineComponent({
             pass: true
           }
           
+          if (this.isPreparationPhase) {
+            const currentTeam = this.activeTeam;
+            const score = answer.points;
+            const otherTeam = currentTeam === 1 ? 2 : 1;
+            
+            // Zapisz wynik dla aktualnej drużyny
+            if (currentTeam === 1) {
+              this.preparationPhaseTeam1Score = score;
+            } else {
+              this.preparationPhaseTeam2Score = score;
+            }
+
+            // Przypadek 1: Trafienie najwyżej punktowanej odpowiedzi
+            const highestPointsAnswer = this.results
+              .reduce((max, current) => current.points > max.points ? current : max);
+            if (answer.id === highestPointsAnswer.id) {
+              this.isPreparationPhase = false;
+              this.activeTeam = currentTeam;
+              return;
+            }
+
+            const otherTeamScore = currentTeam === 1 ? this.preparationPhaseTeam2Score : this.preparationPhaseTeam1Score;
+
+            // Przypadek 2: Pierwsza drużyna trafiła, czekamy na odpowiedź drugiej
+            if (otherTeamScore === null && score > 0) {
+              this.activeTeam = otherTeam;
+              return;
+            }
+
+            // Przypadek 2b: Druga drużyna odpowiada po trafieniu pierwszej
+            if (otherTeamScore !== null && otherTeamScore > 0) {
+              this.isPreparationPhase = false;
+              this.activeTeam = score > otherTeamScore ? currentTeam : otherTeam;
+              return;
+            }
+
+            // Przypadek 3: Pierwsza drużyna spudłowała, druga trafia
+            if (otherTeamScore !== null && otherTeamScore === 0 && score > 0) {
+              this.isPreparationPhase = false;
+              this.activeTeam = currentTeam;
+              return;
+            }
+
+            // Przypadek 4: Obie drużyny spudłowały lub pierwsza odpowiedź
+            if (score > 0) {
+              // Ktoś w końcu trafił - koniec fazy
+              this.isPreparationPhase = false;
+              this.activeTeam = currentTeam;
+            } else {
+              // Pudło - kolejna drużyna próbuje
+              this.activeTeam = otherTeam;
+            }
+            return;
+          }
+
           if (this.victoryMethod === null) {
             this.currentSumPoints = this.results
               .filter(item => item.pass)
@@ -443,12 +541,16 @@ export default defineComponent({
         this.roundCompleted = true;     
         this.victoryMethod = 2;
 
-        if (this.activeTeam === 1) {
-          this.team2Points += this.currentPoints;
-          this.pointsAnnouncementTeam = 2;
+        if (this.currentPoints > 0) {
+          if (this.activeTeam === 1) {
+            this.team2Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 2;
+          } else {
+            this.team1Points += this.currentPoints;
+            this.pointsAnnouncementTeam = 1;
+          }
         } else {
-          this.team1Points += this.currentPoints;
-          this.pointsAnnouncementTeam = 1;
+          this.pointsAnnouncementTeam = this.activeTeam;
         }
         
         this.showPointsAnnouncement = true;
