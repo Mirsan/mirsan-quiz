@@ -36,15 +36,19 @@ export default {
       isCheckingAnswers: false,
     };
   },
+  props: {
+    showKeyboardHints: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     allAnswersRevealed() {
       return this.questions.every(q => q.isRevealed);
     },
     getRoundCompleteButtonText() {
-      if (!this.allAnswersRevealed) {
-        return 'Sprawdź odpowiedzi [enter]';
-      }
-      return 'Następna runda [enter]';
+      const baseText = !this.allAnswersRevealed ? 'Sprawdź odpowiedzi' : 'Następna runda';
+      return this.showKeyboardHints ? `${baseText} [enter]` : baseText;
     }
   },
   methods: {

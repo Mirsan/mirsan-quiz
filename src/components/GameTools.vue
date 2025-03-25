@@ -55,7 +55,7 @@
             @click="confirmReset"
             class="reset-btn"
           >
-            Tak [Enter]
+            {{ showKeyboardHints ? 'Tak [Enter]' : 'Tak' }}
           </v-btn>
           <v-btn
             min-width="120"
@@ -64,7 +64,7 @@
             @click="showResetDialog = false"
             class="reset-btn"
           >
-            Anuluj [0]
+            {{ showKeyboardHints ? 'Anuluj [0]' : 'Anuluj' }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -121,41 +121,15 @@ export default {
     team2Loss: {
       type: Number,
       default: 0
+    },
+    showKeyboardHints: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
-      showResetDialog: false,
-      tools: [
-        {
-          icon: 'mdi-swap-horizontal',
-          color: 'green',
-          tooltip: 'Zmiana drużyny [/]',
-          action: 'swap',
-          shortcut: '/'
-        },
-        {
-          icon: 'mdi-timer',
-          color: 'orange',
-          tooltip: 'Start/Stop timer [-]',
-          action: 'timer',
-          shortcut: '-'
-        },
-        {
-          icon: 'mdi-numeric',
-          color: 'yellow',
-          tooltip: 'Zmień punktowanie [+]',
-          action: 'points',
-          shortcut: '+'
-        },
-        {
-          icon: 'mdi-restart',
-          color: 'red',
-          tooltip: 'Zacznij od nowa [Backspace]',
-          action: 'restart',
-          shortcut: 'Backspace'
-        }
-      ]
+      showResetDialog: false
     }
   },
   computed: {
@@ -194,6 +168,38 @@ export default {
       }
       
       return '';
+    },
+    tools() {
+      return [
+        {
+          icon: 'mdi-swap-horizontal',
+          color: 'green',
+          tooltip: this.showKeyboardHints ? 'Zmiana drużyny [/]' : 'Zmiana drużyny',
+          action: 'swap',
+          shortcut: '/'
+        },
+        {
+          icon: 'mdi-timer',
+          color: 'orange',
+          tooltip: this.showKeyboardHints ? 'Start/Stop timer [-]' : 'Start/Stop timer',
+          action: 'timer',
+          shortcut: '-'
+        },
+        {
+          icon: 'mdi-numeric',
+          color: 'yellow',
+          tooltip: this.showKeyboardHints ? 'Zmień punktowanie [+]' : 'Zmień punktowanie',
+          action: 'points',
+          shortcut: '+'
+        },
+        {
+          icon: 'mdi-restart',
+          color: 'red',
+          tooltip: this.showKeyboardHints ? 'Zacznij od nowa [Backspace]' : 'Zacznij od nowa',
+          action: 'restart',
+          shortcut: 'Backspace'
+        }
+      ];
     }
   },
   mounted() {

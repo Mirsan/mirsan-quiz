@@ -23,6 +23,7 @@
       :team1Name="team1Name"
       :team2Name="team2Name"
       :bluetooth-characteristic="bluetoothCharacteristic"
+      :showKeyboardHints="gameConfig?.showKeyboardHints"
       @team-selected="handleTeamSelected"
     />
   </div>
@@ -51,7 +52,8 @@ export default defineComponent({
       team1Name: '',
       team2Name: '',
       bluetoothError: null,
-      isConnecting: false
+      isConnecting: false,
+      gameConfig: null
     }
   },
   setup() {
@@ -189,7 +191,8 @@ export default defineComponent({
           autoIncreaseMultiplier: config.autoIncreaseMultiplier,
           isBluetoothConnected: this.isConnected,
           gameEndCondition: config.gameEndCondition,
-          gameEndLimit: config.gameEndLimit
+          gameEndLimit: config.gameEndLimit,
+          showKeyboardHints: config.showKeyboardHints
         };
 
         // Zapisz konfigurację

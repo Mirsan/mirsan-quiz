@@ -79,6 +79,10 @@ export default {
     isLastRound: {
       type: Boolean,
       default: false
+    },
+    showKeyboardHints: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -88,10 +92,9 @@ export default {
   },
   computed: {
     buttonText() {
-      if (!this.allAnswersRevealed) {
-        return 'Sprawdź odpowiedzi [enter]';
-      }
-      return this.isLastRound ? 'Przejdź do podsumowania [enter]' : 'Następna runda [enter]';
+      const baseText = !this.allAnswersRevealed ? 'Sprawdź odpowiedzi' : 
+        (this.isLastRound ? 'Przejdź do podsumowania' : 'Następna runda');
+      return this.showKeyboardHints ? `${baseText} [enter]` : baseText;
     },
     shouldShowAtTop() {
       return this.allAnswersRevealed && this.activeTeam == null;

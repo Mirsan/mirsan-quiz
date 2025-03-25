@@ -20,7 +20,7 @@
         </v-tooltip>
         <v-row class="justify-center">
           <v-col cols="5">
-            <v-tooltip location="top" text="[Lewy Shift]">
+            <v-tooltip location="top" :text="showKeyboardHints ? '[Lewy Shift]' : 'Buzz'">
               <template v-slot:activator="{ props }">
                 <v-btn 
                   v-bind="props"
@@ -36,7 +36,7 @@
             </v-tooltip>
           </v-col>
           <v-col cols="5">
-            <v-tooltip location="top" text="[Prawy Shift]">
+            <v-tooltip location="top" :text="showKeyboardHints ? '[Prawy Shift]' : 'Buzz'">
               <template v-slot:activator="{ props }">
                 <v-btn 
                   v-bind="props"
@@ -61,7 +61,7 @@
               @keyup.enter="handleConfirm"
               :disabled="questionShown && !activeTeam"
             >
-              {{ questionShown ? 'Dalej [Enter]' : 'Pokaż pytanie [Enter]' }}
+              {{ displayButtonText }}
             </v-btn>
           </v-col>
         </v-row>
@@ -112,6 +112,10 @@ export default {
     answersCount: {
       type: Number,
       required: true
+    },
+    showKeyboardHints: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -210,6 +214,10 @@ export default {
     },
     displayText() {
       return this.questionShown ? this.question : `Pytanie z <span class="bold-number">${this.answersCount}</span> odpowiedziami`;
+    },
+    displayButtonText() {
+      const baseText = this.questionShown ? 'Dalej' : 'Pokaż pytanie';
+      return this.showKeyboardHints ? `${baseText} [Enter]` : baseText;
     }
   }
 }

@@ -29,7 +29,7 @@
           @click="cleanupAndNavigate"
           style="width: 100%;"
         >
-         Powrót do menu [enter]
+          {{ buttonText }}
         </v-btn>
       </v-card-text>
     </v-card>
@@ -56,6 +56,10 @@ export default {
     endGameType: {
       type: String,
       validator: (value) => ['questions', 'points', 'rounds'].includes(value)
+    },
+    showKeyboardHints: {
+      type: Boolean,
+      default: false
     }
   },
   setup() {
@@ -98,6 +102,9 @@ export default {
         default:
           return '';
       }
+    },
+    buttonText() {
+      return this.showKeyboardHints ? 'Powrót do menu [enter]' : 'Powrót do menu';
     }
   },
   data() {

@@ -74,23 +74,31 @@
             </v-col>
           </v-row>
 
-          <v-checkbox
-            v-model="randomizeQuestions"
-            label="Losowa kolejność pytań"
-            color="yellow"
-            hide-details
-            class="mb-4"
-            style="margin: -1em;"
-          ></v-checkbox>
+          <div class="checkboxes-container">
+            <v-checkbox
+              v-model="randomizeQuestions"
+              label="Losowa kolejność pytań"
+              color="yellow"
+              hide-details
+              density="compact"
+            ></v-checkbox>
 
-          <v-checkbox
-            v-model="autoIncreaseMultiplier"
-            label="Automatycznie zwiększaj mnożnik punktacji"
-            color="yellow"
-            hide-details
-            class="mb-4"
-            style="margin: -1em;"
-          ></v-checkbox>
+            <v-checkbox
+              v-model="autoIncreaseMultiplier"
+              label="Automatycznie zwiększaj mnożnik punktacji"
+              color="yellow"
+              hide-details
+              density="compact"
+            ></v-checkbox>
+
+            <v-checkbox
+              v-model="showKeyboardHints"
+              label="Pokazuj wskazówki klawiszy"
+              color="yellow"
+              hide-details
+              density="compact"
+            ></v-checkbox>
+          </div>
 
           <div v-if="fileError" class="text-error mb-4 text-center">
             {{ fileError }}
@@ -173,6 +181,7 @@ export default {
       questionsFile: null,
       randomizeQuestions: false,
       autoIncreaseMultiplier: false,
+      showKeyboardHints: false,
       nameRules: [
         v => !!v || 'Nazwa drużyny jest wymagana',
         v => v.length <= 10 || 'Nazwa drużyny nie może być dłuższa niż 10 znaków'
@@ -230,7 +239,8 @@ export default {
             autoIncreaseMultiplier: this.autoIncreaseMultiplier,
             isBluetoothConnected: this.isConnected,
             gameEndCondition: this.gameEndCondition,
-            gameEndLimit: this.gameEndLimit
+            gameEndLimit: this.gameEndLimit,
+            showKeyboardHints: this.showKeyboardHints,
           };
           
           this.$emit('game-start', gameConfig);
@@ -399,16 +409,35 @@ export default {
   color: white !important;
 }
 
-:deep(.v-checkbox) {
-  color: yellow !important;
+.checkboxes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 16px 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
-:deep(.v-checkbox .v-label) {
+:deep(.v-checkbox) {
+  margin: 0;
+  padding: 0;
+}
+
+:deep(.v-selection-control) {
+  margin: 0 !important;
+  padding: 4px 0 !important;
+}
+
+:deep(.v-label) {
   color: yellow !important;
   font-family: 'PixelFont';
+  opacity: 0.9;
+  font-size: 0.9rem;
+  margin-left: 4px;
 }
 
-:deep(.v-checkbox .v-selection-control__input) {
+:deep(.v-selection-control__input) {
   color: yellow !important;
 }
 

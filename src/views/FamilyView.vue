@@ -7,6 +7,7 @@
           :bluetooth-characteristic="bluetoothCharacteristic"
           :question="currentQuestion"
           :answersCount="questionsData?.questions[currentQuestionIndex]?.answers?.length || 0"
+          :showKeyboardHints="gameConfig?.showKeyboardHints"
           @team-selected="activeTeam = $event"
           @show-question="showQuestionOnBoard"
           @dialog-closed="handleBuzzClose"
@@ -22,6 +23,7 @@
           :isTeam1="pointsAnnouncementTeam === 1"
           :activeTeam="activeTeam"
           :isLastRound="isLastRound"
+          :showKeyboardHints="gameConfig?.showKeyboardHints"
           @update:modelValue="handleRoundCompleteClose"
           @dialogOpened="handleDialogOpened"
           @dialogClosed="handleDialogClosed"
@@ -34,6 +36,7 @@
           :team2Points="team2Points"
           :endGameType="endGameType"
           :totalRounds="round"
+          :showKeyboardHints="gameConfig?.showKeyboardHints"
         />
         <video
             ref="videoPlayer"
@@ -136,6 +139,7 @@
                           :active-team="activeTeam"
                           :team1Loss="team1Loss"
                           :team2Loss="team2Loss"
+                          :showKeyboardHints="gameConfig?.showKeyboardHints"
                         />
                     </v-col>
                 </v-col>
