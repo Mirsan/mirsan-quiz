@@ -4,6 +4,7 @@ import FamilyView from '@/views/Family/FamilyView.vue'
 import StartFamilyView from '@/views/Family/StartFamilyView.vue'
 import BoardView from '@/views/Politics/BoardView.vue'
 import PoliticsStartView from '@/views/Politics/PoliticsStartView.vue'
+import PoliticianPanelView from '@/views/Politics/PoliticianPanelView.vue'
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
     path: '/politics/board',
     name: 'politics-board',
     component: BoardView
+  },
+  {
+    path: '/politician-panel',
+    name: 'politician-panel',
+    component: PoliticianPanelView
   }
 ]
 
