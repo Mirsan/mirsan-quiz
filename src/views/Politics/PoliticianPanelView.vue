@@ -1,31 +1,90 @@
 <template>
-  <div class="politician-panel-view">
-    <VotingPanel
-      :deputy-name="deputyName"
-      :vote-id="voteId"
-      @vote-cast="handleVote"
-    />
-  </div>
+  <v-container>
+    <v-row>
+      <v-col cols="12">
+        <v-card>
+          <v-card-title>
+            Panel Posła: {{ deputyName }}
+          </v-card-title>
+          <v-card-text>
+            <div v-if="currentQuestion && gameStage === 'voting'">
+              <h3>{{ currentQuestion.text }}</h3>
+              <v-btn
+                v-for="option in currentQuestion.options"
+                :key="option"
+                color="primary"
+                class="ma-2"
+                @click="vote(option)"
+                :disabled="hasVoted"
+              >
+                {{ option }}
+              </v-btn>
+            </div>
+            <div v-else>
+              <h3>Oczekiwanie na pytanie...</h3>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import VotingPanel from '@/components/Politics/VotingPanel.vue'
+import { ref, onMounted } from 'vue'
+import { db } from '@/firebase'
+import { ref as dbRef, onValue, set } from 'firebase/database'
 
 export default {
   name: 'PoliticianPanelView',
-  components: {
-    VotingPanel
-  },
-  data() {
-    return {
-      deputyName: 'Andrzej Szejnfeld',
-      voteId: 4
+  props: {
+    sessionId: {
+      type: String,
+      required: true
+    },
+    deputyName: {
+      type: String,
+      required: true
     }
   },
-  methods: {
-    handleVote(choice) {
-      console.log(`Poseł ${this.deputyName} zagłosował: ${choice}`)
-      // Tu dodamy logikę zapisywania głosu
+  setup(props) {
+    const currentQuestion = ref(null)
+    const gameStage = ref('waiting')
+    const hasVoted = ref(false)
+
+    const vote = async (option) => {
+      if (hasVoted.value) return
+      
+      const voteRef = dbRef(db, `sessions/${props.sessionId}/votes/${props.deputyName}`)
+      await set(voteRef, {
+        option,
+        timestamp: Date.now()
+      })
+      
+      hasVoted.value = true
+    }
+
+    onMounted(() => {
+      const questionRef = dbRef(db, `sessions/${props.sessionId}/currentQuestion`)
+      const stageRef = dbRef(db, `sessions/${props.sessionId}/status`)
+
+      onValue(questionRef, (snapshot) => {
+        currentQuestion.value = snapshot.val()
+      })
+
+      onValue(stageRef, (snapshot) => {
+        gameStage.value = snapshot.val()
+        if (snapshot.val() !== 'voting') {
+          hasVoted.value = false
+        }
+      })
+    })
+
+    return {
+      currentQuestion,
+      gameStage,
+      hasVoted,
+      vote
     }
   }
 }

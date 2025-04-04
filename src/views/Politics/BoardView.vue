@@ -10,6 +10,47 @@
         :votes-abstain="0"
       />
       <StatusPanel @stage-changed="handleStageChange" />
+      <v-container>
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                Panel Prowadzącego
+              </v-card-title>
+              <v-card-text>
+                <div v-if="currentQuestion">
+                  <h2>{{ currentQuestion.text }}</h2>
+                  <div v-if="gameStage === 'voting'">
+                    <v-btn color="primary" @click="showResults">
+                      Pokaż wyniki
+                    </v-btn>
+                  </div>
+                  <div v-else-if="gameStage === 'results'">
+                    <h3>Wyniki głosowania:</h3>
+                    <div v-for="(count, option) in voteResults" :key="option">
+                      {{ option }}: {{ count }} głosów
+                    </div>
+                    <v-btn color="primary" @click="nextQuestion" class="mt-4">
+                      Następne pytanie
+                    </v-btn>
+                  </div>
+                  <div v-else>
+                    <v-btn color="primary" @click="startVoting">
+                      Rozpocznij głosowanie
+                    </v-btn>
+                  </div>
+                </div>
+                <div v-else>
+                  <h3>Brak aktywnego pytania</h3>
+                  <v-btn color="primary" @click="loadNextQuestion">
+                    Wczytaj następne pytanie
+                  </v-btn>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
   </div>
 </template>
@@ -18,6 +59,9 @@
 import VotingTopic from '@/components/Politics/VotingTopic.vue'
 import VotingResult from '@/components/Politics/VotingResult.vue'
 import StatusPanel from '@/components/Politics/StatusPanel.vue'
+import { ref, onMounted, computed } from 'vue'
+import { db } from '@/firebase'
+import { ref as dbRef, onValue, set } from 'firebase/database'
 
 export default {
   name: 'BoardView',
@@ -26,15 +70,81 @@ export default {
     VotingResult,
     StatusPanel
   },
-  data() {
-    return {
-      contentOpacity: 0.9 // Możesz dostosować tę wartość (0.0 - 1.0)
+  props: {
+    sessionId: {
+      type: String,
+      required: true
     }
   },
-  methods: {
-    handleStageChange(newStage) {
+  setup(props) {
+    const contentOpacity = ref(0.9)
+    const currentQuestion = ref(null)
+    const gameStage = ref('waiting')
+    const votes = ref({})
+
+    const voteResults = computed(() => {
+      const results = {}
+      Object.values(votes.value).forEach(vote => {
+        results[vote.option] = (results[vote.option] || 0) + 1
+      })
+      return results
+    })
+
+    const handleStageChange = (newStage) => {
       console.log('Zmieniono etap na:', newStage)
-      // Tu możemy dodać logikę reagującą na zmianę etapu
+    }
+
+    const startVoting = async () => {
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'voting')
+    }
+
+    const showResults = async () => {
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'results')
+    }
+
+    const nextQuestion = async () => {
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'waiting')
+      await set(dbRef(db, `sessions/${props.sessionId}/votes`), {})
+      loadNextQuestion()
+    }
+
+    const loadNextQuestion = async () => {
+      // TODO: Zaimplementuj logikę ładowania następnego pytania
+      const question = {
+        text: 'Przykładowe pytanie?',
+        options: ['Za', 'Przeciw', 'Wstrzymuję się']
+      }
+      await set(dbRef(db, `sessions/${props.sessionId}/currentQuestion`), question)
+    }
+
+    onMounted(() => {
+      const questionRef = dbRef(db, `sessions/${props.sessionId}/currentQuestion`)
+      const stageRef = dbRef(db, `sessions/${props.sessionId}/status`)
+      const votesRef = dbRef(db, `sessions/${props.sessionId}/votes`)
+
+      onValue(questionRef, (snapshot) => {
+        currentQuestion.value = snapshot.val()
+      })
+
+      onValue(stageRef, (snapshot) => {
+        gameStage.value = snapshot.val()
+      })
+
+      onValue(votesRef, (snapshot) => {
+        votes.value = snapshot.val() || {}
+      })
+    })
+
+    return {
+      contentOpacity,
+      currentQuestion,
+      gameStage,
+      voteResults,
+      handleStageChange,
+      startVoting,
+      showResults,
+      nextQuestion,
+      loadNextQuestion
     }
   }
 }

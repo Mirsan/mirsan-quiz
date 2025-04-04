@@ -5,6 +5,7 @@ import StartFamilyView from '@/views/Family/StartFamilyView.vue'
 import BoardView from '@/views/Politics/BoardView.vue'
 import PoliticsStartView from '@/views/Politics/PoliticsStartView.vue'
 import PoliticianPanelView from '@/views/Politics/PoliticianPanelView.vue'
+import JoinGameView from '@/views/Politics/JoinGameView.vue'
 
 const routes = [
   {
@@ -41,14 +42,22 @@ const routes = [
     component: PoliticsStartView
   },
   {
-    path: '/politics/board',
+    path: '/politics/board/:sessionId',
     name: 'politics-board',
-    component: BoardView
+    component: BoardView,
+    props: true
   },
   {
-    path: '/politician-panel',
-    name: 'politician-panel',
-    component: PoliticianPanelView
+    path: '/join-game/:sessionId',
+    name: 'join-game',
+    component: JoinGameView,
+    props: true
+  },
+  {
+    path: '/politician-panel/:sessionId/:deputyName',
+    name: 'PoliticianPanel',
+    component: PoliticianPanelView,
+    props: true
   }
 ]
 
