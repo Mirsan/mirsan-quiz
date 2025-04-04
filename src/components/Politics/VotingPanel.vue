@@ -4,7 +4,7 @@
       <!-- Górny pasek -->
       <v-card-title class="header-bar d-flex justify-space-between align-center pa-2">
         <div class="d-flex align-center">
-          <v-icon icon="mdi-card-account-details" class="mr-2" />
+          <v-icon icon="mdi-card-account-details" class="mr-2"/>
           <span class="deputy-name">{{ deputyName }}</span>
         </div>
         <div>
@@ -21,7 +21,9 @@
       <!-- Środkowy panel z wynikiem -->
       <v-card-text class="vote-container pa-2">
         <div class="vote-result-display">
-          <div class="vote-number">Głosowanie nr {{ voteId }}</div>
+          <div class="vote-number" :class="{ 'vote-number-white': currentVote }">
+            Głosowanie nr {{ voteId }}
+          </div>
           <div class="vote-result" :class="voteResultClass">
             <span v-if="currentVote" class="text-h4">
               Głos: {{ currentVote }}
@@ -161,6 +163,12 @@ export default {
   left: 10px;
   font-size: 1.2rem;
   font-weight: bold;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.vote-number-white {
+  color: white;
 }
 
 .vote-result {
@@ -191,10 +199,13 @@ export default {
 }
 
 .vote-btn {
-  height: 60px !important;
-  font-size: 1.2rem !important;
-  font-weight: bold !important;
+  height: 90px !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
   text-transform: none !important;
+  letter-spacing: 1px !important;
+  margin: 0 !important;
+  padding: 25px 0 !important;
 }
 
 .vote-for {
@@ -222,9 +233,15 @@ export default {
     font-size: 1.2rem;
   }
 
+  .button-panel {
+    padding: 5px !important;
+  }
+
   .vote-btn {
-    height: 45px !important;
-    font-size: 1rem !important;
+    height: 100px !important;
+    font-size: 1.2rem !important;
+    padding: 15px 0 !important;
+    margin: 0 !important;
   }
 
   .vote-number {
