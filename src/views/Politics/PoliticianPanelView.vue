@@ -33,8 +33,9 @@ export default {
 
 <style scoped>
 .politician-panel-view {
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   background: #f0f0f0;
-  padding: 20px;
 }
 </style> 

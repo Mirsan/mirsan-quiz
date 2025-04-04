@@ -1,11 +1,11 @@
 <template>
-  <v-container class="voting-panel fill-height">
+  <div class="voting-panel-container">
     <v-card class="voting-card" elevation="4">
       <!-- Górny pasek -->
-      <v-card-title class="header-bar d-flex justify-space-between align-center pa-4">
+      <v-card-title class="header-bar d-flex justify-space-between align-center pa-2">
         <div class="d-flex align-center">
           <v-icon icon="mdi-card-account-details" class="mr-2" />
-          <span class="text-h6">{{ deputyName }}</span>
+          <span class="deputy-name">{{ deputyName }}</span>
         </div>
         <div>
           <v-btn
@@ -18,34 +18,25 @@
         </div>
       </v-card-title>
 
-      <!-- Numer głosowania -->
-      <v-card-subtitle class="text-h6 pl-4 pt-4">
-        Głosowanie nr {{ voteId }}
-      </v-card-subtitle>
-
       <!-- Środkowy panel z wynikiem -->
-      <v-card-text class="text-center pa-6">
-        <div 
-          class="vote-result-display"
-          :class="{ 
-            'vote-for': currentVote === 'ZA',
-            'vote-against': currentVote === 'PRZECIW',
-            'vote-abstain': currentVote === 'WSTRZYMAŁ SIĘ'
-          }"
-        >
-          <span v-if="currentVote" class="text-h4">
-            Głos: {{ currentVote }}
-          </span>
+      <v-card-text class="vote-container pa-2">
+        <div class="vote-result-display">
+          <div class="vote-number">Głosowanie nr {{ voteId }}</div>
+          <div class="vote-result" :class="voteResultClass">
+            <span v-if="currentVote" class="text-h4">
+              Głos: {{ currentVote }}
+            </span>
+          </div>
         </div>
       </v-card-text>
 
       <!-- Panel przycisków -->
-      <v-card-actions class="button-panel pa-4">
+      <v-card-actions class="button-panel pa-2">
         <v-row justify="space-between" no-gutters>
           <v-col cols="4" class="px-1">
             <v-btn
               block
-              color="success"
+              class="vote-btn vote-for"
               size="x-large"
               @click="vote('ZA')"
               :disabled="!!currentVote"
@@ -56,7 +47,7 @@
           <v-col cols="4" class="px-1">
             <v-btn
               block
-              color="error"
+              class="vote-btn vote-against"
               size="x-large"
               @click="vote('PRZECIW')"
               :disabled="!!currentVote"
@@ -67,7 +58,7 @@
           <v-col cols="4" class="px-1">
             <v-btn
               block
-              color="warning"
+              class="vote-btn vote-abstain"
               size="x-large"
               @click="vote('WSTRZYMAŁ SIĘ')"
               :disabled="!!currentVote"
@@ -78,7 +69,7 @@
         </v-row>
       </v-card-actions>
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -100,6 +91,15 @@ export default {
       highContrast: false
     }
   },
+  computed: {
+    voteResultClass() {
+      return {
+        'vote-result-for': this.currentVote === 'ZA',
+        'vote-result-against': this.currentVote === 'PRZECIW',
+        'vote-result-abstain': this.currentVote === 'WSTRZYMAŁ SIĘ'
+      }
+    }
+  },
   methods: {
     vote(choice) {
       this.currentVote = choice
@@ -107,56 +107,132 @@ export default {
     },
     toggleContrast() {
       this.highContrast = !this.highContrast
-      // Tutaj możemy dodać logikę zmiany kontrastu
     }
   }
 }
 </script>
 
 <style scoped>
-.voting-panel {
-  max-width: 800px;
-  margin: 0 auto;
+.voting-panel-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .voting-card {
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: #f5f5f5;
 }
 
-.vote-result-display {
-  height: 200px;
+.deputy-name {
+  font-size: 1.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vote-container {
+  flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.vote-result-display {
+  width: 100%;
+  height: 100%;
+  position: relative;
   background: white;
   border: 2px solid #ddd;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.vote-number {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.vote-result {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
 
-.vote-for {
-  background: #4CAF50 !important;
+.vote-result-for {
+  background: #4CAF50;
   color: white;
 }
 
-.vote-against {
-  background: #F44336 !important;
+.vote-result-against {
+  background: #F44336;
   color: white;
 }
 
-.vote-abstain {
-  background: #FFC107 !important;
-  color: white;
+.vote-result-abstain {
+  background: #FFC107;
+  color: black;
 }
 
 .button-panel {
-  background: #eee;
-  border-top: 1px solid #ddd;
+  padding: 10px !important;
 }
 
-/* Dodatkowe style dla wysokiego kontrastu */
-.high-contrast {
-  /* Tu dodamy style dla trybu wysokiego kontrastu */
+.vote-btn {
+  height: 60px !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  text-transform: none !important;
+}
+
+.vote-for {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
+
+.vote-against {
+  background-color: #F44336 !important;
+  color: white !important;
+}
+
+.vote-abstain {
+  background-color: #FFC107 !important;
+  color: black !important;
+}
+
+/* Responsywność dla poziomego telefonu */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+  .voting-panel-container {
+    padding: 10px;
+  }
+
+  .deputy-name {
+    font-size: 1.2rem;
+  }
+
+  .vote-btn {
+    height: 45px !important;
+    font-size: 1rem !important;
+  }
+
+  .vote-number {
+    font-size: 1rem;
+  }
+
+  .header-bar {
+    padding: 5px !important;
+  }
 }
 </style> 
