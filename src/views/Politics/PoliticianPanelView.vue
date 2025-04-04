@@ -34,6 +34,7 @@
 import { ref, onMounted } from 'vue'
 import { db } from '@/firebase'
 import { ref as dbRef, onValue, set } from 'firebase/database'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'PoliticianPanelView',
@@ -51,6 +52,7 @@ export default {
     const currentQuestion = ref(null)
     const gameStage = ref('waiting')
     const hasVoted = ref(false)
+    const router = useRouter()
 
     const vote = async (option) => {
       if (hasVoted.value) return
@@ -62,6 +64,24 @@ export default {
       })
       
       hasVoted.value = true
+    }
+
+    const joinGame = async () => {
+      if (!props.deputyName) return
+      
+      const deputyRef = dbRef(db, `sessions/${props.sessionId}/deputies/${Date.now()}`)
+      await set(deputyRef, {
+        name: props.deputyName,
+        joinedAt: Date.now()
+      })
+
+      router.push({
+        name: 'PoliticianPanel',
+        params: { 
+          sessionId: props.sessionId,
+          deputyName: props.deputyName 
+        }
+      })
     }
 
     onMounted(() => {
@@ -84,7 +104,8 @@ export default {
       currentQuestion,
       gameStage,
       hasVoted,
-      vote
+      vote,
+      joinGame
     }
   }
 }
