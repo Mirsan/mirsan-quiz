@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import FamilyView from '@/views/Family/FamilyView.vue'
 import StartFamilyView from '@/views/Family/StartFamilyView.vue'
+import BoardView from '@/views/Politics/BoardView.vue'
+import PoliticsStartView from '@/views/Politics/PoliticsStartView.vue'
 
 const routes = [
   {
@@ -31,6 +33,16 @@ const routes = [
   {
     path: '/',
     redirect: '/start-family'
+  },
+  {
+    path: '/politics',
+    name: 'politics-start',
+    component: PoliticsStartView
+  },
+  {
+    path: '/politics/board',
+    name: 'politics-board',
+    component: BoardView
   }
 ]
 

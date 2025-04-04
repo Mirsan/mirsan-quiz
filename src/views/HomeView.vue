@@ -12,6 +12,15 @@
         >
           Familiada
         </v-btn>
+        <v-btn
+          color="secondary"
+          size="x-large"
+          to="/politics"
+          class="menu-button"
+          elevation="4"
+        >
+          Sejm
+        </v-btn>
       </div>
     </div>
   </div>
