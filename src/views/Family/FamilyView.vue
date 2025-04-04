@@ -150,15 +150,15 @@
 
 <script>
 import { defineComponent } from 'vue';
-import SmallDigitalScreen from '@/components/SmallDigitalScreen.vue';
-import ResultDigitalScreen from '@/components/ResultDigitalScreen.vue';
-import LossDigitalScreen from '@/components/LossDigitalScreen.vue';
-import PlayerLabel from '@/components/PlayerLabel.vue';
-import BuzzCompetition from '@/components/BuzzCompetition.vue';
-import GameTools from '@/components/GameTools.vue';
-import RoundComplete from '@/components/RoundComplete.vue';
-import EventTeam from '@/components/EventTeam.vue';
-import EndGame from '@/components/EndGame.vue';
+import SmallDigitalScreen from '@/components/Family/SmallDigitalScreen.vue';
+import ResultDigitalScreen from '@/components/Family/ResultDigitalScreen.vue';
+import LossDigitalScreen from '@/components/Family/LossDigitalScreen.vue';
+import PlayerLabel from '@/components/Family/PlayerLabel.vue';
+import BuzzCompetition from '@/components/Family/BuzzCompetition.vue';
+import GameTools from '@/components/Family/GameTools.vue';
+import RoundComplete from '@/components/Family/RoundComplete.vue';
+import EventTeam from '@/components/Family/EventTeam.vue';
+import EndGame from '@/components/Family/EndGame.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 import { useAudioManager } from '@/composables/useAudioManager';

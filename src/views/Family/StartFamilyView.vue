@@ -31,8 +31,8 @@
 
 <script>
 import { defineComponent } from 'vue';
-import StarterPanel from '@/components/StarterPanel.vue';
-import BuzzCompetition from '@/components/BuzzCompetition.vue';
+import StarterPanel from '@/components/Family/StarterPanel.vue';
+import BuzzCompetition from '@/components/Family/BuzzCompetition.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useAudioManager } from '@/composables/useAudioManager';
 

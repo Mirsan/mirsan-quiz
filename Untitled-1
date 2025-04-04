@@ -1,0 +1,85 @@
+#include <SoftwareSerial.h>
+
+/* BLE */ 
+SoftwareSerial BTSerial(8, 9); // RX, TX
+
+/* Player 1 */
+const int ledPin1 = 2;    // Pin do led 1
+const int buttonPin1 = 3;    // Pin do czujnika krańcowego 1
+
+/* Player 2 */ 
+const int ledPin2 = 4;    // Pin do led 2
+const int buttonPin2 = 5;    // Pin do czujnika krańcowego 2
+
+const unsigned long LOCK_TIME = 4000; // Czas blokady przycisków (4 sekundy)
+unsigned long previousMillis = 0; // Czas ostatniego wciśnięcia przycisku
+int activePlayer = 0; // Który gracz jest aktywny (0 = żaden, 1 = gracz 1, 2 = gracz 2)
+bool buttonState1Last = HIGH; // Poprzedni stan przycisku 1
+bool buttonState2Last = HIGH; // Poprzedni stan przycisku 2
+
+void setup() {
+  Serial.begin(9600);             // Rozpoczęcie komunikacji szeregowej
+  BTSerial.begin(9600);           // BLE
+
+  /* Player 1 */
+  pinMode(buttonPin1, INPUT_PULLUP);
+  pinMode(ledPin1, OUTPUT);
+  digitalWrite(ledPin1, LOW);
+
+  /* Player 2 */
+  pinMode(buttonPin2, INPUT_PULLUP);
+  pinMode(ledPin2, OUTPUT);
+  digitalWrite(ledPin2, LOW);
+}
+
+void resetSystem() {
+  digitalWrite(ledPin1, LOW);
+  digitalWrite(ledPin2, LOW);
+  activePlayer = 0;
+}
+
+void activatePlayer(int player) {
+  if (activePlayer == 0) { // Tylko jeśli żaden gracz nie jest aktywny
+    activePlayer = player;
+    previousMillis = millis();
+    
+    if (player == 1) {
+      digitalWrite(ledPin1, HIGH);
+      digitalWrite(ledPin2, LOW);
+      BTSerial.write('1');
+      Serial.println("Play 1 press!");
+    } else {
+      digitalWrite(ledPin2, HIGH);
+      digitalWrite(ledPin1, LOW);
+      BTSerial.write('2');
+      Serial.println("Play 2 press!");
+    }
+  }
+}
+
+void loop() {
+  bool buttonState1 = digitalRead(buttonPin1);
+  bool buttonState2 = digitalRead(buttonPin2);
+  unsigned long currentMillis = millis();
+
+  // Wykrywanie zbocza opadającego dla przycisku 1
+  if (buttonState1 == LOW && buttonState1Last == HIGH) {
+    activatePlayer(1);
+  }
+  
+  // Wykrywanie zbocza opadającego dla przycisku 2
+  if (buttonState2 == LOW && buttonState2Last == HIGH) {
+    activatePlayer(2);
+  }
+
+  // Zapisz obecny stan przycisków
+  buttonState1Last = buttonState1;
+  buttonState2Last = buttonState2;
+  
+  // Sprawdź czy minął czas blokady
+  if (activePlayer != 0 && currentMillis - previousMillis >= LOCK_TIME) {
+    resetSystem();
+  }
+
+  delay(10); // Zwiększone opóźnienie dla lepszej stabilności
+} 
