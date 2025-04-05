@@ -2,6 +2,7 @@
   <VotingPanel
     :deputy-name="deputyName"
     :vote-id="currentTopicNumber"
+    :session-id="sessionId"
     @vote-cast="handleVote"
     :disabled="!canVote"
   />

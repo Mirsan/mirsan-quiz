@@ -75,6 +75,9 @@
 </template>
 
 <script>
+import { ref as dbRef, onValue } from '@firebase/database'
+import { db } from '@/firebase'
+
 export default {
   name: 'VotingPanel',
   props: {
@@ -89,6 +92,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    sessionId: {
+      type: String,
+      required: true
     }
   },
   data() {
@@ -113,7 +120,46 @@ export default {
     },
     toggleContrast() {
       this.highContrast = !this.highContrast
+    },
+    resetVote() {
+      console.log('Resetowanie głosu...')
+      this.currentVote = ''
+      // Emitujemy event o resecie głosu
+      this.$emit('vote-reset')
     }
+  },
+  mounted() {
+    console.log('VotingPanel mounted, sessionId:', this.sessionId)
+    if (!this.sessionId) {
+      console.error('Brak sessionId!')
+      return
+    }
+
+    // Nasłuchuj na zmiany etapu
+    const stageRef = dbRef(db, `sessions/${this.sessionId}/status`)
+    onValue(stageRef, (snapshot) => {
+      const newStage = snapshot.val()
+      console.log('Zmiana etapu na:', newStage)
+      if (newStage === 'Pierwsze czytanie') {
+        this.resetVote()
+      }
+    }, (error) => {
+      console.error('Błąd nasłuchiwania etapu:', error)
+    })
+
+    // Nasłuchuj na zmiany głosu
+    const voteRef = dbRef(db, `sessions/${this.sessionId}/votes/${this.deputyName}`)
+    onValue(voteRef, (snapshot) => {
+      const voteData = snapshot.val()
+      console.log('Zmiana głosu:', voteData)
+      if (!voteData) {
+        this.resetVote()
+      } else {
+        this.currentVote = voteData.option
+      }
+    }, (error) => {
+      console.error('Błąd nasłuchiwania głosu:', error)
+    })
   }
 }
 </script>
