@@ -62,6 +62,7 @@
 <script>
 import { ref as dbRef, set, onValue } from '@firebase/database'
 import { db } from '@/firebase'
+import confetti from 'canvas-confetti'
 
 export default {
   name: 'StatusPanel',
@@ -89,7 +90,10 @@ export default {
       votesAgainst: 0,
       votesAbstain: 0,
       showVotingResult: false,
-      votingResultTimer: null
+      votingResultTimer: null,
+      confettiAnimationId: null,
+      myConfetti: null,
+      isAnimating: false
     }
   },
   computed: {
@@ -114,17 +118,21 @@ export default {
         this.currentStageIndex++
         this.$emit('stage-changed', this.currentStage)
         
-        // Resetuj timer przy zmianie etapu
+        // Resetuj timer i confetti przy zmianie etapu
         if (this.votingResultTimer) {
           clearTimeout(this.votingResultTimer)
           this.votingResultTimer = null
         }
         this.showVotingResult = false
+        this.stopConfetti()
         
         // Jeśli przechodzimy do etapu wyników, ustaw timer
         if (this.currentStageIndex === 3) {
           this.votingResultTimer = setTimeout(() => {
-            this.showVotingResult = true
+            this.showVotingResult = true;
+            if (this.isPassed) {
+              this.fireConfetti();
+            }
           }, 2000)
         }
       } else if (this.currentStageIndex === this.stages.length - 1) {
@@ -239,6 +247,114 @@ export default {
           this.votesAbstain = 0
         }
       })
+    },
+    fireConfetti() {
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+
+      // Stwórz nowy canvas dla konfetti
+      const canvas = document.createElement('canvas');
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.pointerEvents = 'none';
+      canvas.style.zIndex = '100000';
+      document.body.appendChild(canvas);
+
+      this.myConfetti = confetti.create(canvas, {
+        resize: true,
+        useWorker: true
+      });
+
+      const duration = 8000; // Zwiększamy czas trwania
+      const animationEnd = Date.now() + duration;
+      const colors = ['#ff0000', '#ffffff'];
+
+      const frame = () => {
+        if (!this.isAnimating) return;
+
+        const timeLeft = animationEnd - Date.now();
+
+        // Obliczamy intensywność w zależności od pozostałego czasu
+        const intensity = timeLeft / duration;
+        
+        // Dostosowujemy parametry animacji w zależności od czasu
+        const particleCount = Math.floor(7 * intensity);
+        const spread = 55 + (1 - intensity) * 20;
+        const gravity = 0.8 + (1 - intensity) * 0.4;
+
+        this.myConfetti({
+          particleCount,
+          angle: 60,
+          spread,
+          origin: { x: 0 },
+          colors,
+          gravity,
+          scalar: 1.5,
+          ticks: 300,
+          zIndex: 100000,
+          decay: 0.95
+        });
+
+        this.myConfetti({
+          particleCount,
+          angle: 120,
+          spread,
+          origin: { x: 1 },
+          colors,
+          gravity,
+          scalar: 1.5,
+          ticks: 300,
+          zIndex: 100000,
+          decay: 0.95
+        });
+
+        if (timeLeft > 0) {
+          this.confettiAnimationId = requestAnimationFrame(frame);
+        } else {
+          // Dodajemy końcową animację
+          this.myConfetti({
+            particleCount: 20,
+            spread: 100,
+            decay: 0.9,
+            scalar: 0.8,
+            origin: { y: 0.6 },
+            colors
+          });
+          
+          // Zatrzymujemy animację po dodatkowym czasie
+          setTimeout(() => {
+            this.stopConfetti();
+          }, 1000);
+        }
+      };
+
+      frame();
+    },
+
+    stopConfetti() {
+      this.isAnimating = false;
+      
+      // Dodajemy opóźnienie przed usunięciem canvasu
+      setTimeout(() => {
+        if (this.myConfetti) {
+          this.myConfetti.reset();
+          this.myConfetti = null;
+        }
+        if (this.confettiAnimationId) {
+          cancelAnimationFrame(this.confettiAnimationId);
+          this.confettiAnimationId = null;
+        }
+        // Usuń wszystkie canvasy
+        const canvases = document.querySelectorAll('canvas');
+        canvases.forEach(canvas => {
+          canvas.style.transition = 'opacity 0.5s';
+          canvas.style.opacity = '0';
+          setTimeout(() => canvas.remove(), 500);
+        });
+      }, 1000);
     }
   },
   mounted() {
@@ -259,6 +375,7 @@ export default {
     if (this.votingResultTimer) {
       clearTimeout(this.votingResultTimer)
     }
+    this.stopConfetti()
   }
 }
 </script>
@@ -331,5 +448,14 @@ export default {
     top: -5px;
     right: -10px;
   }
+}
+
+/* Dodajemy style dla canvas confetti */
+canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  pointer-events: none !important;
+  z-index: 100000 !important;
 }
 </style> 
