@@ -7,12 +7,10 @@
             <v-toolbar-title>Dołącz do gry</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <p>Session ID: {{ sessionId }}</p>
-            <p>Komponent się renderuje!</p>
             <v-form @submit.prevent="joinGame">
               <v-text-field
                 v-model="deputyName"
-                label="Imię i nazwisko posła"
+                label="Imię (imiona) i nazwisko posła"
                 name="deputyName"
                 prepend-icon="mdi-account"
                 type="text"
