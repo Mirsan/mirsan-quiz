@@ -66,14 +66,14 @@
                 @click="vote('WSTRZYMANO SIĘ')"
                 :disabled="!!currentVote || disabled"
               >
-                Wstrzymaj się
+                <span class="d-none d-sm-flex">Wstrzymaj się</span>
+                <span class="d-flex d-sm-none">Wstrzymaj</span>
               </v-btn>
             </v-col>
           </v-row>
         </v-card-actions>
       </v-card>
     </div>
-    <v-row style="height: 100px"></v-row>
   </v-container>
 </template>
 
@@ -169,7 +169,7 @@ export default {
 
 <style scoped>
 .voting-panel-container {
-  height: 90vh;
+  height: 80vh;
   width: 100vw;
   display: flex;
   align-items: center;
@@ -260,6 +260,7 @@ export default {
   letter-spacing: 1px !important;
   margin: 0 !important;
   padding: 25px 0 !important;
+  white-space: nowrap !important;
 }
 
 .vote-for {

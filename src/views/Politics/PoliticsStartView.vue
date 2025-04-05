@@ -15,18 +15,16 @@
               <v-progress-circular indeterminate color="primary"></v-progress-circular>
             </div>
             <div class="d-flex flex-column align-center">
-              <v-btn
+              <a
                 v-if="sessionId"
-                color="primary"
                 :href="joinUrl"
                 target="_blank"
-                class="mb-4"
-                width="200"
+                class="mb-4 text-decoration-none"
               >
-                Otwórz link
-              </v-btn>
+                {{ joinUrl }}
+              </a>
               <v-btn
-                color="secondary"
+                color="primary"
                 @click="goToBoard"
                 @keyup.enter="goToBoard"
                 width="200"
