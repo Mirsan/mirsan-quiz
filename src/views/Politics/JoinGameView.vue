@@ -48,6 +48,8 @@ export default {
     console.log('Session ID:', props.sessionId)
     const router = useRouter()
     const deputyName = ref('')
+    const hasVoted = ref(false)
+    const gameStage = ref('waiting')
 
     const joinGame = async () => {
       console.log('Join game clicked')
@@ -78,7 +80,9 @@ export default {
 
     return {
       deputyName,
-      joinGame
+      joinGame,
+      hasVoted,
+      gameStage
     }
   }
 }
