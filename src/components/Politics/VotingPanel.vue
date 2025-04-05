@@ -169,13 +169,20 @@ export default {
 
 <style scoped>
 .voting-panel-container {
-  height: 80vh;
+  height: 90vh; /* Domyślnie dla trybu pionowego */
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   overflow-x: hidden;
+}
+
+/* Dla orientacji poziomej */
+@media screen and (orientation: landscape) {
+  .voting-panel-container {
+    height: 80vh;
+  }
 }
 
 .voting-card {

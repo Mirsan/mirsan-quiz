@@ -5,6 +5,7 @@ import introSound from '@/assets/sounds/intro.mp3';
 import roundSound from '@/assets/sounds/round.mp3';
 import pauseSound from '@/assets/sounds/win.mp3';
 import outroSound from '@/assets/sounds/outro.mp3';
+import clappingSound from '@/assets/sounds/clapping.mp3';
 
 export function useAudioManager() {
   // Inicjalizacja obiektów Audio
@@ -15,7 +16,8 @@ export function useAudioManager() {
     intro: new Audio(introSound),
     round: new Audio(roundSound),
     pause: new Audio(pauseSound),
-    outro: new Audio(outroSound)
+    outro: new Audio(outroSound),
+    clapping: new Audio(clappingSound)
   };
 
   // Ustawienie głośności dla wszystkich dźwięków
@@ -67,6 +69,7 @@ export function useAudioManager() {
     playIntro: () => play('intro'),
     playRound: () => play('round'),
     playPause: () => play('pause'),
-    playOutro: () => play('outro')
+    playOutro: () => play('outro'),
+    playClapping: () => play('clapping')
   };
 } 

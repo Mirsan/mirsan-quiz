@@ -63,10 +63,15 @@
 import { ref as dbRef, set, onValue } from '@firebase/database'
 import { db } from '@/firebase'
 import confetti from 'canvas-confetti'
+import { useAudioManager } from '@/composables/useAudioManager'
 
 export default {
   name: 'StatusPanel',
   components: {
+  },
+  setup() {
+    const audioManager = useAudioManager()
+    return { audioManager }
   },
   props: {
     sessionId: {
@@ -130,6 +135,7 @@ export default {
         if (this.currentStageIndex === 3) {
           this.votingResultTimer = setTimeout(() => {
             this.showVotingResult = true;
+            this.audioManager.playClapping();
             if (this.isPassed) {
               this.fireConfetti();
             }
@@ -376,6 +382,7 @@ export default {
       clearTimeout(this.votingResultTimer)
     }
     this.stopConfetti()
+    this.audioManager.stopAll()
   }
 }
 </script>
