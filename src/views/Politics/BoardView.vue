@@ -5,10 +5,12 @@
       <VotingTopic :session-id="sessionId" />
       <VotingResult
         v-if="gameStage !== 'Podsumowanie'"
-        :voting-number="1"
+        :voting-number="currentTopicNumber"
         :votes-for="votesFor"
         :votes-against="votesAgainst"
         :votes-abstain="votesAbstain"
+        :show-collective="gameStage === 'Wyniki'"
+        :collective-votes="collectiveVotes"
       />
       <IndividualResult
         v-else-if="gameStage === 'Podsumowanie'"
@@ -47,6 +49,7 @@ export default {
     const currentQuestion = ref(null)
     const gameStage = ref('waiting')
     const votes = ref({})
+    const currentTopicNumber = ref(1)
 
     const voteResults = computed(() => {
       const results = {}
@@ -67,6 +70,24 @@ export default {
     const votesAbstain = computed(() => {
       return Object.values(votes.value).filter(vote => vote.option === 'Wstrzymuję się').length
     })
+
+    const collectiveVotes = computed(() => {
+      if (gameStage.value !== 'Wyniki') return null;
+      
+      const results = {
+        ZA: 0,
+        PRZECIW: 0,
+        'WSTRZYMAŁ SIĘ': 0
+      };
+      
+      Object.values(votes.value).forEach(vote => {
+        if (vote.option in results) {
+          results[vote.option]++;
+        }
+      });
+      
+      return results;
+    });
 
     const handleStageChange = (newStage) => {
       console.log('Zmieniono etap na:', newStage)
@@ -101,6 +122,14 @@ export default {
       const questionRef = dbRef(db, `sessions/${props.sessionId}/currentQuestion`)
       const stageRef = dbRef(db, `sessions/${props.sessionId}/status`)
       const votesRef = dbRef(db, `sessions/${props.sessionId}/votes`)
+      const topicRef = dbRef(db, `sessions/${props.sessionId}/currentTopic`)
+
+      onValue(topicRef, (snapshot) => {
+        const topicData = snapshot.val()
+        if (topicData) {
+          currentTopicNumber.value = topicData.number || 1
+        }
+      })
 
       onValue(questionRef, (snapshot) => {
         currentQuestion.value = snapshot.val()
@@ -133,6 +162,8 @@ export default {
       votesFor,
       votesAgainst,
       votesAbstain,
+      currentTopicNumber,
+      collectiveVotes,
       handleStageChange,
       startVoting,
       showResults,

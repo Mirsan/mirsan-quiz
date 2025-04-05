@@ -10,7 +10,7 @@
           <thead>
             <tr>
               <th class="text-center" style="width: 80px">Lp.</th>
-              <th>Poseł</th>
+              <th class="text-center">Poseł</th>
               <th class="text-center">Głosowanie</th>
             </tr>
           </thead>
@@ -22,7 +22,8 @@
                 <v-chip
                   :color="getVoteColor(deputy.vote)"
                   :text="getVoteText(deputy.vote)"
-                  class="font-weight-bold"
+                  class="font-weight-bold text-center"
+                  variant="elevated"
                 ></v-chip>
               </td>
             </tr>
@@ -66,11 +67,11 @@ export default {
     },
     getVoteColor(vote) {
       switch (vote) {
-        case 'Za':
+        case 'ZA':
           return 'success'
-        case 'Przeciw':
+        case 'PRZECIW':
           return 'error'
-        case 'Wstrzymuję się':
+        case 'WSTRZYMAŁ SIĘ':
           return 'warning'
         default:
           return 'grey'
@@ -114,13 +115,17 @@ export default {
   color: white !important;
   font-weight: bold !important;
   font-size: 1.1em !important;
+  text-align: center !important;
 }
 
 :deep(.v-table td) {
   font-size: 1.1em !important;
+  text-align: center !important;
 }
 
 :deep(.v-chip) {
   min-width: 120px;
+  justify-content: center;
+  margin: 0 auto;
 }
 </style> 
