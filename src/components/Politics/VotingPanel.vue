@@ -1,77 +1,80 @@
 <template>
-  <div class="voting-panel-container">
-    <v-card class="voting-card" elevation="4">
-      <!-- Górny pasek -->
-      <v-card-title class="header-bar d-flex justify-space-between align-center pa-2">
-        <div class="d-flex align-center">
-          <v-icon icon="mdi-card-account-details" class="mr-2"/>
-          <span class="deputy-name">{{ deputyName }}</span>
-        </div>
-        <div>
-          <v-btn
-            icon
-            variant="text"
-            @click="toggleContrast"
-          >
-            <v-icon>mdi-contrast-circle</v-icon>
-          </v-btn>
-        </div>
-      </v-card-title>
-
-      <!-- Środkowy panel z wynikiem -->
-      <v-card-text class="vote-container pa-2">
-        <div class="vote-result-display">
-          <div class="vote-number" :class="{ 'vote-number-white': currentVote }">
-            Głosowanie nr {{ voteId }}
+  <v-container fluid class="pa-0">
+    <div class="voting-panel-container">
+      <v-card class="voting-card" elevation="4">
+        <!-- Górny pasek -->
+        <v-card-title class="header-bar d-flex justify-space-between align-center pa-2">
+          <div class="d-flex align-center">
+            <v-icon icon="mdi-card-account-details" class="mr-2"/>
+            <span class="deputy-name">{{ deputyName }}</span>
           </div>
-          <div class="vote-result" :class="voteResultClass">
-            <span v-if="currentVote" class="text-h1 vote-text">
-              Głos: {{ currentVote }}
-            </span>
+          <div>
+            <v-btn
+              icon
+              variant="text"
+              @click="toggleContrast"
+            >
+              <v-icon>mdi-contrast-circle</v-icon>
+            </v-btn>
           </div>
-        </div>
-      </v-card-text>
+        </v-card-title>
 
-      <!-- Panel przycisków -->
-      <v-card-actions class="button-panel pa-2">
-        <v-row justify="space-between" no-gutters>
-          <v-col cols="4" class="px-1">
-            <v-btn
-              block
-              class="vote-btn vote-for"
-              size="x-large"
-              @click="vote('ZA')"
-              :disabled="!!currentVote || disabled"
-            >
-              Za
-            </v-btn>
-          </v-col>
-          <v-col cols="4" class="px-1">
-            <v-btn
-              block
-              class="vote-btn vote-against"
-              size="x-large"
-              @click="vote('PRZECIW')"
-              :disabled="!!currentVote || disabled"
-            >
-              Przeciw
-            </v-btn>
-          </v-col>
-          <v-col cols="4" class="px-1">
-            <v-btn
-              block
-              class="vote-btn vote-abstain"
-              size="x-large"
-              @click="vote('WSTRZYMANO SIĘ')"
-              :disabled="!!currentVote || disabled"
-            >
-              Wstrzymaj się
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-actions>
-    </v-card>
-  </div>
+        <!-- Środkowy panel z wynikiem -->
+        <v-card-text class="vote-container pa-2">
+          <div class="vote-result-display">
+            <div class="vote-number" :class="{ 'vote-number-white': currentVote }">
+              Głosowanie nr {{ voteId }}
+            </div>
+            <div class="vote-result" :class="voteResultClass">
+              <span v-if="currentVote" class="text-h1 vote-text">
+                Głos: {{ currentVote }}
+              </span>
+            </div>
+          </div>
+        </v-card-text>
+
+        <!-- Panel przycisków -->
+        <v-card-actions class="button-panel pa-2">
+          <v-row justify="space-between" no-gutters>
+            <v-col cols="4" class="px-1">
+              <v-btn
+                block
+                class="vote-btn vote-for"
+                size="x-large"
+                @click="vote('ZA')"
+                :disabled="!!currentVote || disabled"
+              >
+                Za
+              </v-btn>
+            </v-col>
+            <v-col cols="4" class="px-1">
+              <v-btn
+                block
+                class="vote-btn vote-against"
+                size="x-large"
+                @click="vote('PRZECIW')"
+                :disabled="!!currentVote || disabled"
+              >
+                Przeciw
+              </v-btn>
+            </v-col>
+            <v-col cols="4" class="px-1">
+              <v-btn
+                block
+                class="vote-btn vote-abstain"
+                size="x-large"
+                @click="vote('WSTRZYMANO SIĘ')"
+                :disabled="!!currentVote || disabled"
+              >
+                Wstrzymaj się
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </div>
+    <v-row style="height: 100px"></v-row>
+  </v-container>
 </template>
 
 <script>
@@ -166,12 +169,13 @@ export default {
 
 <style scoped>
 .voting-panel-container {
-  height: 100vh;
+  height: 90vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow-x: hidden;
 }
 
 .voting-card {

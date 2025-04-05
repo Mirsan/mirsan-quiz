@@ -17,7 +17,12 @@
             </v-btn>
             
             <div class="status-content text-h4">
-              Etap: <span class="stage-name">{{ currentStage }}</span>
+              <span v-if="currentStageIndex !== 3 || !showVotingResult">
+                Etap: <span class="stage-name">{{ currentStage }}</span>
+              </span>
+              <span v-else>
+                <span class="stage-name" :class="{'passed': isPassed, 'rejected': !isPassed}">{{ displayStage }}</span>
+              </span>
               <div class="stage-shortcut text-caption">
                 ({{ currentStageIndex + 1 }})
               </div>
@@ -79,12 +84,28 @@ export default {
       ],
       currentStageIndex: 0,
       currentTopicNumber: 1,
-      totalTopics: 0
+      totalTopics: 0,
+      votesFor: 0,
+      votesAgainst: 0,
+      votesAbstain: 0,
+      showVotingResult: false,
+      votingResultTimer: null
     }
   },
   computed: {
     currentStage() {
       return this.stages[this.currentStageIndex]
+    },
+    displayStage() {
+      if (this.currentStageIndex === 3) { // Etap "Wyniki"
+        return this.isPassed ? 'PRZEGŁOSOWANO' : 'ODRZUCONO'
+      }
+      return this.currentStage
+    },
+    isPassed() {
+      const totalVotes = this.votesFor + this.votesAgainst + this.votesAbstain
+      if (totalVotes === 0) return false
+      return (this.votesFor / totalVotes) > 0.5
     }
   },
   methods: {
@@ -92,6 +113,20 @@ export default {
       if (this.currentStageIndex < this.stages.length - 1) {
         this.currentStageIndex++
         this.$emit('stage-changed', this.currentStage)
+        
+        // Resetuj timer przy zmianie etapu
+        if (this.votingResultTimer) {
+          clearTimeout(this.votingResultTimer)
+          this.votingResultTimer = null
+        }
+        this.showVotingResult = false
+        
+        // Jeśli przechodzimy do etapu wyników, ustaw timer
+        if (this.currentStageIndex === 3) {
+          this.votingResultTimer = setTimeout(() => {
+            this.showVotingResult = true
+          }, 2000)
+        }
       } else if (this.currentStageIndex === this.stages.length - 1) {
         this.goToNextTopic()
       }
@@ -104,6 +139,13 @@ export default {
 
       this.currentTopicNumber++
       this.currentStageIndex = 0
+      
+      // Resetuj timer
+      if (this.votingResultTimer) {
+        clearTimeout(this.votingResultTimer)
+        this.votingResultTimer = null
+      }
+      this.showVotingResult = false
       
       // Aktualizacja w Firebase
       const topicRef = dbRef(db, `sessions/${this.sessionId}/currentTopic`)
@@ -122,12 +164,33 @@ export default {
       if (this.currentStageIndex > 0) {
         this.currentStageIndex--
         this.$emit('stage-changed', this.currentStage)
+        
+        // Resetuj timer przy zmianie etapu
+        if (this.votingResultTimer) {
+          clearTimeout(this.votingResultTimer)
+          this.votingResultTimer = null
+        }
+        this.showVotingResult = false
       }
     },
     goToStage(index) {
       if (index >= 0 && index < this.stages.length) {
         this.currentStageIndex = index
         this.$emit('stage-changed', this.currentStage)
+        
+        // Resetuj timer przy zmianie etapu
+        if (this.votingResultTimer) {
+          clearTimeout(this.votingResultTimer)
+          this.votingResultTimer = null
+        }
+        this.showVotingResult = false
+        
+        // Jeśli przechodzimy do etapu wyników, ustaw timer
+        if (this.currentStageIndex === 3) {
+          this.votingResultTimer = setTimeout(() => {
+            this.showVotingResult = true
+          }, 2000)
+        }
       }
     },
     handleKeydown(event) {
@@ -155,6 +218,27 @@ export default {
           this.goToStage(parseInt(event.key) - 1)
           break
       }
+    },
+    updateVoteCounts() {
+      const votesRef = dbRef(db, `sessions/${this.sessionId}/votes`)
+      onValue(votesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const votes = snapshot.val()
+          this.votesFor = 0
+          this.votesAgainst = 0
+          this.votesAbstain = 0
+          
+          Object.values(votes).forEach(vote => {
+            if (vote.option === 'ZA') this.votesFor++
+            else if (vote.option === 'PRZECIW') this.votesAgainst++
+            else if (vote.option === 'WSTRZYMANO SIĘ') this.votesAbstain++
+          })
+        } else {
+          this.votesFor = 0
+          this.votesAgainst = 0
+          this.votesAbstain = 0
+        }
+      })
     }
   },
   mounted() {
@@ -166,9 +250,15 @@ export default {
         this.totalTopics = snapshot.val().length
       }
     })
+    
+    // Nasłuchuj na głosy
+    this.updateVoteCounts()
   },
   beforeUnmount() {
     window.removeEventListener('keydown', this.handleKeydown)
+    if (this.votingResultTimer) {
+      clearTimeout(this.votingResultTimer)
+    }
   }
 }
 </script>
@@ -190,6 +280,14 @@ export default {
 .stage-name {
   color: #1976d2;
   font-weight: 700;
+}
+
+.stage-name.passed {
+  color: #4CAF50;
+}
+
+.stage-name.rejected {
+  color: #F44336;
 }
 
 .stage-shortcut {

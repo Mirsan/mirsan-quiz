@@ -4,10 +4,6 @@
     max-width="800"
     elevation="8"
   >
-    <v-card-title class="text-h4 text-center pa-4 voting-title">
-      GŁOSOWANIE NR {{ votingNumber }}
-    </v-card-title>
-
     <v-card-text class="voting-results pa-4">
       <v-row class="text-h5 mb-2">
         <v-col cols="12">
