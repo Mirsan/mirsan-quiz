@@ -71,7 +71,7 @@ export default {
           return 'success'
         case 'PRZECIW':
           return 'error'
-        case 'WSTRZYMAŁ SIĘ':
+        case 'WSTRZYMANO SIĘ':
           return 'warning'
         default:
           return 'grey'

@@ -62,7 +62,7 @@
               block
               class="vote-btn vote-abstain"
               size="x-large"
-              @click="vote('WSTRZYMAŁ SIĘ')"
+              @click="vote('WSTRZYMANO SIĘ')"
               :disabled="!!currentVote || disabled"
             >
               Wstrzymaj się
@@ -109,7 +109,7 @@ export default {
       return {
         'vote-result-for': this.currentVote === 'ZA',
         'vote-result-against': this.currentVote === 'PRZECIW',
-        'vote-result-abstain': this.currentVote === 'WSTRZYMAŁ SIĘ'
+        'vote-result-abstain': this.currentVote === 'WSTRZYMANO SIĘ'
       }
     }
   },

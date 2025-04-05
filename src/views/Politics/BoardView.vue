@@ -77,7 +77,7 @@ export default {
       const results = {
         ZA: 0,
         PRZECIW: 0,
-        'WSTRZYMAŁ SIĘ': 0
+        'WSTRZYMANO SIĘ': 0
       };
       
       Object.values(votes.value).forEach(vote => {

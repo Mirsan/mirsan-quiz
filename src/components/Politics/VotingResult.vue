@@ -61,7 +61,7 @@
       <v-row class="text-h5">
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center">
-            <span class="voting-label">WSTRZYMAŁO SIĘ</span>
+            <span class="voting-label">WSTRZYMANO SIĘ</span>
             <span class="voting-value">{{ currentVotesAbstain }}</span>
           </div>
           <v-progress-linear
@@ -151,7 +151,7 @@ export default {
 
     const currentVotesAbstain = computed(() => {
       if (props.showCollective && props.collectiveVotes) {
-        return props.collectiveVotes['WSTRZYMAŁ SIĘ'] || 0;
+        return props.collectiveVotes['WSTRZYMANO SIĘ'] || 0;
       }
       return props.votesAbstain;
     });
