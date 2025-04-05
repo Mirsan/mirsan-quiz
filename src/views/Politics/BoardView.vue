@@ -2,7 +2,7 @@
   <div class="board-container">
     <div class="background-image"></div>
     <div class="content-wrapper" :style="{ opacity: contentOpacity }">
-      <VotingTopic />
+      <VotingTopic :session-id="sessionId" />
       <VotingResult
         v-if="gameStage !== 'Podsumowanie'"
         :voting-number="1"
@@ -14,7 +14,7 @@
         v-else-if="gameStage === 'Podsumowanie'"
         :votes="votes"
       />
-      <StatusPanel @stage-changed="handleStageChange" />
+      <StatusPanel @stage-changed="handleStageChange" :session-id="sessionId" />
     </div>
   </div>
 </template>

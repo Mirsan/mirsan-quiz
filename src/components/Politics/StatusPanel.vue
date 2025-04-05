@@ -27,16 +27,24 @@
               variant="text"
               class="custom-btn"
               @click="nextStage"
+              :disabled="currentStageIndex !== stages.length - 1"
+              v-if="currentStageIndex === stages.length - 1"
+            >
+              <span class="text-h6">Dalej</span>
+              <v-tooltip activator="parent" location="top">
+                <span>Przejdź dalej (Enter)</span>
+              </v-tooltip>
+            </v-btn>
+            <v-btn
+              v-else
+              variant="text"
+              class="custom-btn"
+              @click="nextStage"
               :disabled="currentStageIndex === stages.length - 1"
             >
-              <template v-if="currentStageIndex === stages.length - 1">
-                <span class="text-h6">Dalej</span>
-              </template>
-              <template v-else>
-                <span class="text-h4">+</span>
-              </template>
+              <span class="text-h4">+</span>
               <v-tooltip activator="parent" location="top">
-                <span>{{ currentStageIndex === stages.length - 1 ? 'Przejdź dalej (Enter)' : 'Następny etap (+)' }}</span>
+                <span>Następny etap (+)</span>
               </v-tooltip>
             </v-btn>
           </div>
@@ -47,9 +55,18 @@
 </template>
 
 <script>
+import { ref as dbRef, set, onValue } from '@firebase/database'
+import { db } from '@/firebase'
+
 export default {
   name: 'StatusPanel',
   components: {
+  },
+  props: {
+    sessionId: {
+      type: String,
+      required: true
+    }
   },
   data() {
     return {
@@ -60,7 +77,9 @@ export default {
         'Wyniki',
         'Podsumowanie'
       ],
-      currentStageIndex: 0
+      currentStageIndex: 0,
+      currentTopicNumber: 1,
+      totalTopics: 0
     }
   },
   computed: {
@@ -73,7 +92,31 @@ export default {
       if (this.currentStageIndex < this.stages.length - 1) {
         this.currentStageIndex++
         this.$emit('stage-changed', this.currentStage)
+      } else if (this.currentStageIndex === this.stages.length - 1) {
+        this.goToNextTopic()
       }
+    },
+    async goToNextTopic() {
+      if (this.currentTopicNumber >= this.totalTopics) {
+        // Koniec gry lub powrót do pierwszego tematu
+        return
+      }
+
+      this.currentTopicNumber++
+      this.currentStageIndex = 0
+      
+      // Aktualizacja w Firebase
+      const topicRef = dbRef(db, `sessions/${this.sessionId}/currentTopic`)
+      await set(topicRef, {
+        id: this.currentTopicNumber - 1,
+        number: this.currentTopicNumber
+      })
+      
+      // Resetowanie głosów
+      const votesRef = dbRef(db, `sessions/${this.sessionId}/votes`)
+      await set(votesRef, null)
+      
+      this.$emit('stage-changed', this.currentStage)
     },
     previousStage() {
       if (this.currentStageIndex > 0) {
@@ -91,7 +134,9 @@ export default {
       switch(event.key) {
         case '+':
         case 'ArrowRight':
-          this.nextStage()
+          if (this.currentStageIndex !== this.stages.length - 1) {
+            this.nextStage()
+          }
           break
         case '-':
         case 'ArrowLeft':
@@ -99,7 +144,7 @@ export default {
           break
         case 'Enter':
           if (this.currentStageIndex === this.stages.length - 1) {
-            this.nextStage()
+            this.goToNextTopic()
           }
           break
         case '1':
@@ -114,6 +159,13 @@ export default {
   },
   mounted() {
     window.addEventListener('keydown', this.handleKeydown)
+    // Pobierz liczbę tematów
+    const topicsRef = dbRef(db, 'topics')
+    onValue(topicsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        this.totalTopics = snapshot.val().length
+      }
+    })
   },
   beforeUnmount() {
     window.removeEventListener('keydown', this.handleKeydown)

@@ -16,12 +16,54 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
+import { db } from '@/firebase'
+import { ref as dbRef, onValue, get } from '@firebase/database'
+
 export default {
   name: 'VotingTopic',
-  data() {
+  props: {
+    sessionId: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
+    const actNumber = ref(1)
+    const actQuestion = ref('')
+    const currentTopicId = ref(null)
+
+    const loadTopic = async (topicId) => {
+      const topicsRef = dbRef(db, 'topics')
+      const snapshot = await get(topicsRef)
+      if (snapshot.exists()) {
+        const topics = snapshot.val()
+        if (topics[topicId]) {
+          actQuestion.value = topics[topicId]
+        }
+      }
+    }
+
+    onMounted(() => {
+      const sessionRef = dbRef(db, `sessions/${props.sessionId}/currentTopic`)
+      onValue(sessionRef, (snapshot) => {
+        const topicData = snapshot.val()
+        if (topicData) {
+          currentTopicId.value = topicData.id
+          actNumber.value = topicData.number || currentTopicId.value + 1
+          loadTopic(currentTopicId.value)
+        } else {
+          // Domyślnie pierwszy temat
+          currentTopicId.value = 0
+          actNumber.value = 1
+          loadTopic(0)
+        }
+      })
+    })
+
     return {
-      actNumber: 1,
-      actQuestion: 'Czy jesteś za legalizacją marihuany?'
+      actNumber,
+      actQuestion
     }
   }
 }
