@@ -20,11 +20,32 @@
 </template>
 
 <script>
+import { db } from '@/firebase'
+import { ref as dbRef, set } from '@firebase/database'
+
 export default {
   name: 'StarterPanel',
   methods: {
-    startSimulation() {
-      this.$router.push('/politics/board')
+    async startSimulation() {
+      try {
+        // Generuj nowe ID sesji
+        const sessionId = Date.now().toString()
+        
+        // Inicjalizuj sesję
+        await set(dbRef(db, `sessions/${sessionId}`), {
+          status: 'Pierwsze czytanie',
+          currentTopic: {
+            id: 0,
+            number: 1
+          },
+          createdAt: Date.now()
+        })
+
+        // Przejdź do panelu
+        this.$router.push(`/politics/board/${sessionId}`)
+      } catch (error) {
+        console.error('Error starting simulation:', error)
+      }
     }
   }
 }

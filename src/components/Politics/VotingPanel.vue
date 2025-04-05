@@ -41,7 +41,7 @@
               class="vote-btn vote-for"
               size="x-large"
               @click="vote('ZA')"
-              :disabled="!!currentVote"
+              :disabled="!!currentVote || disabled"
             >
               Za
             </v-btn>
@@ -52,7 +52,7 @@
               class="vote-btn vote-against"
               size="x-large"
               @click="vote('PRZECIW')"
-              :disabled="!!currentVote"
+              :disabled="!!currentVote || disabled"
             >
               Przeciw
             </v-btn>
@@ -63,7 +63,7 @@
               class="vote-btn vote-abstain"
               size="x-large"
               @click="vote('WSTRZYMAŁ SIĘ')"
-              :disabled="!!currentVote"
+              :disabled="!!currentVote || disabled"
             >
               Wstrzymaj się
             </v-btn>
@@ -85,6 +85,10 @@ export default {
     voteId: {
       type: Number,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

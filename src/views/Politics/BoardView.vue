@@ -26,7 +26,7 @@ import IndividualResult from '@/components/Politics/IndividualResult.vue'
 import StatusPanel from '@/components/Politics/StatusPanel.vue'
 import { ref, onMounted, computed } from 'vue'
 import { db } from '@/firebase'
-import { ref as dbRef, onValue, set } from 'firebase/database'
+import { ref as dbRef, onValue, set, get } from 'firebase/database'
 
 export default {
   name: 'BoardView',
@@ -71,18 +71,19 @@ export default {
     const handleStageChange = (newStage) => {
       console.log('Zmieniono etap na:', newStage)
       gameStage.value = newStage
+      set(dbRef(db, `sessions/${props.sessionId}/status`), newStage)
     }
 
     const startVoting = async () => {
-      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'voting')
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'Głosowanie')
     }
 
     const showResults = async () => {
-      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'results')
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'Wyniki')
     }
 
     const nextQuestion = async () => {
-      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'waiting')
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'Pierwsze czytanie')
       await set(dbRef(db, `sessions/${props.sessionId}/votes`), {})
       loadNextQuestion()
     }
@@ -106,7 +107,16 @@ export default {
       })
 
       onValue(stageRef, (snapshot) => {
-        gameStage.value = snapshot.val()
+        const newStage = snapshot.val() || 'Pierwsze czytanie'
+        console.log('Firebase status changed:', newStage)
+        gameStage.value = newStage
+      })
+
+      const initialStatusRef = dbRef(db, `sessions/${props.sessionId}/status`)
+      get(initialStatusRef).then((snapshot) => {
+        if (!snapshot.exists()) {
+          set(initialStatusRef, 'Pierwsze czytanie')
+        }
       })
 
       onValue(votesRef, (snapshot) => {

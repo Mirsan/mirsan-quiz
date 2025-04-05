@@ -1,43 +1,23 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>
-            Panel Posła: {{ deputyName }}
-          </v-card-title>
-          <v-card-text>
-            <div v-if="currentQuestion && gameStage === 'voting'">
-              <h3>{{ currentQuestion.text }}</h3>
-              <v-btn
-                v-for="option in currentQuestion.options"
-                :key="option"
-                color="primary"
-                class="ma-2"
-                @click="vote(option)"
-                :disabled="hasVoted"
-              >
-                {{ option }}
-              </v-btn>
-            </div>
-            <div v-else>
-              <h3>Oczekiwanie na pytanie...</h3>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+  <VotingPanel
+    :deputy-name="deputyName"
+    :vote-id="currentTopicNumber"
+    @vote-cast="handleVote"
+    :disabled="!canVote"
+  />
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { db } from '@/firebase'
-import { ref as dbRef, onValue, set } from 'firebase/database'
-import { useRouter } from 'vue-router'
+import { ref as dbRef, onValue, set } from '@firebase/database'
+import VotingPanel from '@/components/Politics/VotingPanel.vue'
 
 export default {
   name: 'PoliticianPanelView',
+  components: {
+    VotingPanel
+  },
   props: {
     sessionId: {
       type: String,
@@ -49,63 +29,78 @@ export default {
     }
   },
   setup(props) {
-    const currentQuestion = ref(null)
-    const gameStage = ref('waiting')
+    const gameStage = ref('')
+    const currentTopicNumber = ref(1)
     const hasVoted = ref(false)
-    const router = useRouter()
 
-    const vote = async (option) => {
-      if (hasVoted.value) return
-      
-      const voteRef = dbRef(db, `sessions/${props.sessionId}/votes/${props.deputyName}`)
-      await set(voteRef, {
-        option,
-        timestamp: Date.now()
-      })
-      
-      hasVoted.value = true
-    }
+    const canVote = computed(() => {
+      console.log('Current stage:', gameStage.value)
+      console.log('Has voted:', hasVoted.value)
+      return gameStage.value === 'Głosowanie' && !hasVoted.value
+    })
 
-    const joinGame = async () => {
-      if (!props.deputyName) return
-      
-      const deputyRef = dbRef(db, `sessions/${props.sessionId}/deputies/${Date.now()}`)
-      await set(deputyRef, {
-        name: props.deputyName,
-        joinedAt: Date.now()
-      })
+    const handleVote = async (choice) => {
+      if (!canVote.value) {
+        console.log('Cannot vote:', { stage: gameStage.value, hasVoted: hasVoted.value })
+        return
+      }
 
-      router.push({
-        name: 'PoliticianPanel',
-        params: { 
-          sessionId: props.sessionId,
-          deputyName: props.deputyName 
-        }
-      })
+      try {
+        const voteRef = dbRef(db, `sessions/${props.sessionId}/votes/${props.deputyName}`)
+        await set(voteRef, {
+          option: choice,
+          timestamp: Date.now(),
+          topicNumber: currentTopicNumber.value
+        })
+        console.log('Vote recorded successfully:', { choice, deputy: props.deputyName })
+        hasVoted.value = true
+      } catch (error) {
+        console.error('Error recording vote:', error)
+      }
     }
 
     onMounted(() => {
-      const questionRef = dbRef(db, `sessions/${props.sessionId}/currentQuestion`)
+      // Nasłuchuj na zmiany etapu
       const stageRef = dbRef(db, `sessions/${props.sessionId}/status`)
+      onValue(stageRef, (snapshot) => {
+        const newStage = snapshot.val()
+        console.log('Stage changed to:', newStage)
+        gameStage.value = newStage
 
-      onValue(questionRef, (snapshot) => {
-        currentQuestion.value = snapshot.val()
+        // Reset głosowania przy zmianie etapu
+        if (newStage !== 'Głosowanie') {
+          hasVoted.value = false
+        }
       })
 
-      onValue(stageRef, (snapshot) => {
-        gameStage.value = snapshot.val()
-        if (snapshot.val() !== 'voting') {
+      // Nasłuchuj na zmiany aktualnego tematu
+      const topicRef = dbRef(db, `sessions/${props.sessionId}/currentTopic`)
+      onValue(topicRef, (snapshot) => {
+        const topicData = snapshot.val()
+        if (topicData) {
+          console.log('Topic changed to:', topicData)
+          currentTopicNumber.value = topicData.number || 1
           hasVoted.value = false
+        }
+      })
+
+      // Sprawdź czy już głosował w tym temacie
+      const votesRef = dbRef(db, `sessions/${props.sessionId}/votes/${props.deputyName}`)
+      onValue(votesRef, (snapshot) => {
+        const voteData = snapshot.val()
+        if (voteData && voteData.topicNumber === currentTopicNumber.value) {
+          console.log('Already voted in this topic:', voteData)
+          hasVoted.value = true
         }
       })
     })
 
     return {
-      currentQuestion,
       gameStage,
+      currentTopicNumber,
       hasVoted,
-      vote,
-      joinGame
+      canVote,
+      handleVote
     }
   }
 }
