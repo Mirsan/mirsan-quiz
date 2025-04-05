@@ -25,7 +25,7 @@
             Głosowanie nr {{ voteId }}
           </div>
           <div class="vote-result" :class="voteResultClass">
-            <span v-if="currentVote" class="text-h4">
+            <span v-if="currentVote" class="text-h1 vote-text">
               Głos: {{ currentVote }}
             </span>
           </div>
@@ -225,6 +225,13 @@ export default {
 .vote-abstain {
   background-color: #FFC107 !important;
   color: black !important;
+}
+
+.vote-text {
+  font-size: 3rem !important;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.2;
 }
 
 /* Responsywność dla poziomego telefonu */
