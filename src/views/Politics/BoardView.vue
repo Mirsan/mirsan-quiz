@@ -4,53 +4,17 @@
     <div class="content-wrapper" :style="{ opacity: contentOpacity }">
       <VotingTopic />
       <VotingResult
+        v-if="gameStage !== 'Podsumowanie'"
         :voting-number="1"
-        :votes-for="0"
-        :votes-against="0"
-        :votes-abstain="0"
+        :votes-for="votesFor"
+        :votes-against="votesAgainst"
+        :votes-abstain="votesAbstain"
+      />
+      <IndividualResult
+        v-else-if="gameStage === 'Podsumowanie'"
+        :votes="votes"
       />
       <StatusPanel @stage-changed="handleStageChange" />
-      <v-container>
-        <v-row>
-          <v-col cols="12">
-            <v-card>
-              <v-card-title>
-                Panel Prowadzącego
-              </v-card-title>
-              <v-card-text>
-                <div v-if="currentQuestion">
-                  <h2>{{ currentQuestion.text }}</h2>
-                  <div v-if="gameStage === 'voting'">
-                    <v-btn color="primary" @click="showResults">
-                      Pokaż wyniki
-                    </v-btn>
-                  </div>
-                  <div v-else-if="gameStage === 'results'">
-                    <h3>Wyniki głosowania:</h3>
-                    <div v-for="(count, option) in voteResults" :key="option">
-                      {{ option }}: {{ count }} głosów
-                    </div>
-                    <v-btn color="primary" @click="nextQuestion" class="mt-4">
-                      Następne pytanie
-                    </v-btn>
-                  </div>
-                  <div v-else>
-                    <v-btn color="primary" @click="startVoting">
-                      Rozpocznij głosowanie
-                    </v-btn>
-                  </div>
-                </div>
-                <div v-else>
-                  <h3>Brak aktywnego pytania</h3>
-                  <v-btn color="primary" @click="loadNextQuestion">
-                    Wczytaj następne pytanie
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
     </div>
   </div>
 </template>
@@ -58,6 +22,7 @@
 <script>
 import VotingTopic from '@/components/Politics/VotingTopic.vue'
 import VotingResult from '@/components/Politics/VotingResult.vue'
+import IndividualResult from '@/components/Politics/IndividualResult.vue'
 import StatusPanel from '@/components/Politics/StatusPanel.vue'
 import { ref, onMounted, computed } from 'vue'
 import { db } from '@/firebase'
@@ -68,6 +33,7 @@ export default {
   components: {
     VotingTopic,
     VotingResult,
+    IndividualResult,
     StatusPanel
   },
   props: {
@@ -90,8 +56,21 @@ export default {
       return results
     })
 
+    const votesFor = computed(() => {
+      return Object.values(votes.value).filter(vote => vote.option === 'Za').length
+    })
+    
+    const votesAgainst = computed(() => {
+      return Object.values(votes.value).filter(vote => vote.option === 'Przeciw').length
+    })
+    
+    const votesAbstain = computed(() => {
+      return Object.values(votes.value).filter(vote => vote.option === 'Wstrzymuję się').length
+    })
+
     const handleStageChange = (newStage) => {
       console.log('Zmieniono etap na:', newStage)
+      gameStage.value = newStage
     }
 
     const startVoting = async () => {
@@ -140,6 +119,10 @@ export default {
       currentQuestion,
       gameStage,
       voteResults,
+      votes,
+      votesFor,
+      votesAgainst,
+      votesAbstain,
       handleStageChange,
       startVoting,
       showResults,

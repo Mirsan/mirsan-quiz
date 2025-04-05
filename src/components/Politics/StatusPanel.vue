@@ -29,9 +29,14 @@
               @click="nextStage"
               :disabled="currentStageIndex === stages.length - 1"
             >
-              <span class="text-h4">+</span>
+              <template v-if="currentStageIndex === stages.length - 1">
+                <span class="text-h6">Dalej</span>
+              </template>
+              <template v-else>
+                <span class="text-h4">+</span>
+              </template>
               <v-tooltip activator="parent" location="top">
-                <span>Następny etap (+)</span>
+                <span>{{ currentStageIndex === stages.length - 1 ? 'Przejdź dalej (Enter)' : 'Następny etap (+)' }}</span>
               </v-tooltip>
             </v-btn>
           </div>
@@ -91,6 +96,11 @@ export default {
         case '-':
         case 'ArrowLeft':
           this.previousStage()
+          break
+        case 'Enter':
+          if (this.currentStageIndex === this.stages.length - 1) {
+            this.nextStage()
+          }
           break
         case '1':
         case '2':

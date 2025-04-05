@@ -14,21 +14,27 @@
             <div v-else>
               <v-progress-circular indeterminate color="primary"></v-progress-circular>
             </div>
-            <v-btn
-              v-if="sessionId"
-              color="primary"
-              :href="joinUrl"
-              target="_blank"
-              class="mb-4"
-            >
-              Otwórz link
-            </v-btn>
-            <v-btn
-              color="secondary"
-              @click="goToBoard"
-            >
-              Przejdź do panelu prowadzącego
-            </v-btn>
+            <div class="d-flex flex-column align-center">
+              <v-btn
+                v-if="sessionId"
+                color="primary"
+                :href="joinUrl"
+                target="_blank"
+                class="mb-4"
+                width="200"
+              >
+                Otwórz link
+              </v-btn>
+              <v-btn
+                color="secondary"
+                @click="goToBoard"
+                @keyup.enter="goToBoard"
+                width="200"
+                tabindex="0"
+              >
+                Rozpocznij obrady
+              </v-btn>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
