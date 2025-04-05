@@ -23,9 +23,9 @@
           <v-progress-linear
             v-model="animatedForPercentage"
             color="success"
-            height="20"
+            height="40"
             rounded
-            class="mt-1"
+            class="mt-1 progress-bar"
           >
             <template v-slot:default="{ value }">
               <span class="progress-text">{{ Math.ceil(value) }}%</span>
@@ -43,9 +43,9 @@
           <v-progress-linear
             v-model="animatedAgainstPercentage"
             color="error"
-            height="20"
+            height="40"
             rounded
-            class="mt-1"
+            class="mt-1 progress-bar"
           >
             <template v-slot:default="{ value }">
               <span class="progress-text">{{ Math.ceil(value) }}%</span>
@@ -63,9 +63,9 @@
           <v-progress-linear
             v-model="animatedAbstainPercentage"
             color="warning"
-            height="20"
+            height="40"
             rounded
-            class="mt-1"
+            class="mt-1 progress-bar"
           >
             <template v-slot:default="{ value }">
               <span class="progress-text">{{ Math.ceil(value) }}%</span>
@@ -242,7 +242,8 @@ export default {
 .progress-text {
   color: white;
   font-weight: bold;
-  font-size: 0.9em;
+  font-size: 1.2em;
+  line-height: 30px;
 }
 
 .voting-value {
@@ -254,11 +255,17 @@ export default {
   transition: transform 0.2s ease;
 }
 
+.progress-bar {
+  border-radius: 15px;
+}
+
 :deep(.v-progress-linear__background) {
   opacity: 0.2 !important;
+  border-radius: 15px !important;
 }
 
 :deep(.v-progress-linear__determinate) {
   transition: width 1s ease-in-out !important;
+  border-radius: 15px !important;
 }
 </style> 
