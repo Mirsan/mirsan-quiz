@@ -44,13 +44,16 @@
 <script>
 export default {
   name: 'StatusPanel',
+  components: {
+  },
   data() {
     return {
       stages: [
         'Pierwsze czytanie',
         'Drugie czytanie',
         'Głosowanie',
-        'Wyniki'
+        'Wyniki',
+        'Podsumowanie'
       ],
       currentStageIndex: 0
     }
@@ -93,6 +96,7 @@ export default {
         case '2':
         case '3':
         case '4':
+        case '5':
           this.goToStage(parseInt(event.key) - 1)
           break
       }
