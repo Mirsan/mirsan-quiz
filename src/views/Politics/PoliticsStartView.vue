@@ -59,7 +59,7 @@ export default {
 
     const joinUrl = computed(() => {
       if (!sessionId.value) return ''
-      return `${window.location.origin}/join-game/${sessionId.value}`
+      return `${window.location.origin}/mirsan-quiz/#/join-game/${sessionId.value}`
     })
 
     const goToBoard = () => {
