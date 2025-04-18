@@ -1,12 +1,18 @@
 <template>
-  <div>
-    <VotingPanel
-      :deputy-name="deputyName"
-      :vote-id="currentTopicNumber"
-      :session-id="sessionId"
-      @vote-cast="handleVote"
-      :disabled="!canVote"
-    />
+  <div class="politician-panel-view">
+    <div v-if="isLandscape">
+      <VotingPanel
+        :deputy-name="deputyName"
+        :vote-id="currentTopicNumber"
+        :session-id="sessionId"
+        @vote-cast="handleVote"
+        :disabled="!canVote"
+      />
+    </div>
+    <div v-else class="rotate-message">
+      <v-icon size="64" class="mb-4">mdi-rotate-right</v-icon>
+      <div class="text-h6">Odwróć telefon by uruchomić Panel do głosowania</div>
+    </div>
   </div>
 </template>
 
@@ -36,6 +42,7 @@ export default {
     const gameStage = ref('')
     const currentTopicNumber = ref(1)
     const hasVoted = ref(false)
+    const isLandscape = ref(false)
     const { topics, loadTopics, setupTopicsListener } = useTopics()
 
     const currentTopic = computed(() => {
@@ -73,7 +80,13 @@ export default {
       }
     }
 
+    const checkOrientation = () => {
+      isLandscape.value = window.innerWidth > window.innerHeight
+    }
+
     onMounted(async () => {
+      checkOrientation()
+      window.addEventListener('resize', checkOrientation)
       setupTopicsListener()
       await loadTopics()
 
@@ -118,7 +131,8 @@ export default {
       currentTopic,
       hasVoted,
       canVote,
-      handleVote
+      handleVote,
+      isLandscape
     }
   }
 }
@@ -130,5 +144,18 @@ export default {
   width: 100vw;
   overflow: hidden;
   background: #f0f0f0;
+}
+
+.rotate-message {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  text-align: center;
+  padding: 20px;
 }
 </style> 
