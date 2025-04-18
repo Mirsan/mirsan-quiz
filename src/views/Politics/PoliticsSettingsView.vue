@@ -9,35 +9,47 @@
           
           <v-card-text class="pa-4">
             <v-list v-if="topics" class="topics-container mb-4">
-              <v-list-item
-                v-for="(topic, index) in topics"
-                :key="index"
-                class="topic-row"
+              <draggable
+                v-model="topics"
+                item-key="index"
+                @end="handleDragEnd"
+                handle=".drag-handle"
               >
-                <template v-slot:prepend>
-                  <div class="topic-number">{{ index + 1 }}.</div>
-                </template>
-                
-                <v-text-field
-                  :model-value="topic"
-                  @update:model-value="(value) => updateTopicText(index, value)"
-                  hide-details
-                  density="compact"
-                  variant="outlined"
-                  class="topic-input mx-2"
-                  placeholder="Wpisz temat..."
-                ></v-text-field>
+                <template #item="{ element, index }">
+                  <v-list-item
+                    class="topic-row"
+                  >
+                    <template v-slot:prepend>
+                      <div class="topic-number">{{ index + 1 }}.</div>
+                      <v-icon
+                        class="drag-handle"
+                        icon="mdi-drag"
+                        color="grey"
+                      ></v-icon>
+                    </template>
+                    
+                    <v-text-field
+                      :model-value="element"
+                      @update:model-value="(value) => updateTopicText(index, value)"
+                      hide-details
+                      density="compact"
+                      variant="outlined"
+                      class="topic-input mx-2"
+                      placeholder="Wpisz temat..."
+                    ></v-text-field>
 
-                <template v-slot:append>
-                  <v-btn
-                    icon="mdi-delete"
-                    color="error"
-                    variant="text"
-                    density="compact"
-                    @click="deleteTopic(index)"
-                  ></v-btn>
+                    <template v-slot:append>
+                      <v-btn
+                        icon="mdi-delete"
+                        color="error"
+                        variant="text"
+                        density="compact"
+                        @click="deleteTopic(index)"
+                      ></v-btn>
+                    </template>
+                  </v-list-item>
                 </template>
-              </v-list-item>
+              </draggable>
             </v-list>
 
             <div v-if="!topics?.length" class="text-center my-4">
@@ -75,26 +87,31 @@
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTopics } from '@/firebase/topics'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'PoliticsSettingsView',
+  components: {
+    draggable
+  },
   setup() {
     const router = useRouter()
     const { topics: topicsRef, loadTopics, saveTopics, setupTopicsListener } = useTopics()
 
-    const topics = computed(() => topicsRef.value || [])
-
-    console.log('Initial topics value:', topics.value)
+    const topics = computed({
+      get: () => topicsRef.value || [],
+      set: (newValue) => {
+        topicsRef.value = newValue
+      }
+    })
 
     const updateTopicText = async (index, value) => {
-      console.log('Updating topic text at index:', index, 'to:', value)
       const currentTopics = [...topics.value]
       currentTopics[index] = value
       await saveTopics(currentTopics)
     }
 
     const deleteTopic = async (index) => {
-      console.log('Deleting topic at index:', index)
       try {
         const currentTopics = [...topics.value]
         const newTopics = currentTopics.filter((_, i) => i !== index)
@@ -105,7 +122,6 @@ export default {
     }
 
     const addNewTopic = async () => {
-      console.log('Adding new topic')
       try {
         const currentTopics = [...topics.value]
         const newTopics = [...currentTopics, 'Nowy temat']
@@ -115,12 +131,19 @@ export default {
       }
     }
 
+    const handleDragEnd = async () => {
+      try {
+        await saveTopics(topics.value)
+      } catch (error) {
+        console.error('Error saving topics after drag:', error)
+      }
+    }
+
     const goBack = () => {
       router.push('/politics')
     }
 
     onMounted(async () => {
-      console.log('Component mounted')
       try {
         setupTopicsListener()
         await loadTopics()
@@ -134,6 +157,7 @@ export default {
       updateTopicText,
       deleteTopic,
       addNewTopic,
+      handleDragEnd,
       goBack
     }
   }
@@ -152,6 +176,7 @@ export default {
 .topic-row {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   min-height: 64px;
+  cursor: move;
 }
 
 .topic-row:last-child {
@@ -168,5 +193,10 @@ export default {
   color: rgba(0, 0, 0, 0.6);
   font-weight: 500;
   margin: 0 8px;
+}
+
+.drag-handle {
+  cursor: move;
+  margin-right: 8px;
 }
 </style> 
