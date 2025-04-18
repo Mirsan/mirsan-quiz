@@ -16,9 +16,10 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { db } from '@/firebase'
-import { ref as dbRef, onValue, get } from '@firebase/database'
+import { ref as dbRef, onValue } from '@firebase/database'
+import { useTopics } from '@/firebase/topics'
 
 export default {
   name: 'VotingTopic',
@@ -30,19 +31,15 @@ export default {
   },
   setup(props) {
     const actNumber = ref(1)
-    const actQuestion = ref('')
     const currentTopicId = ref(null)
+    const { topics: topicsRef } = useTopics()
 
-    const loadTopic = async (topicId) => {
-      const topicsRef = dbRef(db, 'topics')
-      const snapshot = await get(topicsRef)
-      if (snapshot.exists()) {
-        const topics = snapshot.val()
-        if (topics[topicId]) {
-          actQuestion.value = topics[topicId]
-        }
+    const actQuestion = computed(() => {
+      if (currentTopicId.value !== null && topicsRef.value) {
+        return topicsRef.value[currentTopicId.value] || 'Brak tematu'
       }
-    }
+      return 'Ładowanie tematu...'
+    })
 
     onMounted(() => {
       const sessionRef = dbRef(db, `sessions/${props.sessionId}/currentTopic`)
@@ -51,12 +48,10 @@ export default {
         if (topicData) {
           currentTopicId.value = topicData.id
           actNumber.value = topicData.number || currentTopicId.value + 1
-          loadTopic(currentTopicId.value)
         } else {
           // Domyślnie pierwszy temat
           currentTopicId.value = 0
           actNumber.value = 1
-          loadTopic(0)
         }
       })
     })
