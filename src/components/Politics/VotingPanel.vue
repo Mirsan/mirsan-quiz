@@ -35,42 +35,33 @@
 
         <!-- Panel przycisków -->
         <v-card-actions class="button-panel pa-2">
-          <v-row justify="space-between" no-gutters>
-            <v-col cols="4" class="px-1">
-              <v-btn
-                block
-                class="vote-btn vote-for"
-                size="x-large"
-                @click="vote('ZA')"
-                :disabled="!!currentVote || disabled"
-              >
-                Za
-              </v-btn>
-            </v-col>
-            <v-col cols="4" class="px-1">
-              <v-btn
-                block
-                class="vote-btn vote-against"
-                size="x-large"
-                @click="vote('PRZECIW')"
-                :disabled="!!currentVote || disabled"
-              >
-                Przeciw
-              </v-btn>
-            </v-col>
-            <v-col cols="4" class="px-1">
-              <v-btn
-                block
-                class="vote-btn vote-abstain"
-                size="x-large"
-                @click="vote('WSTRZYMANO SIĘ')"
-                :disabled="!!currentVote || disabled"
-              >
-                <span class="d-none d-sm-flex">Wstrzymaj się</span>
-                <span class="d-flex d-sm-none">Wstrzymaj</span>
-              </v-btn>
-            </v-col>
-          </v-row>
+          <div class="button-container">
+            <v-btn
+              class="vote-btn vote-for"
+              size="x-large"
+              @click="vote('ZA')"
+              :disabled="!!currentVote || disabled"
+            >
+              Za
+            </v-btn>
+            <v-btn
+              class="vote-btn vote-against"
+              size="x-large"
+              @click="vote('PRZECIW')"
+              :disabled="!!currentVote || disabled"
+            >
+              Przeciw
+            </v-btn>
+            <v-btn
+              class="vote-btn vote-abstain"
+              size="x-large"
+              @click="vote('WSTRZYMANO SIĘ')"
+              :disabled="!!currentVote || disabled"
+            >
+              <span class="d-none d-sm-flex">Wstrzymaj się</span>
+              <span class="d-flex d-sm-none">Wstrzymaj</span>
+            </v-btn>
+          </div>
         </v-card-actions>
       </v-card>
     </div>
@@ -212,7 +203,7 @@ export default {
   height: 100%;
   position: relative;
   background: white;
-  border: 2px solid #ddd;
+  border: 0px solid #ddd;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -259,30 +250,42 @@ export default {
   padding: 10px !important;
 }
 
+.button-container {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  padding: 0 16px;
+}
+
 .vote-btn {
-  height: 90px !important;
+  flex: 1;
+  height: 110px !important;
   font-size: 1.4rem !important;
   font-weight: 700 !important;
   text-transform: none !important;
   letter-spacing: 1px !important;
-  margin: 0 !important;
   padding: 25px 0 !important;
   white-space: nowrap !important;
+  border-radius: 10px !important;
+  border: 2px solid rgba(0, 0, 0, 0.2) !important;
 }
 
 .vote-for {
   background-color: #4CAF50 !important;
   color: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }
 
 .vote-against {
   background-color: #F44336 !important;
   color: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }
 
 .vote-abstain {
   background-color: #FFC107 !important;
   color: black !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }
 
 .vote-text {
@@ -306,11 +309,15 @@ export default {
     padding: 5px !important;
   }
 
+  .button-container {
+    gap: 2.5em;
+    padding: 0 8px;
+  }
+
   .vote-btn {
-    height: 100px !important;
+    height: 90px !important;
     font-size: 1.2rem !important;
     padding: 15px 0 !important;
-    margin: 0 !important;
   }
 
   .vote-number {
@@ -318,7 +325,9 @@ export default {
   }
 
   .header-bar {
-    padding: 5px !important;
+    margin-top: -0.8em;
+    margin-left: 0.2em;
+    margin-bottom: -1.2em;
   }
 }
 </style> 
