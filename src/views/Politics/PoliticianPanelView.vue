@@ -1,12 +1,5 @@
 <template>
   <div>
-    <v-card class="mb-4 mx-4">
-      <v-card-text class="text-center">
-        <div class="text-h6">
-          Temat #{{ currentTopicNumber }}: {{ currentTopic }}
-        </div>
-      </v-card-text>
-    </v-card>
     <VotingPanel
       :deputy-name="deputyName"
       :vote-id="currentTopicNumber"
