@@ -199,6 +199,17 @@ export default {
   z-index: 1;
   padding: 20px;
   backdrop-filter: blur(3px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.content-wrapper > *:not(.status-panel) {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Dodajemy przezroczystość do kart w komponentach */
@@ -209,5 +220,20 @@ export default {
 
 :deep(.status-panel) {
   background-color: rgba(255, 255, 255, 0.95) !important;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: 90%;
+  margin: 0 auto;
+  z-index: 10;
+}
+
+@media (max-width: 600px) {
+  :deep(.status-panel) {
+    width: 95%;
+    max-width: none;
+  }
 }
 </style> 
