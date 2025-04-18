@@ -6,42 +6,64 @@
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Gra Polityczna</v-toolbar-title>
           </v-toolbar>
-          <v-card-text class="text-center">
-            <h2 class="mb-4">Dołącz do gry!</h2>
-            <div v-if="sessionId" class="mb-4">
-              <qrcode-vue :value="joinUrl" :size="200" level="H" />
-            </div>
-            <div v-else>
-              <v-progress-circular indeterminate color="primary"></v-progress-circular>
-            </div>
-            <div class="d-flex flex-column align-center">
-              <a
-                v-if="sessionId"
-                :href="joinUrl"
-                target="_blank"
-                class="mb-4 text-decoration-none"
-              >
-                {{ joinUrl }}
-              </a>
-              <v-btn
-                color="primary"
-                @click="goToBoard"
-                @keyup.enter="goToBoard"
-                width="200"
-                tabindex="0"
-                class="mb-4"
-              >
-                Rozpocznij obrady
-              </v-btn>
-              <v-btn
-                color="secondary"
-                @click="goToSettings"
-                width="200"
-                tabindex="0"
-              >
-                Ustawienia
-              </v-btn>
-            </div>
+          <v-card-text>
+            <v-row>
+              <!-- Lewa kolumna z QR kodem -->
+              <v-col cols="6" class="text-center">
+                <h2 class="mb-4">Dołącz do gry!</h2>
+                <div v-if="sessionId" class="mb-4">
+                  <qrcode-vue :value="joinUrl" :size="200" level="H" />
+                </div>
+                <div v-else>
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                </div>
+                <div class="d-flex flex-column align-center">
+                  <a
+                    v-if="sessionId"
+                    :href="joinUrl"
+                    target="_blank"
+                    class="mb-4 text-decoration-none"
+                  >
+                    {{ joinUrl }}
+                  </a>
+                </div>
+              </v-col>
+
+              <!-- Prawa kolumna z obrazkiem -->
+              <v-col cols="6" class="d-flex flex-column align-center">
+                <v-img
+                  src="@/assets/images/real-voting.png"
+                  alt="Prawdziwy system głosowania"
+                  class="real-voting-image mb-2"
+                />
+                <em class="text-subtitle-1">Rrawdziwy system do głosowania w sejmie</em>
+              </v-col>
+            </v-row>
+
+            <!-- Wiersz z przyciskami na dole -->
+            <v-row class="mt-4">
+              <v-col cols="6" class="text-center">
+                <v-btn
+                  color="secondary"
+                  @click="goToSettings"
+                  width="200"
+                  tabindex="0"
+                >
+                  Ustawienia
+                </v-btn>
+              </v-col>
+              <v-col cols="6" class="text-center">
+                <v-btn
+                  color="primary"
+                  @click="goToBoard"
+                  @keyup.enter="goToBoard"
+                  width="200"
+                  tabindex="0"
+                >
+                  Rozpocznij obrady
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
@@ -91,4 +113,12 @@ export default {
     }
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.real-voting-image {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+</style> 
