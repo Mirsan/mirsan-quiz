@@ -29,8 +29,17 @@
                 @keyup.enter="goToBoard"
                 width="200"
                 tabindex="0"
+                class="mb-4"
               >
                 Rozpocznij obrady
+              </v-btn>
+              <v-btn
+                color="secondary"
+                @click="goToSettings"
+                width="200"
+                tabindex="0"
+              >
+                Ustawienia
               </v-btn>
             </div>
           </v-card-text>
@@ -66,6 +75,10 @@ export default {
       }
     }
 
+    const goToSettings = () => {
+      router.push('/politics/settings')
+    }
+
     onMounted(async () => {
       sessionId.value = await createGameSession()
     })
@@ -73,7 +86,8 @@ export default {
     return {
       sessionId,
       joinUrl,
-      goToBoard
+      goToBoard,
+      goToSettings
     }
   }
 }

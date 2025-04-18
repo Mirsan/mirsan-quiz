@@ -1,11 +1,20 @@
 <template>
-  <VotingPanel
-    :deputy-name="deputyName"
-    :vote-id="currentTopicNumber"
-    :session-id="sessionId"
-    @vote-cast="handleVote"
-    :disabled="!canVote"
-  />
+  <div>
+    <v-card class="mb-4 mx-4">
+      <v-card-text class="text-center">
+        <div class="text-h6">
+          Temat #{{ currentTopicNumber }}: {{ currentTopic }}
+        </div>
+      </v-card-text>
+    </v-card>
+    <VotingPanel
+      :deputy-name="deputyName"
+      :vote-id="currentTopicNumber"
+      :session-id="sessionId"
+      @vote-cast="handleVote"
+      :disabled="!canVote"
+    />
+  </div>
 </template>
 
 <script>
@@ -13,6 +22,7 @@ import { ref, onMounted, computed } from 'vue'
 import { db } from '@/firebase'
 import { ref as dbRef, onValue, set } from '@firebase/database'
 import VotingPanel from '@/components/Politics/VotingPanel.vue'
+import { useTopics } from '@/firebase/topics'
 
 export default {
   name: 'PoliticianPanelView',
@@ -33,10 +43,20 @@ export default {
     const gameStage = ref('')
     const currentTopicNumber = ref(1)
     const hasVoted = ref(false)
+    const { topics, loadTopics, setupTopicsListener } = useTopics()
+
+    const currentTopic = computed(() => {
+      console.log('Computing current topic:', {
+        currentTopicNumber: currentTopicNumber.value,
+        topics: topics.value
+      })
+      const index = (currentTopicNumber.value || 1) - 1
+      const topic = topics.value[index]
+      console.log('Selected topic:', topic)
+      return topic || 'Brak tematu'
+    })
 
     const canVote = computed(() => {
-      console.log('Current stage:', gameStage.value)
-      console.log('Has voted:', hasVoted.value)
       return gameStage.value === 'Głosowanie' && !hasVoted.value
     })
 
@@ -60,7 +80,10 @@ export default {
       }
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      setupTopicsListener()
+      await loadTopics()
+
       // Nasłuchuj na zmiany etapu
       const stageRef = dbRef(db, `sessions/${props.sessionId}/status`)
       onValue(stageRef, (snapshot) => {
@@ -99,6 +122,7 @@ export default {
     return {
       gameStage,
       currentTopicNumber,
+      currentTopic,
       hasVoted,
       canVote,
       handleVote

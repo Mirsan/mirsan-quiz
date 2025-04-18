@@ -6,6 +6,7 @@ import BoardView from '@/views/Politics/BoardView.vue'
 import PoliticsStartView from '@/views/Politics/PoliticsStartView.vue'
 import PoliticianPanelView from '@/views/Politics/PoliticianPanelView.vue'
 import JoinGameView from '@/views/Politics/JoinGameView.vue'
+import PoliticsSettingsView from '@/views/Politics/PoliticsSettingsView.vue'
 
 const routes = [
   {
@@ -58,6 +59,11 @@ const routes = [
     name: 'PoliticianPanel',
     component: PoliticianPanelView,
     props: true
+  },
+  {
+    path: '/politics/settings',
+    name: 'politics-settings',
+    component: PoliticsSettingsView
   }
 ]
 

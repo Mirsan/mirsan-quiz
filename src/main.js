@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify'
 import './assets/styles/main.css'
+import { initializeDefaultTopics } from './firebase/topics'
 
 // Preładowanie czcionek, aby zapobiec miganiu
 const preloadFonts = () => {
@@ -23,6 +24,11 @@ const preloadFonts = () => {
 
 // Wywołanie funkcji preładowania czcionek
 preloadFonts();
+
+// Inicjalizacja domyślnych tematów
+initializeDefaultTopics().catch(err => {
+  console.error('Nie udało się zainicjalizować tematów:', err);
+});
 
 createApp(App)
   .use(router)
