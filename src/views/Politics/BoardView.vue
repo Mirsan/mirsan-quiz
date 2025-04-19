@@ -18,6 +18,27 @@
       />
       <StatusPanel @stage-changed="handleStageChange" :session-id="sessionId" />
     </div>
+
+    <!-- Dialog końca gry -->
+    <v-dialog v-model="showEndGameDialog" persistent max-width="400">
+      <v-card>
+        <v-card-title class="text-h5 text-center pa-4">
+          Koniec głosowań
+        </v-card-title>
+        <v-card-text class="text-center pa-4">
+          Wyczerpano wszystkie tematy do głosowania.
+        </v-card-text>
+        <v-card-actions class="justify-center pa-4">
+          <v-btn
+            color="primary"
+            @click="goToStart"
+            size="large"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -29,6 +50,8 @@ import StatusPanel from '@/components/Politics/StatusPanel.vue'
 import { ref, onMounted, computed } from 'vue'
 import { db } from '@/firebase'
 import { ref as dbRef, onValue, set, get } from 'firebase/database'
+import { useRouter } from 'vue-router'
+import { useTopics } from '@/firebase/topics'
 
 export default {
   name: 'BoardView',
@@ -45,6 +68,9 @@ export default {
     }
   },
   setup(props) {
+    const router = useRouter()
+    const { topics } = useTopics()
+    const showEndGameDialog = ref(false)
     const contentOpacity = ref(0.9)
     const currentQuestion = ref(null)
     const gameStage = ref('waiting')
@@ -89,10 +115,22 @@ export default {
       return results;
     });
 
+    const goToStart = async () => {
+      await set(dbRef(db, `sessions/${props.sessionId}/status`), 'Pierwsze czytanie')
+      await set(dbRef(db, `sessions/${props.sessionId}/currentTopic`), { number: 1 })
+      await set(dbRef(db, `sessions/${props.sessionId}/votes`), {})
+      router.push('/')
+    }
+
     const handleStageChange = (newStage) => {
       console.log('Zmieniono etap na:', newStage)
       gameStage.value = newStage
       set(dbRef(db, `sessions/${props.sessionId}/status`), newStage)
+
+      // Sprawdź czy to ostatni temat i jesteśmy w etapie Podsumowanie
+      if (newStage === 'Podsumowanie' && currentTopicNumber.value >= topics.value.length) {
+        showEndGameDialog.value = true
+      }
     }
 
     const startVoting = async () => {
@@ -168,7 +206,9 @@ export default {
       startVoting,
       showResults,
       nextQuestion,
-      loadNextQuestion
+      loadNextQuestion,
+      showEndGameDialog,
+      goToStart
     }
   }
 }
