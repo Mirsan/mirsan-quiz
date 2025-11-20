@@ -378,6 +378,9 @@ export default defineComponent({
         // Jeśli oba wyniki są null, to jesteśmy w fazie przygotowawczej
         // W przeciwnym razie, traktuj to jak normalną utratę
         if (currentTeamScore === null && otherTeamScore === null) {
+          // Odtwarzamy dźwięk utraty
+          this.audioManager.playBad();
+          
           // Traktuj loss jak trafienie w 0 punktów w fazie przygotowawczej
           if (currentTeam === 1) {
             this.preparationPhaseTeam1Score = 0;
@@ -602,6 +605,9 @@ export default defineComponent({
             // Jeśli nie jesteśmy w fazie przygotowawczej (wyniki nie są null), 
             // kontynuuj normalną obsługę utraty poniżej
           }
+          
+          // Odtwarzamy dźwięk utraty
+          this.audioManager.playBad();
           
           // Normalna obsługa utraty
           if (this.activeTeam === 1) {
