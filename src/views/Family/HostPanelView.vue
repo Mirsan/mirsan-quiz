@@ -180,15 +180,25 @@ export default defineComponent({
     }
 
     // Inicjalizuj BroadcastChannel do synchronizacji
-    this.channel = new BroadcastChannel('family-game-sync');
-    
-    // Nasłuchuj aktualizacji stanu
-    this.channel.onmessage = (event) => {
-      this.handleStateUpdate(event.data);
-    };
+    try {
+      this.channel = new BroadcastChannel('family-game-sync');
+      
+      // Nasłuchuj aktualizacji stanu
+      this.channel.onmessage = (event) => {
+        this.handleStateUpdate(event.data);
+      };
+    } catch (error) {
+      console.warn('BroadcastChannel nie jest dostępny:', error);
+    }
 
     // Załaduj początkowy stan
     this.loadInitialState();
+    
+    // Jeśli nie ma stanu, załaduj pierwsze pytanie
+    if (!this.currentQuestion && this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
+      this.currentQuestionIndex = 0;
+      this.loadAnswersFromQuestionData();
+    }
   },
   beforeUnmount() {
     if (this.channel) {
@@ -211,6 +221,17 @@ export default defineComponent({
           this.updateState(state);
         } catch (error) {
           console.error('Błąd podczas ładowania stanu:', error);
+          // Jeśli nie udało się załadować stanu, załaduj pierwsze pytanie
+          if (this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
+            this.currentQuestionIndex = 0;
+            this.loadAnswersFromQuestionData();
+          }
+        }
+      } else {
+        // Jeśli nie ma stanu, załaduj pierwsze pytanie
+        if (this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
+          this.currentQuestionIndex = 0;
+          this.loadAnswersFromQuestionData();
         }
       }
     },
@@ -313,16 +334,27 @@ export default defineComponent({
             points: a.points || 0,
             pass: false
           }));
+        } else {
+          // Jeśli nie ma odpowiedzi, ustaw pustą tablicę
+          this.answers = [];
         }
+      } else {
+        // Jeśli nie ma danych pytania, ustaw domyślne wartości
+        this.currentQuestion = 'Brak pytania';
+        this.answers = [];
       }
     },
     selectAnswer(answerId) {
       // Wyślij akcję do głównego widoku
       if (this.channel) {
-        this.channel.postMessage({
-          type: 'action',
-          action: `show-answer-${answerId}`
-        });
+        try {
+          this.channel.postMessage({
+            type: 'action',
+            action: `show-answer-${answerId}`
+          });
+        } catch (error) {
+          console.warn('Nie udało się wysłać akcji przez BroadcastChannel:', error);
+        }
       }
     },
     handleLoss() {
@@ -340,10 +372,14 @@ export default defineComponent({
     handleAction(action) {
       // Wyślij akcję do głównego widoku
       if (this.channel) {
-        this.channel.postMessage({
-          type: 'action',
-          action: action
-        });
+        try {
+          this.channel.postMessage({
+            type: 'action',
+            action: action
+          });
+        } catch (error) {
+          console.warn('Nie udało się wysłać akcji przez BroadcastChannel:', error);
+        }
       }
     }
   }
