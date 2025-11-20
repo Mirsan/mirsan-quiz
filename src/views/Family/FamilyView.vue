@@ -536,6 +536,53 @@ export default defineComponent({
           if (this.showPointsAnnouncement) return;
           this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
+        case 'next':
+          // Nie działaj podczas fazy przygotowawczej lub gdy jest otwarty dialog BuzzCompetition
+          if (this.showBuzzCompetition || this.isPreparationPhase) return;
+          
+          // Jeśli jest otwarty dialog RoundComplete, zamknij go (przejście do następnej rundy)
+          if (this.showPointsAnnouncement) {
+            this.handleRoundCompleteClose(false);
+            return;
+          }
+          
+          // Jeśli wszystkie odpowiedzi są odkryte, pokaż dialog RoundComplete
+          if (this.results.every(r => r.pass)) {
+            if (this.victoryMethod === null && this.activeTeam) {
+              this.victoryMethod = 1;
+              if (this.activeTeam === 1) {
+                this.team1Points += this.currentPoints;
+              } else {
+                this.team2Points += this.currentPoints;
+              }
+              this.pointsAnnouncementTeam = this.activeTeam;
+            }
+            this.showPointsAnnouncement = true;
+            return;
+          }
+          
+          // Jeśli nie wszystkie odpowiedzi są odkryte, odkryj wszystkie odpowiedzi
+          if (this.results && this.results.length > 0 && this.activeTeam) {
+            this.results.forEach(result => {
+              if (!result.pass) {
+                result.pass = true;
+              }
+            });
+            // Po odkryciu wszystkich odpowiedzi, pokaż dialog RoundComplete
+            if (this.victoryMethod === null) {
+              this.victoryMethod = 1;
+              if (this.activeTeam === 1) {
+                this.team1Points += this.currentPoints;
+              } else {
+                this.team2Points += this.currentPoints;
+              }
+              this.pointsAnnouncementTeam = this.activeTeam;
+            }
+            setTimeout(() => {
+              this.showPointsAnnouncement = true;
+            }, 100);
+          }
+          break;
         case 'loss':
           if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
           if (!this.activeTeam) return;

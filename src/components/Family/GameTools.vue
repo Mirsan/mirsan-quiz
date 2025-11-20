@@ -193,6 +193,13 @@ export default {
           shortcut: '+'
         },
         {
+          icon: 'mdi-arrow-right',
+          color: 'blue',
+          tooltip: this.showKeyboardHints ? 'Dalej [Enter]' : 'Dalej',
+          action: 'next',
+          shortcut: 'Enter'
+        },
+        {
           icon: 'mdi-restart',
           color: 'red',
           tooltip: this.showKeyboardHints ? 'Zacznij od nowa [Backspace]' : 'Zacznij od nowa',
@@ -242,6 +249,7 @@ export default {
         '/': 'swap',
         '-': 'timer',
         '+': 'points',
+        'Enter': 'next',
         'Backspace': 'restart',
         'NumpadDivide': 'swap',      // Numpad /
         'NumpadSubtract': 'timer',   // Numpad -
