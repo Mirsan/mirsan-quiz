@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import FamilyView from '@/views/Family/FamilyView.vue'
 import StartFamilyView from '@/views/Family/StartFamilyView.vue'
+import HostPanelView from '@/views/Family/HostPanelView.vue'
 import BoardView from '@/views/Politics/BoardView.vue'
 import PoliticsStartView from '@/views/Politics/PoliticsStartView.vue'
 import PoliticianPanelView from '@/views/Politics/PoliticianPanelView.vue'
@@ -32,6 +33,20 @@ const routes = [
     path: '/start-family',
     name: 'start-family',
     component: StartFamilyView
+  },
+  {
+    path: '/family/host',
+    name: 'family-host',
+    component: HostPanelView,
+    beforeEnter: (to, from, next) => {
+      // Sprawdź czy mamy konfigurację w localStorage
+      const config = localStorage.getItem('familyGameConfig');
+      if (config) {
+        next(); // Pozwól przejść jeśli jest konfiguracja
+      } else {
+        next('/start-family'); // Przekieruj jeśli nie ma konfiguracji
+      }
+    }
   },
   {
     path: '/',

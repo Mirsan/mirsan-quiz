@@ -212,6 +212,7 @@ export default defineComponent({
       isPreparationPhase: false,
       preparationPhaseTeam1Score: null,
       preparationPhaseTeam2Score: null,
+      syncChannel: null,
     }
   },
   computed: {
@@ -245,6 +246,9 @@ export default defineComponent({
         questions: parsedConfig.questionsData
       };
       this.gameConfig = parsedConfig;
+      
+      // Inicjalizuj kanał synchronizacji
+      this.initSyncChannel();
       
       this.loadQuestion(0);
       
@@ -311,6 +315,8 @@ export default defineComponent({
         this.preparationPhaseTeam1Score = null;
         this.preparationPhaseTeam2Score = null;
         
+        this.syncState();
+        
         setTimeout(() => {
           this.showBuzzCompetition = true;
         }, 500);
@@ -340,6 +346,7 @@ export default defineComponent({
         
         if (newResults.length > 0 && newResults.length <= 10) {
           this.results = newResults;
+          this.syncState();
         } else {
           console.error('Nieprawidłowa liczba odpowiedzi:', newResults.length);
           this.results = [];
@@ -646,17 +653,64 @@ export default defineComponent({
     },
     handleBuzzClose() {
       this.showBuzzCompetition = false;
+    },
+    initSyncChannel() {
+      this.syncChannel = new BroadcastChannel('family-game-sync');
+      
+      // Nasłuchuj akcji z panelu prowadzącego
+      this.syncChannel.onmessage = (event) => {
+        if (event.data.type === 'action') {
+          this.handleToolAction(event.data.action);
+        }
+      };
+    },
+    syncState() {
+      if (!this.syncChannel) return;
+      
+      // Stwórz głęboką kopię danych, która może być sklonowana
+      const state = {
+        currentQuestion: this.currentQuestion || '',
+        question: this.question || '',
+        results: JSON.parse(JSON.stringify(this.results || [])),
+        round: this.round || 1,
+        currentPoints: this.currentPoints || 0,
+        activeTeam: this.activeTeam,
+        currentQuestionIndex: this.currentQuestionIndex || 0,
+        multiplierPoints: this.multiplierPoints || 1
+      };
+      
+      // Zapisz stan do localStorage (backup)
+      try {
+        localStorage.setItem('familyGameState', JSON.stringify(state));
+      } catch (error) {
+        console.warn('Nie udało się zapisać stanu do localStorage:', error);
+      }
+      
+      // Wyślij przez BroadcastChannel
+      try {
+        this.syncChannel.postMessage({
+          type: 'state-update',
+          state: state
+        });
+      } catch (error) {
+        console.error('Błąd podczas wysyłania stanu przez BroadcastChannel:', error);
+      }
     }
   },
   beforeUnmount() {
     this.cleanup();
+    if (this.syncChannel) {
+      this.syncChannel.close();
+    }
   },
-  watch: {
+    watch: {
     team1Loss() {
       this.checkLossCondition();
+      this.syncState();
     },
     team2Loss() {
       this.checkLossCondition();
+      this.syncState();
     },
     results: {
       deep: true,
@@ -664,13 +718,34 @@ export default defineComponent({
         if (this.team1Loss === 3 || this.team2Loss === 3) {
           this.checkLossCondition();
         }
+        this.syncState();
       }
     },
     team1Points() {
       this.checkGameEndCondition();
+      this.syncState();
     },
     team2Points() {
       this.checkGameEndCondition();
+      this.syncState();
+    },
+    question() {
+      this.syncState();
+    },
+    currentQuestion() {
+      this.syncState();
+    },
+    round() {
+      this.syncState();
+    },
+    activeTeam() {
+      this.syncState();
+    },
+    currentQuestionIndex() {
+      this.syncState();
+    },
+    multiplierPoints() {
+      this.syncState();
     }
   }
 });
