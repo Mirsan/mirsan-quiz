@@ -39,13 +39,28 @@ const routes = [
     name: 'family-host',
     component: HostPanelView,
     beforeEnter: (to, from, next) => {
-      // Sprawdź czy mamy konfigurację w localStorage
+      // Sprawdź czy mamy konfigurację w localStorage lub sessionId w URL
       const config = localStorage.getItem('familyGameConfig');
-      if (config) {
-        next(); // Pozwól przejść jeśli jest konfiguracja
+      const sessionId = to.params.sessionId || to.query.sessionId;
+      
+      if (config || sessionId) {
+        next(); // Pozwól przejść jeśli jest konfiguracja lub sessionId
       } else {
         next('/start-family'); // Przekieruj jeśli nie ma konfiguracji
       }
+    }
+  },
+  {
+    path: '/family/host/:sessionId',
+    name: 'family-host-session',
+    component: HostPanelView,
+    beforeEnter: (to, from, next) => {
+      // Zapisz sessionId w localStorage, jeśli nie ma konfiguracji
+      const config = localStorage.getItem('familyGameConfig');
+      if (!config && to.params.sessionId) {
+        localStorage.setItem('familyGameSessionId', to.params.sessionId);
+      }
+      next();
     }
   },
   {

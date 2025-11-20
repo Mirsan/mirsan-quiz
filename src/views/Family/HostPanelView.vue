@@ -94,6 +94,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { setupFamilyGameStateListener, sendFamilyGameAction, getFamilyGameSession } from '@/firebase/familyGameSession';
 
 export default defineComponent({
   name: 'HostPanelView',
@@ -113,6 +114,8 @@ export default defineComponent({
       team2Loss: 0,
       team1Name: '',
       team2Name: '',
+      sessionId: null,
+      firebaseStateUnsubscribe: null,
     }
   },
   computed: {
@@ -153,16 +156,55 @@ export default defineComponent({
       return '';
     }
   },
-  created() {
+  async created() {
     // Sprawdź czy gra jest uruchomiona
-    const config = localStorage.getItem('familyGameConfig');
-    if (!config) {
+    let config = localStorage.getItem('familyGameConfig');
+    let parsedConfig = null;
+    
+    // Pobierz sessionId z route params, query lub localStorage
+    const routeSessionId = this.$route.params.sessionId || this.$route.query.sessionId;
+    this.sessionId = routeSessionId || localStorage.getItem('familyGameSessionId');
+    
+    // Jeśli nie ma konfiguracji lokalnej, ale mamy sessionId, pobierz z Firebase
+    if (!config && this.sessionId) {
+      try {
+        const session = await getFamilyGameSession(this.sessionId);
+        if (session && session.config) {
+          // Utwórz konfigurację z danych sesji
+          parsedConfig = {
+            ...session.config,
+            sessionId: this.sessionId
+          };
+          // Zapisz w localStorage dla przyszłego użycia
+          localStorage.setItem('familyGameConfig', JSON.stringify(parsedConfig));
+        } else {
+          this.$router.push('/start-family');
+          return;
+        }
+      } catch (error) {
+        console.error('Błąd podczas pobierania sesji z Firebase:', error);
+        this.$router.push('/start-family');
+        return;
+      }
+    } else if (config) {
+      try {
+        parsedConfig = JSON.parse(config);
+        // Upewnij się, że sessionId jest w konfiguracji
+        if (!parsedConfig.sessionId && this.sessionId) {
+          parsedConfig.sessionId = this.sessionId;
+          localStorage.setItem('familyGameConfig', JSON.stringify(parsedConfig));
+        }
+        this.sessionId = parsedConfig.sessionId || this.sessionId;
+      } catch (error) {
+        this.$router.push('/start-family');
+        return;
+      }
+    } else {
       this.$router.push('/start-family');
       return;
     }
 
     try {
-      const parsedConfig = JSON.parse(config);
       this.gameConfig = parsedConfig;
       this.questionsData = {
         questions: parsedConfig.questionsData
@@ -179,16 +221,30 @@ export default defineComponent({
       return;
     }
 
-    // Inicjalizuj BroadcastChannel do synchronizacji
+    // Inicjalizuj BroadcastChannel do synchronizacji (lokalna synchronizacja)
     try {
       this.channel = new BroadcastChannel('family-game-sync');
       
-      // Nasłuchuj aktualizacji stanu
+      // Nasłuchuj aktualizacji stanu przez BroadcastChannel
       this.channel.onmessage = (event) => {
-        this.handleStateUpdate(event.data);
+        if (event.data.type === 'state-update') {
+          this.handleStateUpdate(event.data);
+        }
       };
     } catch (error) {
       console.warn('BroadcastChannel nie jest dostępny:', error);
+    }
+    
+    // Firebase dla synchronizacji między urządzeniami
+    if (this.sessionId) {
+      try {
+        // Nasłuchuj zmian stanu z Firebase
+        this.firebaseStateUnsubscribe = setupFamilyGameStateListener(this.sessionId, (state) => {
+          this.updateState(state);
+        });
+      } catch (error) {
+        console.error('Błąd podczas inicjalizacji Firebase listenera stanu:', error);
+      }
     }
 
     // Załaduj początkowy stan
@@ -203,6 +259,9 @@ export default defineComponent({
   beforeUnmount() {
     if (this.channel) {
       this.channel.close();
+    }
+    if (this.firebaseStateUnsubscribe) {
+      this.firebaseStateUnsubscribe();
     }
   },
   methods: {
@@ -344,16 +403,27 @@ export default defineComponent({
         this.answers = [];
       }
     },
-    selectAnswer(answerId) {
-      // Wyślij akcję do głównego widoku
+    async selectAnswer(answerId) {
+      const action = `show-answer-${answerId}`;
+      
+      // Wyślij przez BroadcastChannel (lokalna synchronizacja)
       if (this.channel) {
         try {
           this.channel.postMessage({
             type: 'action',
-            action: `show-answer-${answerId}`
+            action: action
           });
         } catch (error) {
           console.warn('Nie udało się wysłać akcji przez BroadcastChannel:', error);
+        }
+      }
+      
+      // Wyślij przez Firebase (synchronizacja między urządzeniami)
+      if (this.sessionId) {
+        try {
+          await sendFamilyGameAction(this.sessionId, action);
+        } catch (error) {
+          console.error('Nie udało się wysłać akcji przez Firebase:', error);
         }
       }
     },
@@ -369,8 +439,8 @@ export default defineComponent({
       // Wyślij akcję cofnięcia utraty do głównego widoku
       this.handleAction('undo-loss');
     },
-    handleAction(action) {
-      // Wyślij akcję do głównego widoku
+    async handleAction(action) {
+      // Wyślij przez BroadcastChannel (lokalna synchronizacja)
       if (this.channel) {
         try {
           this.channel.postMessage({
@@ -379,6 +449,15 @@ export default defineComponent({
           });
         } catch (error) {
           console.warn('Nie udało się wysłać akcji przez BroadcastChannel:', error);
+        }
+      }
+      
+      // Wyślij przez Firebase (synchronizacja między urządzeniami)
+      if (this.sessionId) {
+        try {
+          await sendFamilyGameAction(this.sessionId, action);
+        } catch (error) {
+          console.error('Nie udało się wysłać akcji przez Firebase:', error);
         }
       }
     }

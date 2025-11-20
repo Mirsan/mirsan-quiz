@@ -26,6 +26,62 @@
       :showKeyboardHints="gameConfig?.showKeyboardHints"
       @team-selected="handleTeamSelected"
     />
+    
+    <!-- Dialog z QR kodem do panelu hosta -->
+    <v-dialog
+      v-model="showHostPanelDialog"
+      persistent
+      max-width="500"
+    >
+      <v-card class="text-center pa-4" style="background-color: #000; background-image: radial-gradient(#333 2px, transparent 3px); background-size: 10px 10px;">
+        <v-card-title class="text-h4 mb-4" style="color: yellow; font-family: 'PixelFont';">
+          Panel Hosta
+        </v-card-title>
+        
+        <v-card-text>
+          <p class="mb-4" style="color: yellow; font-family: 'PixelFont';">
+            Zeskanuj kod QR lub otwórz link na telefonie:
+          </p>
+          
+          <div v-if="hostPanelUrl" class="mb-4">
+            <qrcode-vue :value="hostPanelUrl" :size="250" level="H" />
+          </div>
+          <div v-else class="mb-4">
+            <v-progress-circular indeterminate color="yellow" size="64"></v-progress-circular>
+          </div>
+          
+          <div class="mb-4">
+            <a
+              v-if="hostPanelUrl"
+              :href="hostPanelUrl"
+              target="_blank"
+              style="color: yellow; text-decoration: underline; word-break: break-all; font-family: 'PixelFont';"
+            >
+              {{ hostPanelUrl }}
+            </a>
+          </div>
+        </v-card-text>
+        
+        <v-card-actions class="justify-center pa-4">
+          <v-btn
+            color="yellow"
+            @click="goToGame"
+            size="large"
+            style="font-family: 'PixelFont';"
+          >
+            Rozpocznij grę
+          </v-btn>
+          <v-btn
+            color="grey"
+            @click="showHostPanelDialog = false"
+            size="large"
+            style="font-family: 'PixelFont';"
+          >
+            Zamknij
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -35,12 +91,15 @@ import StarterPanel from '@/components/Family/StarterPanel.vue';
 import BuzzCompetition from '@/components/Family/BuzzCompetition.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useAudioManager } from '@/composables/useAudioManager';
+import { createFamilyGameSession } from '@/firebase/familyGameSession';
+import QrcodeVue from 'qrcode.vue';
 
 export default defineComponent({
   name: 'StartFamilyView',
   components: {
     StarterPanel,
-    BuzzCompetition
+    BuzzCompetition,
+    QrcodeVue
   },
   data() {
     return {
@@ -53,7 +112,15 @@ export default defineComponent({
       team2Name: '',
       bluetoothError: null,
       isConnecting: false,
-      gameConfig: null
+      gameConfig: null,
+      sessionId: null,
+      showHostPanelDialog: false
+    }
+  },
+  computed: {
+    hostPanelUrl() {
+      if (!this.sessionId) return '';
+      return `${window.location.origin}/mirsan-quiz/#/family/host/${this.sessionId}`;
     }
   },
   setup() {
@@ -195,8 +262,13 @@ export default defineComponent({
           showKeyboardHints: config.showKeyboardHints
         };
 
-        // Zapisz konfigurację
+        // Utwórz sesję Firebase
+        this.sessionId = await createFamilyGameSession(fullConfig);
+        fullConfig.sessionId = this.sessionId;
+
+        // Zapisz konfigurację z sessionId
         localStorage.setItem('familyGameConfig', JSON.stringify(fullConfig));
+        localStorage.setItem('familyGameSessionId', this.sessionId);
 
         // Zapisz stan Bluetooth
         if (this.bluetoothDevice) {
@@ -209,14 +281,8 @@ export default defineComponent({
           this.bluetoothDevice.removeEventListener('gattserverdisconnected', this.handleDisconnection);
         }
 
-        // Zmiana sposobu nawigacji
-        try {
-          await this.$router.replace('/family');
-        } catch (navigationError) {
-          console.error('Błąd nawigacji:', navigationError);
-          // Spróbuj alternatywną metodę
-          window.location.href = '/family';
-        }
+        // Pokaż dialog z QR kodem do panelu hosta
+        this.showHostPanelDialog = true;
         
       } catch (error) {
         console.error('Szczegółowy błąd:', error);
@@ -242,6 +308,17 @@ export default defineComponent({
         [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
+    },
+    goToGame() {
+      this.showHostPanelDialog = false;
+      // Zmiana sposobu nawigacji
+      try {
+        this.$router.replace('/family');
+      } catch (navigationError) {
+        console.error('Błąd nawigacji:', navigationError);
+        // Spróbuj alternatywną metodę
+        window.location.href = '/family';
+      }
     }
   },
   beforeUnmount() {

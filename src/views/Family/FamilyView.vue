@@ -162,6 +162,7 @@ import EndGame from '@/components/Family/EndGame.vue';
 import backgroundVideo from '@/assets/video/background.mp4'
 import { useBluetooth } from '@/composables/useBluetooth';
 import { useAudioManager } from '@/composables/useAudioManager';
+import { updateFamilyGameState, setupFamilyGameActionListener } from '@/firebase/familyGameSession';
 
 export default defineComponent({
   name: 'FamilyView',
@@ -213,6 +214,8 @@ export default defineComponent({
       preparationPhaseTeam1Score: null,
       preparationPhaseTeam2Score: null,
       syncChannel: null,
+      sessionId: null,
+      firebaseActionUnsubscribe: null,
     }
   },
   computed: {
@@ -247,7 +250,10 @@ export default defineComponent({
       };
       this.gameConfig = parsedConfig;
       
-      // Inicjalizuj kanał synchronizacji
+      // Pobierz sessionId
+      this.sessionId = parsedConfig.sessionId || localStorage.getItem('familyGameSessionId');
+      
+      // Inicjalizuj kanał synchronizacji (BroadcastChannel + Firebase)
       this.initSyncChannel();
       
       this.loadQuestion(0);
@@ -708,17 +714,33 @@ export default defineComponent({
       this.showBuzzCompetition = false;
     },
     initSyncChannel() {
-      this.syncChannel = new BroadcastChannel('family-game-sync');
+      // BroadcastChannel dla lokalnej synchronizacji (fallback)
+      try {
+        this.syncChannel = new BroadcastChannel('family-game-sync');
+        
+        // Nasłuchuj akcji z panelu prowadzącego przez BroadcastChannel
+        this.syncChannel.onmessage = (event) => {
+          if (event.data.type === 'action') {
+            this.handleToolAction(event.data.action);
+          }
+        };
+      } catch (error) {
+        console.warn('BroadcastChannel nie jest dostępny:', error);
+      }
       
-      // Nasłuchuj akcji z panelu prowadzącego
-      this.syncChannel.onmessage = (event) => {
-        if (event.data.type === 'action') {
-          this.handleToolAction(event.data.action);
+      // Firebase dla synchronizacji między urządzeniami
+      if (this.sessionId) {
+        try {
+          // Nasłuchuj akcji z Firebase
+          this.firebaseActionUnsubscribe = setupFamilyGameActionListener(this.sessionId, (action) => {
+            this.handleToolAction(action);
+          });
+        } catch (error) {
+          console.error('Błąd podczas inicjalizacji Firebase listenera:', error);
         }
-      };
+      }
     },
-    syncState() {
-      if (!this.syncChannel) return;
+    async syncState() {
       
       try {
         // Najpierw serializuj results do JSON, żeby usunąć reaktywność Vue
@@ -759,22 +781,39 @@ export default defineComponent({
           console.warn('Nie udało się zapisać stanu do localStorage:', error);
         }
         
-        // Wyślij przez BroadcastChannel - użyj JSON do pełnej serializacji
-        const message = JSON.parse(JSON.stringify({
-          type: 'state-update',
-          state: stateData
-        }));
+        // Wyślij przez BroadcastChannel (lokalna synchronizacja)
+        if (this.syncChannel) {
+          try {
+            const message = JSON.parse(JSON.stringify({
+              type: 'state-update',
+              state: stateData
+            }));
+            this.syncChannel.postMessage(message);
+          } catch (error) {
+            console.warn('Błąd podczas wysyłania przez BroadcastChannel:', error);
+          }
+        }
         
-        this.syncChannel.postMessage(message);
+        // Wyślij przez Firebase (synchronizacja między urządzeniami)
+        if (this.sessionId) {
+          try {
+            await updateFamilyGameState(this.sessionId, stateData);
+          } catch (error) {
+            console.error('Błąd podczas synchronizacji stanu do Firebase:', error);
+          }
+        }
       } catch (error) {
         console.error('Błąd podczas synchronizacji stanu:', error);
       }
-    }
+    },
   },
   beforeUnmount() {
     this.cleanup();
     if (this.syncChannel) {
       this.syncChannel.close();
+    }
+    if (this.firebaseActionUnsubscribe) {
+      this.firebaseActionUnsubscribe();
     }
   },
     watch: {
