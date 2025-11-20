@@ -1,5 +1,12 @@
 <template>
   <div class="host-panel-view">
+    <div class="round-badge">
+      Runda {{ round }}
+    </div>
+    <div v-if="activeTeam" class="active-team-badge" :class="`team-${activeTeam}`">
+      <div class="team-color-indicator" :class="`team-${activeTeam}`"></div>
+      <div class="team-name">{{ activeTeamName }}</div>
+    </div>
     <v-container fluid class="host-container">
       <v-row class="question-row" no-gutters>
         <v-col cols="12">
@@ -9,14 +16,15 @@
         </v-col>
       </v-row>
 
-      <v-row class="answers-row" no-gutters>
-        <v-col 
-          v-for="answer in answers" 
-          :key="answer.id"
-          :cols="getAnswerCols()"
-          class="answer-col"
+      <div class="answers-container">
+        <div 
+          v-for="(column, colIndex) in answerColumns" 
+          :key="`col-${colIndex}`"
+          class="answer-column"
         >
           <v-card
+            v-for="answer in column"
+            :key="`answer-${answer.id}`"
             :class="['answer-card', { 'answer-selected': answer.pass, 'answer-available': !answer.pass }]"
             @click="selectAnswer(answer.id)"
             :disabled="answer.pass"
@@ -28,34 +36,58 @@
               <div class="answer-points">{{ answer.points }} pkt</div>
             </v-card-text>
           </v-card>
-        </v-col>
-      </v-row>
+        </div>
+      </div>
 
-      <v-row class="controls-row" no-gutters>
-        <v-col cols="12" class="d-flex justify-center align-center">
-          <v-btn
-            color="red"
-            size="x-large"
-            class="loss-button"
-            @click="handleLoss"
-            :disabled="!activeTeam"
-          >
-            <v-icon left>mdi-close-circle</v-icon>
-            UTRATA
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <v-row class="info-row" no-gutters>
-        <v-col cols="6" class="text-center">
-          <div class="info-label">Runda</div>
-          <div class="info-value">{{ round }}</div>
-        </v-col>
-        <v-col cols="6" class="text-center">
-          <div class="info-label">Aktualne punkty</div>
-          <div class="info-value">{{ currentPoints || calculatedPoints }}</div>
-        </v-col>
-      </v-row>
+      <div class="controls-container">
+        <v-btn
+          color="green"
+          size="large"
+          class="control-button"
+          @click="handleAction('swap')"
+        >
+          <v-icon left>mdi-swap-horizontal</v-icon>
+          Zmiana drużyny
+        </v-btn>
+        <v-btn
+          color="orange"
+          size="large"
+          class="control-button"
+          @click="handleAction('timer')"
+        >
+          <v-icon left>mdi-timer</v-icon>
+          Timer
+        </v-btn>
+        <v-btn
+          color="yellow"
+          size="large"
+          class="control-button"
+          @click="handleAction('points')"
+        >
+          <v-icon left>mdi-numeric</v-icon>
+          Punkty (x{{ multiplierPoints }})
+        </v-btn>
+        <v-btn
+          color="blue"
+          size="large"
+          class="control-button undo-loss-button"
+          @click="handleUndoLoss"
+          :disabled="!canUndoLoss"
+        >
+          <v-icon left>mdi-undo</v-icon>
+          Cofnij utratę
+        </v-btn>
+        <v-btn
+          color="red"
+          size="large"
+          class="control-button loss-button"
+          @click="handleLoss"
+          :disabled="!activeTeam"
+        >
+          <v-icon left>mdi-close-circle</v-icon>
+          UTRATA
+        </v-btn>
+      </div>
     </v-container>
   </div>
 </template>
@@ -77,17 +109,23 @@ export default defineComponent({
       currentQuestionIndex: 0,
       multiplierPoints: 1,
       channel: null,
+      team1Loss: 0,
+      team2Loss: 0,
+      team1Name: '',
+      team2Name: '',
     }
   },
   computed: {
-    getAnswerCols() {
-      return () => {
-        const count = this.answers.length;
-        if (count <= 2) return 6;
-        if (count <= 4) return 6;
-        if (count <= 6) return 4;
-        return 3;
+    answerColumns() {
+      // Podziel odpowiedzi na kolumny po 2 odpowiedzi każda
+      if (!this.answers || this.answers.length === 0) {
+        return [];
       }
+      const columns = [];
+      for (let i = 0; i < this.answers.length; i += 2) {
+        columns.push(this.answers.slice(i, i + 2));
+      }
+      return columns;
     },
     calculatedPoints() {
       // Oblicz punkty na podstawie odkrytych odpowiedzi i mnożnika
@@ -95,6 +133,24 @@ export default defineComponent({
         .filter(item => item.pass)
         .reduce((acc, item) => acc + item.points, 0);
       return revealedPoints * this.multiplierPoints;
+    },
+    canUndoLoss() {
+      // Można cofnąć utratę tylko jeśli jest aktywny zespół i ma co najmniej 1 utratę
+      if (!this.activeTeam) return false;
+      if (this.activeTeam === 1) {
+        return this.team1Loss > 0;
+      } else if (this.activeTeam === 2) {
+        return this.team2Loss > 0;
+      }
+      return false;
+    },
+    activeTeamName() {
+      if (this.activeTeam === 1) {
+        return this.team1Name || 'Drużyna 1';
+      } else if (this.activeTeam === 2) {
+        return this.team2Name || 'Drużyna 2';
+      }
+      return '';
     }
   },
   created() {
@@ -111,6 +167,13 @@ export default defineComponent({
       this.questionsData = {
         questions: parsedConfig.questionsData
       };
+      // Załaduj nazwy drużyn z konfiguracji
+      if (parsedConfig.team1Name) {
+        this.team1Name = parsedConfig.team1Name;
+      }
+      if (parsedConfig.team2Name) {
+        this.team2Name = parsedConfig.team2Name;
+      }
     } catch (error) {
       this.$router.push('/start-family');
       return;
@@ -219,6 +282,18 @@ export default defineComponent({
       if (state.multiplierPoints !== undefined) {
         this.multiplierPoints = state.multiplierPoints;
       }
+      if (state.team1Loss !== undefined) {
+        this.team1Loss = state.team1Loss;
+      }
+      if (state.team2Loss !== undefined) {
+        this.team2Loss = state.team2Loss;
+      }
+      if (state.team1Name !== undefined) {
+        this.team1Name = state.team1Name;
+      }
+      if (state.team2Name !== undefined) {
+        this.team2Name = state.team2Name;
+      }
     },
     loadAnswersFromQuestionData() {
       // Załaduj wszystkie odpowiedzi dla aktualnego pytania
@@ -254,10 +329,20 @@ export default defineComponent({
       if (!this.activeTeam) return;
       
       // Wyślij akcję utraty do głównego widoku
+      this.handleAction('loss');
+    },
+    handleUndoLoss() {
+      if (!this.canUndoLoss) return;
+      
+      // Wyślij akcję cofnięcia utraty do głównego widoku
+      this.handleAction('undo-loss');
+    },
+    handleAction(action) {
+      // Wyślij akcję do głównego widoku
       if (this.channel) {
         this.channel.postMessage({
           type: 'action',
-          action: 'loss'
+          action: action
         });
       }
     }
@@ -273,6 +358,76 @@ export default defineComponent({
   background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.round-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffeb3b;
+  font-family: 'PixelFont', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 235, 59, 0.3);
+  z-index: 10;
+  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+}
+
+.active-team-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  font-family: 'PixelFont', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid;
+}
+
+.active-team-badge.team-1 {
+  color: #4a9eff;
+  border-color: rgba(74, 158, 255, 0.5);
+  text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+.active-team-badge.team-2 {
+  color: #ff4a4a;
+  border-color: rgba(255, 74, 74, 0.5);
+  text-shadow: 0 0 10px rgba(255, 74, 74, 0.5);
+}
+
+.team-color-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+.team-color-indicator.team-1 {
+  background-color: rgba(0, 0, 255, 0.8);
+  border-color: rgba(74, 158, 255, 0.8);
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.6);
+}
+
+.team-color-indicator.team-2 {
+  background-color: rgba(255, 0, 0, 0.8);
+  border-color: rgba(255, 74, 74, 0.8);
+  box-shadow: 0 0 10px rgba(255, 74, 74, 0.6);
+}
+
+.team-name {
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .host-container {
@@ -280,6 +435,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   padding: 16px;
+  padding-bottom: 80px; /* Miejsce na przyciski na dole */
 }
 
 .question-row {
@@ -304,26 +460,35 @@ export default defineComponent({
   word-wrap: break-word;
 }
 
-.answers-row {
+.answers-container {
   flex: 1 1 auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-  align-content: flex-start;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  min-height: 0;
+  align-items: flex-start;
 }
 
-.answer-col {
-  padding: 6px;
+.answer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .answer-card {
-  height: 100%;
-  min-height: 120px;
+  width: 100%;
+  min-width: 150px;
+  max-width: 200px;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 3px solid transparent;
   background: rgba(0, 0, 0, 0.4) !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .answer-card.answer-available {
@@ -389,61 +554,156 @@ export default defineComponent({
   font-weight: bold;
 }
 
-.controls-row {
-  flex: 0 0 auto;
-  margin-bottom: 16px;
+.controls-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 100;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.loss-button {
-  min-width: 200px;
-  height: 60px;
-  font-size: 1.5rem;
+.control-button {
+  min-width: 120px;
+  height: 48px;
+  font-size: 0.9rem;
   font-weight: bold;
   font-family: 'PixelFont', monospace;
   text-transform: uppercase;
-}
-
-.info-row {
   flex: 0 0 auto;
 }
 
-.info-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9rem;
-  font-family: 'PixelFont', monospace;
-  margin-bottom: 4px;
+.loss-button {
+  min-width: 140px;
 }
 
-.info-value {
-  color: #ffeb3b;
-  font-size: 1.5rem;
-  font-weight: bold;
-  font-family: 'PixelFont', monospace;
+.undo-loss-button {
+  min-width: 160px;
 }
 
-/* Responsywność dla różnych rozmiarów ekranów */
-@media (max-width: 600px) {
+/* Orientacja pozioma (landscape) - mobile */
+@media (orientation: landscape) and (max-height: 600px) {
+  .round-badge {
+    top: 8px;
+    left: 8px;
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
+  
+  .active-team-badge {
+    top: 8px;
+    right: 8px;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  
+  .team-color-indicator {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .team-name {
+    font-size: 0.9rem;
+  }
+  
+  .host-container {
+    padding: 8px;
+    padding-bottom: 70px;
+  }
+  
+  .question-row {
+    margin-bottom: 8px;
+    flex: 0 0 auto;
+  }
+  
+  .question-display {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
   .question-text {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    line-height: 1.3;
+  }
+  
+  .answers-container {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .answer-column {
+    gap: 6px;
   }
   
   .answer-card {
-    min-height: 100px;
+    min-width: 120px;
+    max-width: 160px;
+  }
+  
+  .answer-content {
+    padding: 8px !important;
   }
   
   .answer-number {
-    font-size: 1.5rem;
+    font-size: 1rem;
+    margin-bottom: 2px;
   }
   
   .answer-text {
-    font-size: 1rem;
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+  
+  .answer-points {
+    font-size: 0.7rem;
+  }
+  
+  .controls-container {
+    padding: 8px;
+  }
+  
+  .control-button {
+    min-width: 100px;
+    height: 40px;
+    font-size: 0.75rem;
+    padding: 0 8px;
+  }
+  
+  .loss-button {
+    min-width: 110px;
+  }
+  
+  .undo-loss-button {
+    min-width: 130px;
   }
 }
 
-/* Orientacja pozioma (landscape) */
-@media (orientation: landscape) {
+/* Responsywność dla większych ekranów w orientacji poziomej */
+@media (orientation: landscape) and (min-height: 601px) {
+  .round-badge {
+    top: 12px;
+    left: 12px;
+    font-size: 1.2rem;
+  }
+  
+  .active-team-badge {
+    top: 12px;
+    right: 12px;
+    font-size: 1.1rem;
+  }
+  
   .host-container {
     padding: 12px;
+    padding-bottom: 80px;
   }
   
   .question-row {
@@ -455,7 +715,7 @@ export default defineComponent({
   }
   
   .answer-card {
-    min-height: 80px;
+    min-height: auto;
   }
   
   .answer-number {
@@ -472,10 +732,33 @@ export default defineComponent({
     font-size: 0.8rem;
   }
   
-  .loss-button {
-    min-width: 150px;
-    height: 50px;
-    font-size: 1.2rem;
+  .controls-container {
+    padding: 12px;
+  }
+  
+  .control-button {
+    min-width: 130px;
+    height: 45px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Responsywność dla portretu (portrait) */
+@media (orientation: portrait) and (max-width: 600px) {
+  .question-text {
+    font-size: 1.5rem;
+  }
+  
+  .answer-card {
+    min-height: 100px;
+  }
+  
+  .answer-number {
+    font-size: 1.5rem;
+  }
+  
+  .answer-text {
+    font-size: 1rem;
   }
 }
 </style>

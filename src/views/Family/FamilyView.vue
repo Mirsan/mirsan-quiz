@@ -359,35 +359,45 @@ export default defineComponent({
     handleToolAction(action) {
       if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
       
-      if (action === 'loss' && this.isPreparationPhase) {
+      // Obsługa loss w fazie przygotowawczej - tylko jeśli faktycznie jesteśmy w tej fazie
+      // i mamy aktywną drużynę oraz wyniki przygotowawcze są null (pierwsza odpowiedź)
+      if (action === 'loss' && this.isPreparationPhase && this.activeTeam) {
         const currentTeam = this.activeTeam;
         const otherTeam = currentTeam === 1 ? 2 : 1;
         
-        // Traktuj loss jak trafienie w 0 punktów
-        if (currentTeam === 1) {
-          this.preparationPhaseTeam1Score = 0;
-        } else {
-          this.preparationPhaseTeam2Score = 0;
-        }
-
+        // Sprawdź czy to faktycznie faza przygotowawcza (czy wyniki są null)
+        const currentTeamScore = currentTeam === 1 ? this.preparationPhaseTeam1Score : this.preparationPhaseTeam2Score;
         const otherTeamScore = currentTeam === 1 ? this.preparationPhaseTeam2Score : this.preparationPhaseTeam1Score;
+        
+        // Jeśli oba wyniki są null, to jesteśmy w fazie przygotowawczej
+        // W przeciwnym razie, traktuj to jak normalną utratę
+        if (currentTeamScore === null && otherTeamScore === null) {
+          // Traktuj loss jak trafienie w 0 punktów w fazie przygotowawczej
+          if (currentTeam === 1) {
+            this.preparationPhaseTeam1Score = 0;
+          } else {
+            this.preparationPhaseTeam2Score = 0;
+          }
 
-        // Jeśli to pierwsza odpowiedź
-        if (otherTeamScore === null) {
+          // Jeśli to pierwsza odpowiedź
+          if (otherTeamScore === null) {
+            this.activeTeam = otherTeam;
+            return;
+          }
+
+          // Jeśli poprzednia drużyna trafiła (ma punkty)
+          if (otherTeamScore > 0) {
+            this.isPreparationPhase = false;
+            this.activeTeam = otherTeam; // Poprzednia drużyna wygrywa, bo ma więcej niż 0
+            return;
+          }
+
+          // Jeśli obie drużyny spudłowały - kontynuujemy
           this.activeTeam = otherTeam;
           return;
         }
-
-        // Jeśli poprzednia drużyna trafiła (ma punkty)
-        if (otherTeamScore > 0) {
-          this.isPreparationPhase = false;
-          this.activeTeam = otherTeam; // Poprzednia drużyna wygrywa, bo ma więcej niż 0
-          return;
-        }
-
-        // Jeśli obie drużyny spudłowały - kontynuujemy
-        this.activeTeam = otherTeam;
-        return;
+        // Jeśli nie jesteśmy w fazie przygotowawczej (wyniki nie są null), 
+        // przejdź do normalnej obsługi utraty w switch case
       }
 
       if (action.startsWith('show-answer-')) {
@@ -522,8 +532,25 @@ export default defineComponent({
           break;
         case 'loss':
           if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
+          if (!this.activeTeam) return;
           if (this.team1Loss + this.team2Loss >= 4) return;
           
+          // Jeśli jesteśmy w fazie przygotowawczej i oba wyniki są null (pierwsza odpowiedź),
+          // to loss jest obsługiwane wcześniej. W przeciwnym razie dajemy normalną utratę.
+          if (this.isPreparationPhase) {
+            const currentTeamScore = this.activeTeam === 1 ? this.preparationPhaseTeam1Score : this.preparationPhaseTeam2Score;
+            const otherTeamScore = this.activeTeam === 1 ? this.preparationPhaseTeam2Score : this.preparationPhaseTeam1Score;
+            
+            // Jeśli oba wyniki są null, to jesteśmy w fazie przygotowawczej i loss jest obsługiwane wcześniej
+            if (currentTeamScore === null && otherTeamScore === null) {
+              // Loss jest obsługiwane wcześniej w fazie przygotowawczej
+              return;
+            }
+            // Jeśli nie jesteśmy w fazie przygotowawczej (wyniki nie są null), 
+            // kontynuuj normalną obsługę utraty poniżej
+          }
+          
+          // Normalna obsługa utraty
           if (this.activeTeam === 1) {
             this.team1Loss++;
             if (this.team1Loss + this.team2Loss >= 4) {
@@ -543,6 +570,32 @@ export default defineComponent({
             
             if (this.team2Loss === 3) {
               this.activeTeam = 1;
+            }
+          }
+          break;
+        case 'undo-loss':
+          if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
+          if (!this.activeTeam) return;
+          
+          if (this.activeTeam === 1) {
+            if (this.team1Loss > 0) {
+              const hadThreeLosses = this.team1Loss === 3;
+              this.team1Loss--;
+              
+              // Jeśli zespół miał 3 utraty i teraz ma 2, przywróć poprzedni aktywny zespół (przeciwny)
+              if (hadThreeLosses && this.team1Loss === 2) {
+                this.activeTeam = 2;
+              }
+            }
+          } else if (this.activeTeam === 2) {
+            if (this.team2Loss > 0) {
+              const hadThreeLosses = this.team2Loss === 3;
+              this.team2Loss--;
+              
+              // Jeśli zespół miał 3 utraty i teraz ma 2, przywróć poprzedni aktywny zespół (przeciwny)
+              if (hadThreeLosses && this.team2Loss === 2) {
+                this.activeTeam = 1;
+              }
             }
           }
           break;
@@ -667,33 +720,54 @@ export default defineComponent({
     syncState() {
       if (!this.syncChannel) return;
       
-      // Stwórz głęboką kopię danych, która może być sklonowana
-      const state = {
-        currentQuestion: this.currentQuestion || '',
-        question: this.question || '',
-        results: JSON.parse(JSON.stringify(this.results || [])),
-        round: this.round || 1,
-        currentPoints: this.currentPoints || 0,
-        activeTeam: this.activeTeam,
-        currentQuestionIndex: this.currentQuestionIndex || 0,
-        multiplierPoints: this.multiplierPoints || 1
-      };
-      
-      // Zapisz stan do localStorage (backup)
       try {
-        localStorage.setItem('familyGameState', JSON.stringify(state));
-      } catch (error) {
-        console.warn('Nie udało się zapisać stanu do localStorage:', error);
-      }
-      
-      // Wyślij przez BroadcastChannel
-      try {
-        this.syncChannel.postMessage({
+        // Najpierw serializuj results do JSON, żeby usunąć reaktywność Vue
+        let serializedResults = [];
+        if (this.results && Array.isArray(this.results)) {
+          serializedResults = this.results.map(r => {
+            // Upewnij się, że wszystkie wartości są prostymi typami
+            return {
+              id: Number(r.id) || 0,
+              name: String(r.name || ''),
+              points: Number(r.points) || 0,
+              pass: Boolean(r.pass) || false
+            };
+          });
+        }
+        
+        // Stwórz głęboką kopię danych, która może być sklonowana
+        // Użyj JSON.parse/stringify do pełnej serializacji
+        const stateData = {
+          currentQuestion: String(this.currentQuestion || ''),
+          question: String(this.question || ''),
+          results: serializedResults,
+          round: Number(this.round || 1),
+          currentPoints: Number(this.currentPoints || 0),
+          activeTeam: this.activeTeam !== null && this.activeTeam !== undefined ? Number(this.activeTeam) : null,
+          currentQuestionIndex: Number(this.currentQuestionIndex || 0),
+          multiplierPoints: Number(this.multiplierPoints || 1),
+          team1Loss: Number(this.team1Loss || 0),
+          team2Loss: Number(this.team2Loss || 0),
+          team1Name: String(this.team1Name || ''),
+          team2Name: String(this.team2Name || '')
+        };
+        
+        // Zapisz stan do localStorage (backup)
+        try {
+          localStorage.setItem('familyGameState', JSON.stringify(stateData));
+        } catch (error) {
+          console.warn('Nie udało się zapisać stanu do localStorage:', error);
+        }
+        
+        // Wyślij przez BroadcastChannel - użyj JSON do pełnej serializacji
+        const message = JSON.parse(JSON.stringify({
           type: 'state-update',
-          state: state
-        });
+          state: stateData
+        }));
+        
+        this.syncChannel.postMessage(message);
       } catch (error) {
-        console.error('Błąd podczas wysyłania stanu przez BroadcastChannel:', error);
+        console.error('Błąd podczas synchronizacji stanu:', error);
       }
     }
   },
