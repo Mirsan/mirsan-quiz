@@ -7,6 +7,18 @@
       <div class="team-color-indicator" :class="`team-${activeTeam}`"></div>
       <div class="team-name">{{ activeTeamName }}</div>
     </div>
+    <div class="team-loss-badge team-loss-left team-1">
+      <div class="team-loss-label">{{ team1Name || 'Drużyna 1' }}</div>
+      <div class="team-loss-x">
+        <span v-for="index in team1Loss" :key="`loss1-${index}`" class="loss-x">X</span>
+      </div>
+    </div>
+    <div class="team-loss-badge team-loss-right team-2">
+      <div class="team-loss-label">{{ team2Name || 'Drużyna 2' }}</div>
+      <div class="team-loss-x">
+        <span v-for="index in team2Loss" :key="`loss2-${index}`" class="loss-x">X</span>
+      </div>
+    </div>
     <v-container fluid class="host-container">
       <v-row class="question-row" no-gutters>
         <v-col cols="12">
@@ -71,7 +83,7 @@
           color="purple"
           size="large"
           class="control-button"
-          @click="handleAction('next')"
+          @click="handleNextClick"
         >
           <v-icon left>mdi-arrow-right</v-icon>
           Dalej
@@ -542,6 +554,9 @@ export default defineComponent({
       // Wyślij akcję cofnięcia utraty do głównego widoku
       this.handleAction('undo-loss');
     },
+    handleNextClick() {
+      this.handleAction('next');
+    },
     async handleAction(action) {
       // Wyślij przez BroadcastChannel (lokalna synchronizacja)
       if (this.channel) {
@@ -646,6 +661,66 @@ export default defineComponent({
 .team-name {
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.team-loss-badge {
+  position: absolute;
+  top: 60px;
+  background: rgba(0, 0, 0, 0.7);
+  font-family: 'PixelFont', monospace;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 2px solid;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.team-loss-badge.team-loss-left {
+  left: 12px;
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.team-loss-badge.team-loss-right {
+  right: 12px;
+  border-color: rgba(255, 74, 74, 0.5);
+}
+
+.team-loss-badge.team-1 {
+  color: #4a9eff;
+  text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+.team-loss-badge.team-2 {
+  color: #ff4a4a;
+  text-shadow: 0 0 10px rgba(255, 74, 74, 0.5);
+}
+
+.team-loss-label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+.team-loss-x {
+  font-size: 1.8rem;
+  line-height: 1;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.loss-x {
+  display: inline-block;
+  color: #ff0000;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  font-weight: bold;
 }
 
 .host-container {
@@ -832,6 +907,21 @@ export default defineComponent({
     font-size: 0.9rem;
   }
   
+  .team-loss-badge {
+    top: 50px;
+    padding: 6px 12px;
+    min-width: 100px;
+  }
+  
+  .team-loss-label {
+    font-size: 0.75rem;
+  }
+  
+  .team-loss-x {
+    font-size: 1.4rem;
+    gap: 2px;
+  }
+  
   .host-container {
     padding: 8px;
     padding-bottom: 70px;
@@ -917,6 +1007,20 @@ export default defineComponent({
     top: 12px;
     right: 12px;
     font-size: 1.1rem;
+  }
+  
+  .team-loss-badge {
+    top: 60px;
+    padding: 8px 14px;
+    min-width: 110px;
+  }
+  
+  .team-loss-label {
+    font-size: 0.85rem;
+  }
+  
+  .team-loss-x {
+    font-size: 1.6rem;
   }
   
   .host-container {

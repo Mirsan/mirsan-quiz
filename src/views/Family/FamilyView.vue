@@ -1,6 +1,7 @@
 <template>
     <div class="family-view">
         <BuzzCompetition 
+          ref="buzzCompetitionRef"
           v-model="showBuzzCompetition" 
           :team1Name="team1Name"
           :team2Name="team2Name"
@@ -365,8 +366,6 @@ export default defineComponent({
       }
     },
     handleToolAction(action) {
-      if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
-      
       // Deduplikacja akcji - ignoruj duplikaty w ciągu 100ms
       const now = Date.now();
       if (action === this.lastAction && (now - this.lastActionTime) < 100) {
@@ -374,6 +373,14 @@ export default defineComponent({
       }
       this.lastAction = action;
       this.lastActionTime = now;
+      
+      // Dla akcji 'next' nie blokuj - pozwól obsłużyć wszystkie dialogi
+      if (action === 'next') {
+        // Obsługa będzie w switch case 'next'
+      } else if (this.showPointsAnnouncement || this.showBuzzCompetition) {
+        // Dla innych akcji, blokuj jeśli dialogi są otwarte
+        return;
+      }
       
       // Obsługa loss w fazie przygotowawczej - tylko jeśli faktycznie jesteśmy w tej fazie
       // i mamy aktywną drużynę oraz wyniki przygotowawcze są null (pierwsza odpowiedź)
@@ -575,8 +582,19 @@ export default defineComponent({
           this.multiplierPoints = this.multiplierPoints === 3 ? 1 : this.multiplierPoints + 1;
           break;
         case 'next':
-          // Nie działaj podczas fazy przygotowawczej lub gdy jest otwarty dialog BuzzCompetition
-          if (this.showBuzzCompetition || this.isPreparationPhase) return;
+          // Jeśli jest otwarty dialog BuzzCompetition, obsłuż przycisk "Pokaż pytanie" / "Dalej"
+          // (nawet jeśli jest faza przygotowawcza - dialog BuzzCompetition powinien być obsługiwany)
+          if (this.showBuzzCompetition) {
+            if (this.$refs.buzzCompetitionRef && typeof this.$refs.buzzCompetitionRef.handleConfirm === 'function') {
+              this.$refs.buzzCompetitionRef.handleConfirm();
+            }
+            return;
+          }
+          
+          // Nie działaj podczas fazy przygotowawczej (tylko jeśli dialog BuzzCompetition nie jest otwarty)
+          if (this.isPreparationPhase) {
+            return;
+          }
           
           // Jeśli jest otwarty dialog RoundComplete, zamknij go (przejście do następnej rundy)
           if (this.showPointsAnnouncement) {
