@@ -216,6 +216,8 @@ export default defineComponent({
       syncChannel: null,
       sessionId: null,
       firebaseActionUnsubscribe: null,
+      lastAction: null,
+      lastActionTime: 0,
     }
   },
   computed: {
@@ -365,6 +367,14 @@ export default defineComponent({
     handleToolAction(action) {
       if (this.showPointsAnnouncement || this.showBuzzCompetition) return;
       
+      // Deduplikacja akcji - ignoruj duplikaty w ciągu 100ms
+      const now = Date.now();
+      if (action === this.lastAction && (now - this.lastActionTime) < 100) {
+        return;
+      }
+      this.lastAction = action;
+      this.lastActionTime = now;
+      
       // Obsługa loss w fazie przygotowawczej - tylko jeśli faktycznie jesteśmy w tej fazie
       // i mamy aktywną drużynę oraz wyniki przygotowawcze są null (pierwsza odpowiedź)
       if (action === 'loss' && this.isPreparationPhase && this.activeTeam) {
@@ -388,20 +398,38 @@ export default defineComponent({
             this.preparationPhaseTeam2Score = 0;
           }
 
-          // Jeśli to pierwsza odpowiedź
+          // Przechodzimy do drugiej drużyny (pierwsza odpowiedź)
+          this.activeTeam = otherTeam;
+          return;
+        }
+        
+        // Jeśli już mamy wyniki (nie są null), sprawdź czy to nadal faza przygotowawcza
+        if (currentTeamScore === null || otherTeamScore === null) {
+          // Odtwarzamy dźwięk utraty
+          this.audioManager.playBad();
+          
+          // Traktuj loss jak trafienie w 0 punktów w fazie przygotowawczej
+          if (currentTeam === 1) {
+            this.preparationPhaseTeam1Score = 0;
+          } else {
+            this.preparationPhaseTeam2Score = 0;
+          }
+
+          // Sprawdź czy druga drużyna już odpowiedziała
           if (otherTeamScore === null) {
+            // Druga drużyna jeszcze nie odpowiedziała - przejdź do niej
             this.activeTeam = otherTeam;
             return;
           }
 
-          // Jeśli poprzednia drużyna trafiła (ma punkty)
+          // Jeśli druga drużyna trafiła (ma punkty > 0), kończymy fazę przygotowawczą
           if (otherTeamScore > 0) {
             this.isPreparationPhase = false;
-            this.activeTeam = otherTeam; // Poprzednia drużyna wygrywa, bo ma więcej niż 0
+            this.activeTeam = otherTeam; // Druga drużyna wygrywa, bo ma więcej niż 0
             return;
           }
 
-          // Jeśli obie drużyny spudłowały - kontynuujemy
+          // Jeśli druga drużyna też spudłowała (ma 0), wracamy do niej (cykliczne przełączanie)
           this.activeTeam = otherTeam;
           return;
         }
@@ -464,15 +492,22 @@ export default defineComponent({
               return;
             }
 
-            // Przypadek 4: Obie drużyny spudłowały lub pierwsza odpowiedź
+            // Przypadek 4: Ktoś w końcu trafił (score > 0) - koniec fazy przygotowawczej
             if (score > 0) {
-              // Ktoś w końcu trafił - koniec fazy
               this.isPreparationPhase = false;
               this.activeTeam = currentTeam;
-            } else {
-              // Pudło - kolejna drużyna próbuje
-              this.activeTeam = otherTeam;
+              return;
             }
+
+            // Przypadek 5: Pudło (score === 0) - kolejna drużyna próbuje
+            // Jeśli druga drużyna jeszcze nie odpowiedziała, przejdź do niej
+            if (otherTeamScore === null) {
+              this.activeTeam = otherTeam;
+              return;
+            }
+
+            // Jeśli druga drużyna też spudłowała, wracamy do niej (cykliczne przełączanie)
+            this.activeTeam = otherTeam;
             return;
           }
 
@@ -591,25 +626,17 @@ export default defineComponent({
           if (!this.activeTeam) return;
           if (this.team1Loss + this.team2Loss >= 4) return;
           
-          // Jeśli jesteśmy w fazie przygotowawczej i oba wyniki są null (pierwsza odpowiedź),
-          // to loss jest obsługiwane wcześniej. W przeciwnym razie dajemy normalną utratę.
+          // Jeśli jesteśmy w fazie przygotowawczej, loss jest obsługiwane wcześniej
+          // i NIE powinniśmy dodawać do team1Loss/team2Loss
           if (this.isPreparationPhase) {
-            const currentTeamScore = this.activeTeam === 1 ? this.preparationPhaseTeam1Score : this.preparationPhaseTeam2Score;
-            const otherTeamScore = this.activeTeam === 1 ? this.preparationPhaseTeam2Score : this.preparationPhaseTeam1Score;
-            
-            // Jeśli oba wyniki są null, to jesteśmy w fazie przygotowawczej i loss jest obsługiwane wcześniej
-            if (currentTeamScore === null && otherTeamScore === null) {
-              // Loss jest obsługiwane wcześniej w fazie przygotowawczej
-              return;
-            }
-            // Jeśli nie jesteśmy w fazie przygotowawczej (wyniki nie są null), 
-            // kontynuuj normalną obsługę utraty poniżej
+            // Loss jest już obsłużone wcześniej w fazie przygotowawczej
+            return;
           }
           
           // Odtwarzamy dźwięk utraty
           this.audioManager.playBad();
           
-          // Normalna obsługa utraty
+          // Normalna obsługa utraty (tylko gdy NIE jesteśmy w fazie przygotowawczej)
           if (this.activeTeam === 1) {
             this.team1Loss++;
             if (this.team1Loss + this.team2Loss >= 4) {

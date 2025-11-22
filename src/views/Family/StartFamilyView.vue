@@ -43,8 +43,10 @@
             Zeskanuj kod QR lub otwórz link na telefonie:
           </p>
           
-          <div v-if="hostPanelUrl" class="mb-4">
-            <qrcode-vue :value="hostPanelUrl" :size="250" level="H" />
+          <div v-if="hostPanelUrl" class="mb-4 d-flex justify-center">
+            <div style="background-color: white; padding: 16px; border-radius: 8px; display: inline-block;">
+              <qrcode-vue :value="hostPanelUrl" :size="300" level="H" render-as="svg" />
+            </div>
           </div>
           <div v-else class="mb-4">
             <v-progress-circular indeterminate color="yellow" size="64"></v-progress-circular>
@@ -120,7 +122,9 @@ export default defineComponent({
   computed: {
     hostPanelUrl() {
       if (!this.sessionId) return '';
-      return `${window.location.origin}/mirsan-quiz/#/family/host/${this.sessionId}`;
+      // Użyj aktualnego base path zamiast hardcodowanego
+      const basePath = window.location.pathname.replace(/\/$/, '') || '';
+      return `${window.location.origin}${basePath}/#/family/host/${this.sessionId}`;
     }
   },
   setup() {
@@ -265,6 +269,9 @@ export default defineComponent({
         // Utwórz sesję Firebase
         this.sessionId = await createFamilyGameSession(fullConfig);
         fullConfig.sessionId = this.sessionId;
+
+        // Wyczyść stary stan gry z localStorage (nowa gra = nowy stan)
+        localStorage.removeItem('familyGameState');
 
         // Zapisz konfigurację z sessionId
         localStorage.setItem('familyGameConfig', JSON.stringify(fullConfig));

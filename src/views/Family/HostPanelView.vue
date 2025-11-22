@@ -248,7 +248,7 @@ export default defineComponent({
     }
 
     // Załaduj początkowy stan
-    this.loadInitialState();
+    await this.loadInitialState();
     
     // Jeśli nie ma stanu, załaduj pierwsze pytanie
     if (!this.currentQuestion && this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
@@ -265,7 +265,7 @@ export default defineComponent({
     }
   },
   methods: {
-    loadInitialState() {
+    async loadInitialState() {
       // Spróbuj załadować stan z localStorage
       const gameState = localStorage.getItem('familyGameState');
       if (gameState) {
@@ -280,18 +280,82 @@ export default defineComponent({
           this.updateState(state);
         } catch (error) {
           console.error('Błąd podczas ładowania stanu:', error);
-          // Jeśli nie udało się załadować stanu, załaduj pierwsze pytanie
-          if (this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
-            this.currentQuestionIndex = 0;
-            this.loadAnswersFromQuestionData();
-          }
+          // Jeśli nie udało się załadować stanu, spróbuj z Firebase
+          await this.loadStateFromFirebase();
         }
       } else {
-        // Jeśli nie ma stanu, załaduj pierwsze pytanie
-        if (this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
-          this.currentQuestionIndex = 0;
-          this.loadAnswersFromQuestionData();
+        // Jeśli nie ma stanu w localStorage, spróbuj załadować z Firebase
+        await this.loadStateFromFirebase();
+      }
+    },
+    async loadStateFromFirebase() {
+      // Jeśli mamy sessionId, pobierz stan z Firebase
+      if (this.sessionId) {
+        try {
+          const session = await getFamilyGameSession(this.sessionId);
+          if (session && session.state) {
+            const state = session.state;
+            
+            // Walidacja stanu - sprawdź czy stan jest poprawny dla aktualnej gry
+            if (this.questionsData && this.questionsData.questions) {
+              const maxRounds = this.questionsData.questions.length;
+              const maxIndex = maxRounds - 1;
+              
+              // Sprawdź czy indeks pytania jest poprawny
+              if (state.currentQuestionIndex !== undefined && 
+                  (state.currentQuestionIndex < 0 || state.currentQuestionIndex > maxIndex)) {
+                console.log('Nieprawidłowy indeks pytania, resetowanie do początku');
+                this.currentQuestionIndex = 0;
+                this.round = 1;
+                this.loadAnswersFromQuestionData();
+                return;
+              }
+              
+              // Sprawdź czy round jest poprawny
+              if (state.round !== undefined && 
+                  (state.round < 1 || state.round > maxRounds)) {
+                console.log('Nieprawidłowy numer rundy, resetowanie do początku');
+                this.currentQuestionIndex = 0;
+                this.round = 1;
+                this.loadAnswersFromQuestionData();
+                return;
+              }
+              
+              // Sprawdź czy round odpowiada currentQuestionIndex (round = index + 1)
+              if (state.round !== undefined && state.currentQuestionIndex !== undefined) {
+                const expectedRound = state.currentQuestionIndex + 1;
+                if (state.round !== expectedRound) {
+                  console.log(`Niezgodność między round (${state.round}) a currentQuestionIndex (${state.currentQuestionIndex}), korygowanie`);
+                  // Użyj currentQuestionIndex jako źródła prawdy
+                  this.currentQuestionIndex = state.currentQuestionIndex;
+                  this.round = expectedRound;
+                  this.loadAnswersFromQuestionData();
+                  // Zaktualizuj resztę stanu, ale zachowaj poprawione wartości round i currentQuestionIndex
+                  const correctedState = { ...state, round: expectedRound };
+                  this.updateState(correctedState);
+                  return;
+                }
+              }
+            }
+            
+            // Najpierw ustaw currentQuestionIndex, żeby załadować odpowiedzi
+            if (state.currentQuestionIndex !== undefined) {
+              this.currentQuestionIndex = state.currentQuestionIndex;
+              this.loadAnswersFromQuestionData();
+            }
+            // Potem zaktualizuj resztę stanu
+            this.updateState(state);
+            return;
+          }
+        } catch (error) {
+          console.error('Błąd podczas pobierania stanu z Firebase:', error);
         }
+      }
+      // Jeśli nie udało się załadować stanu z Firebase, załaduj pierwsze pytanie
+      if (this.questionsData && this.questionsData.questions && this.questionsData.questions.length > 0) {
+        this.currentQuestionIndex = 0;
+        this.round = 1;
+        this.loadAnswersFromQuestionData();
       }
     },
     handleStateUpdate(data) {
@@ -300,6 +364,36 @@ export default defineComponent({
       }
     },
     updateState(state) {
+      // Walidacja stanu przed aktualizacją
+      if (this.questionsData && this.questionsData.questions) {
+        const maxRounds = this.questionsData.questions.length;
+        const maxIndex = maxRounds - 1;
+        
+        // Sprawdź czy indeks pytania jest poprawny
+        if (state.currentQuestionIndex !== undefined && 
+            (state.currentQuestionIndex < 0 || state.currentQuestionIndex > maxIndex)) {
+          console.warn('Otrzymano nieprawidłowy indeks pytania, ignorowanie aktualizacji stanu');
+          return;
+        }
+        
+        // Sprawdź czy round jest poprawny
+        if (state.round !== undefined && 
+            (state.round < 1 || state.round > maxRounds)) {
+          console.warn('Otrzymano nieprawidłowy numer rundy, ignorowanie aktualizacji stanu');
+          return;
+        }
+        
+        // Sprawdź czy round odpowiada currentQuestionIndex (round = index + 1)
+        if (state.round !== undefined && state.currentQuestionIndex !== undefined) {
+          const expectedRound = state.currentQuestionIndex + 1;
+          if (state.round !== expectedRound) {
+            console.warn(`Niezgodność między round (${state.round}) a currentQuestionIndex (${state.currentQuestionIndex}), korygowanie round`);
+            // Koryguj round
+            state = { ...state, round: expectedRound };
+          }
+        }
+      }
+      
       const previousQuestionIndex = this.currentQuestionIndex;
       
       if (state.currentQuestionIndex !== undefined) {
