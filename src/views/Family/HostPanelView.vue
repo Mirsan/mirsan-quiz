@@ -68,6 +68,15 @@
           Punkty (x{{ multiplierPoints }})
         </v-btn>
         <v-btn
+          color="purple"
+          size="large"
+          class="control-button"
+          @click="handleAction('next')"
+        >
+          <v-icon left>mdi-arrow-right</v-icon>
+          Dalej
+        </v-btn>
+        <v-btn
           color="blue"
           size="large"
           class="control-button undo-loss-button"
